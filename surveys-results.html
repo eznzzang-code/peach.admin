@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>설문 응답 결과 | 복숭아자조금 관리자</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+<script>location.replace("contents-list.html");</script>
+<link rel="stylesheet" href="css/flow-alignment.css">
+</head>
+<body hidden data-page="surveys">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="contents-list.html">
+        <img class="header__logo" src="assets/logo.svg" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+        <a class="sidebar__link" href="permissions.html" data-menu="permissions">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          운영자·권한 관리
+        </a>
+      </nav>
+
+      <main class="main surveys-page surveys-results">
+        <h1 class="page-title">
+          <span class="page-title__sep">&gt;</span>
+          설문 응답 결과
+        </h1>
+
+        <div class="contents-missing" id="survey-results-missing" hidden>
+          <p id="survey-results-missing-text">설문을 찾을 수 없습니다.</p>
+        </div>
+
+        <div id="survey-results" hidden>
+          <div class="survey-results__summary">
+            <div>
+              <h2 class="survey-results__title" id="survey-results-title"></h2>
+              <div class="survey-results__meta">
+                <span id="survey-results-status"></span>
+                <span>전체 유효 응답 수 <strong id="survey-results-total"></strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="survey-results__demo">
+            <label class="checkbox">
+              <input type="checkbox" id="survey-results-demo">
+              <span class="checkbox__box" aria-hidden="true"></span>
+              <span class="checkbox__text">테스트 데이터 미리보기</span>
+            </label>
+            <p class="survey-results__demo-note" id="survey-results-demo-note" hidden>테스트 데이터입니다. 실제 설문 응답이 아닙니다.</p>
+            <p class="survey-results__demo-unsupported" id="survey-results-demo-unsupported" hidden>이 설문은 테스트 데이터 미리보기를 지원하지 않습니다.</p>
+          </div>
+
+          <div class="survey-results__filters" id="survey-results-filters">
+            <span class="form-line__label">응답 기간</span>
+            <div class="select select--period" id="survey-results-period" data-select>
+              <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="select__label">전체</span>
+                <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                  <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                </svg>
+              </button>
+              <ul class="select__list" role="listbox" hidden>
+                <li><button type="button" class="select__option is-selected" data-value="all">전체</button></li>
+                <li><button type="button" class="select__option" data-value="1">최근 1개월</button></li>
+                <li><button type="button" class="select__option" data-value="3">최근 3개월</button></li>
+                <li><button type="button" class="select__option" data-value="6">최근 6개월</button></li>
+                <li><button type="button" class="select__option" data-value="custom">직접 선택</button></li>
+              </ul>
+              <input type="hidden" name="resultPeriod" value="all">
+            </div>
+            <div class="survey-results__custom" id="survey-results-custom" hidden>
+              <div class="datepicker" data-datepicker>
+                <input class="input input--date datepicker__input" id="survey-results-start" type="text" readonly placeholder="시작일" aria-label="응답 시작일">
+              </div>
+              <span class="range__sep">~</span>
+              <div class="datepicker" data-datepicker>
+                <input class="input input--date datepicker__input" id="survey-results-end" type="text" readonly placeholder="종료일" aria-label="응답 종료일">
+              </div>
+            </div>
+            <button type="button" class="btn" id="survey-results-search">검색</button>
+            <button type="button" class="btn" id="survey-results-excel">Excel 다운로드</button>
+            <p class="survey-results__error" id="survey-results-period-error" hidden></p>
+          </div>
+
+          <div class="survey-results__layout">
+            <div class="survey-results__questions" id="survey-results-questions" aria-label="문항 목록"></div>
+            <section class="survey-results__panel" id="survey-results-panel" aria-live="polite"></section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-survey-results-notice" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="survey-results-notice-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="survey-results-notice-title">안내</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p id="survey-results-notice"></p>
+      </div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn" data-modal-close>확인</button>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  
+  
+  <!-- 추후 반영 예정 안내: 이 script를 제거하면 기존 화면 복구 -->
+  
+<noscript><p>현재 제공하지 않는 메뉴입니다.</p><a href="contents-list.html">게시물 관리로 이동</a></noscript></body>
+</html>

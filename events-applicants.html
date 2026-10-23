@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>신청자 관리 | 복숭아자조금 관리자</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+<script>location.replace("contents-list.html");</script>
+<link rel="stylesheet" href="css/flow-alignment.css">
+</head>
+<body hidden data-page="events">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="contents-list.html">
+        <img class="header__logo" src="assets/logo.svg" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+        <a class="sidebar__link" href="permissions.html" data-menu="permissions">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          운영자·권한 관리
+        </a>
+      </nav>
+
+      <main class="main events-page events-applicants">
+        <h1 class="page-title">
+          <span class="page-title__sep">&gt;</span>
+          신청자 관리
+        </h1>
+
+        <div class="contents-missing" id="event-applicants-missing" hidden>
+          <p>행사를 찾을 수 없습니다.</p>
+        </div>
+
+        <div id="event-applicants" hidden>
+          <dl class="events-applicants__summary">
+            <div>
+              <dt>행사명</dt>
+              <dd id="event-applicants-title">-</dd>
+            </div>
+            <div>
+              <dt>행사일시</dt>
+              <dd id="event-applicants-event-at">-</dd>
+            </div>
+            <div>
+              <dt>모집기간</dt>
+              <dd id="event-applicants-recruit">-</dd>
+            </div>
+            <div>
+              <dt>모집 상태</dt>
+              <dd id="event-applicants-status">-</dd>
+            </div>
+            <div>
+              <dt>모집인원</dt>
+              <dd id="event-applicants-capacity">-</dd>
+            </div>
+            <div>
+              <dt>확정 신청 인원</dt>
+              <dd id="event-applicants-confirmed">-</dd>
+            </div>
+            <div>
+              <dt>신청 취소 인원</dt>
+              <dd id="event-applicants-cancelled">-</dd>
+            </div>
+          </dl>
+          <p class="events-applicants__note" id="event-applicants-note"></p>
+
+          <div class="events-list__top">
+            <div class="tabs" role="tablist" aria-label="신청 상태">
+              <button type="button" class="tabs__item is-active" role="tab" aria-selected="true" data-applicant-status="">전체</button>
+              <button type="button" class="tabs__item" role="tab" aria-selected="false" data-applicant-status="신청확정">신청확정</button>
+              <button type="button" class="tabs__item" role="tab" aria-selected="false" data-applicant-status="신청취소">신청취소</button>
+            </div>
+            <div class="events-list__tools">
+              <button type="button" class="btn" id="event-applicants-excel">엑셀 다운로드</button>
+            </div>
+          </div>
+
+          <div class="list-filters">
+            <div class="select select--period" data-select>
+              <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="select__label">전체기간</span>
+                <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                  <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                </svg>
+              </button>
+              <ul class="select__list" role="listbox" hidden>
+                <li><button type="button" class="select__option is-selected" data-value="all">전체기간</button></li>
+                <li><button type="button" class="select__option" data-value="1">최근 1개월</button></li>
+                <li><button type="button" class="select__option" data-value="3">최근 3개월</button></li>
+                <li><button type="button" class="select__option" data-value="6">최근 6개월</button></li>
+                <li><button type="button" class="select__option" data-value="custom">직접 기간 선택</button></li>
+              </ul>
+              <input type="hidden" name="applicantPeriod" value="all">
+            </div>
+
+            <div class="events-custom-period" id="event-applicants-custom" hidden>
+              <div class="datepicker" data-datepicker>
+                <input class="input input--date datepicker__input" id="event-applicants-period-start" name="applicantPeriodStart" type="text" readonly aria-label="신청일시 시작일">
+              </div>
+              <span class="range__sep">~</span>
+              <div class="datepicker" data-datepicker>
+                <input class="input input--date datepicker__input" id="event-applicants-period-end" name="applicantPeriodEnd" type="text" readonly aria-label="신청일시 종료일">
+              </div>
+            </div>
+
+            <div class="select select--field" data-select>
+              <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="select__label">신청자명</span>
+                <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                  <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                </svg>
+              </button>
+              <ul class="select__list" role="listbox" hidden>
+                <li><button type="button" class="select__option is-selected" data-value="name">신청자명</button></li>
+                <li><button type="button" class="select__option" data-value="phone">연락처</button></li>
+              </ul>
+              <input type="hidden" name="applicantField" value="name">
+            </div>
+
+            <input class="input input--search" type="search" name="applicantKeyword" placeholder="검색어" aria-label="검색어">
+            <button type="button" class="btn" id="event-applicants-search">검색</button>
+          </div>
+
+          <p class="events-period-error" id="event-applicants-period-error" hidden></p>
+
+          <div class="table-wrap">
+            <table class="table events-table" id="event-applicants-table">
+              <colgroup>
+                <col class="col-no">
+                <col>
+                <col class="col-type">
+                <col class="col-phone">
+                <col class="col-applied">
+                <col class="col-status">
+                <col class="col-action">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">No</th>
+                  <th scope="col">신청자명</th>
+                  <th scope="col">회원 구분</th>
+                  <th scope="col">연락처</th>
+                  <th scope="col">신청일시</th>
+                  <th scope="col">신청 상태</th>
+                  <th scope="col">상세 보기</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <nav class="pagination" data-pagination data-current="1" data-total="1" aria-label="페이지"></nav>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-event-applicant" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="event-applicant-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="event-applicant-title">신청 상세</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <dl class="events-applicant-detail__list">
+          <div>
+            <dt>신청자명</dt>
+            <dd id="applicant-detail-name">-</dd>
+          </div>
+          <div>
+            <dt>회원 구분</dt>
+            <dd id="applicant-detail-type">-</dd>
+          </div>
+          <div>
+            <dt>연락처</dt>
+            <dd id="applicant-detail-phone">-</dd>
+          </div>
+          <div>
+            <dt>신청일시</dt>
+            <dd id="applicant-detail-applied">-</dd>
+          </div>
+          <div>
+            <dt>신청 상태</dt>
+            <dd id="applicant-detail-status">-</dd>
+          </div>
+        </dl>
+        <h3 class="events-applicant-detail__heading">추가질문 응답</h3>
+        <div id="applicant-detail-questions">추가질문 없음</div>
+        <div id="applicant-detail-cancel-history" hidden>
+          <h3 class="events-applicant-detail__heading">취소 이력</h3>
+          <dl class="events-applicant-detail__list">
+            <div>
+              <dt>취소일시</dt>
+              <dd id="applicant-detail-cancelled-at">-</dd>
+            </div>
+            <div>
+              <dt>취소 사유</dt>
+              <dd id="applicant-detail-cancel-reason">-</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" data-modal-close>닫기</button>
+        <button type="button" class="btn btn--danger" id="event-applicant-cancel-open" hidden>신청 취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-event-applicant-cancel" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="event-applicant-cancel-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="event-applicant-cancel-title">신청 취소</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p id="event-applicant-cancel-summary"></p>
+        <label class="events-cancel__label" for="event-applicant-cancel-reason">취소 사유<span class="required">*</span></label>
+        <textarea class="input input--block" id="event-applicant-cancel-reason" rows="3"></textarea>
+        <p class="field-error" id="event-applicant-cancel-reason-error" hidden>취소 사유를 입력해 주세요.</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" data-modal-close>돌아가기</button>
+        <button type="button" class="btn btn--danger" id="event-applicant-cancel-confirm">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-event-applicants-notice" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="event-applicants-notice-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="event-applicants-notice-title">안내</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p id="event-applicants-notice"></p>
+      </div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn" data-modal-close>확인</button>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  
+  <!-- 추후 반영 예정 안내: 이 script를 제거하면 기존 화면 복구 -->
+  
+<noscript><p>현재 제공하지 않는 메뉴입니다.</p><a href="contents-list.html">게시물 관리로 이동</a></noscript></body>
+</html>

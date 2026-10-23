@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상시 재배력 | 복숭아자조금 관리자</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/flow-alignment.css">
+</head>
+<body data-page="cultivation-content" data-resource="calendar">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="contents-list.html">
+        <img class="header__logo" src="assets/logo.svg" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+        <a class="sidebar__link" href="permissions.html" data-menu="permissions">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          운영자·권한 관리
+        </a>
+      </nav>
+
+      <main class="main"><h1 class="page-title" id="resource-heading">상시 재배력</h1><p class="flow-guide">자료 저장·공개 설정과 회원 알림 발송은 별도 업무입니다. 저장은 브라우저 시연용입니다. 통합 검수 주소에서는 앱에서 저장값을 확인할 수 있으며 실제 서버 연동은 별도입니다.</p><p class="flow-status" id="resource-status" role="status" aria-live="polite"></p><form id="resource-form" hidden><div id="resource-fields"></div><section class="monthly-form" id="calendar-contents" aria-labelledby="calendar-images-title"><h2 class="monthly-section__title" id="calendar-images-title">콘텐츠 이미지</h2><div class="monthly-channels"><div class="monthly-gallery is-disabled" id="calendar-web-section" aria-disabled="true"><div class="monthly-gallery__head"><h3 class="monthly-gallery__title">Web 재배력 콘텐츠 이미지</h3><span class="monthly-gallery__count" id="calendar-web-count">0장</span></div><div class="monthly-gallery__drop" id="calendar-web-drop"><input class="monthly-gallery__input" id="calendar-web-input" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple><span>이미지를 선택하거나 이 곳에 끌어 놓으세요.</span><button type="button" class="monthly-gallery__pick" id="calendar-web-pick">이미지 선택</button></div><div class="monthly-gallery__list" id="calendar-web-grid"></div></div><div class="monthly-gallery is-disabled" id="calendar-app-section" aria-disabled="true"><div class="monthly-gallery__head"><h3 class="monthly-gallery__title">App 재배력 콘텐츠 이미지</h3><span class="monthly-gallery__count" id="calendar-app-count">0장</span></div><div class="monthly-gallery__drop" id="calendar-app-drop"><input class="monthly-gallery__input" id="calendar-app-input" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple><span>이미지를 선택하거나 이 곳에 끌어 놓으세요.</span><button type="button" class="monthly-gallery__pick" id="calendar-app-pick">이미지 선택</button></div><div class="monthly-gallery__list" id="calendar-app-grid"></div></div></div></section><div class="contents-actions"><div class="contents-actions__group"><button type="button" class="btn btn--secondary" id="resource-preview">App 미리보기</button><button type="submit" class="btn btn--primary" id="resource-save">저장</button></div></div></form></main>
+    </div>
+  </div>
+
+  <script src="js/mock-data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/resource-store.js"></script>
+<script src="js/orchard-source.js"></script>
+<script src="js/pages/resources.js"></script>
+<dialog class="flow-preview-dialog" id="resource-preview-dialog" aria-labelledby="resource-preview-heading"><header><h2 id="resource-preview-heading">App 자료 미리보기</h2><button type="button" class="btn" data-flow-close>닫기</button></header><p class="flow-guide">공개 전 검수 화면입니다. 실제 앱에는 저장된 공개 상태와 App 채널 설정에 따라 노출합니다.</p><div id="resource-preview-body"></div></dialog><dialog class="flow-zoom" id="resource-zoom" aria-labelledby="resource-zoom-title"><header><h2 id="resource-zoom-title">원본 확대</h2><button type="button" class="btn" id="resource-zoom-toggle">확대 / 원래 크기</button><button type="button" class="btn" data-flow-close>닫기</button></header><div class="flow-zoom__viewport"></div></dialog></body>
+</html>

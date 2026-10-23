@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공통 컴포넌트 | 복숭아자조금 관리자</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/flow-alignment.css">
+</head>
+<body data-page="guide">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="components.html">
+        <img class="header__logo" src="assets/logo.svg" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+        <a class="sidebar__link" href="permissions.html" data-menu="permissions">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          운영자·권한 관리
+        </a>
+      </nav>
+
+      <main class="main guide">
+        <h1 class="page-title">공통 컴포넌트</h1>
+        <p class="guide__note">헤더, 사이드바, 공통 UI 확인용 페이지입니다. 메뉴 화면은 다음 단계에서 연결합니다.</p>
+
+        <section class="guide__section" aria-labelledby="guide-button">
+          <h2 class="guide__heading" id="guide-button">버튼</h2>
+          <div class="guide__row">
+            <button type="button" class="btn">검색</button>
+            <button type="button" class="btn">+ 신규등록</button>
+            <button type="button" class="btn" disabled>삭제</button>
+            <button type="button" class="btn btn--sm">응답보기</button>
+            <button type="button" class="btn btn--sm" disabled>응답보기</button>
+            <button type="button" class="btn btn--danger">설문종료</button>
+            <button type="button" class="btn" data-modal-open="modal-delete">삭제 확인</button>
+          </div>
+        </section>
+
+        <section class="guide__section" aria-labelledby="guide-tab">
+          <h2 class="guide__heading" id="guide-tab">탭</h2>
+          <div class="tabs" data-tabs role="tablist" aria-label="콘텐츠 구분">
+            <button type="button" class="tabs__item is-active" role="tab" aria-selected="true">전체</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">공지</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">복숭아정보</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">과원관리</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">재배자료</button>
+          </div>
+        </section>
+
+        <section class="guide__section" aria-labelledby="guide-form">
+          <h2 class="guide__heading" id="guide-form">입력</h2>
+          <div class="form">
+            <div class="form-row">
+              <span class="form-row__label">구분<span class="required">*</span></span>
+              <div class="form-row__controls">
+                <div class="select" data-select>
+                  <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="select__label">선택</span>
+                    <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                      <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                    </svg>
+                  </button>
+                  <ul class="select__list" role="listbox" hidden>
+                    <li><button type="button" class="select__option is-selected" data-value="">선택</button></li>
+                    <li><button type="button" class="select__option" data-value="notice">공지</button></li>
+                    <li><button type="button" class="select__option" data-value="info">복숭아정보</button></li>
+                    <li><button type="button" class="select__option" data-value="orchard">과원관리</button></li>
+                    <li><button type="button" class="select__option" data-value="material">재배자료</button></li>
+                  </ul>
+                  <input type="hidden" name="category" value="">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <span class="form-row__label">노출채널<span class="required">*</span></span>
+              <div class="form-row__controls">
+                <label class="checkbox">
+                  <input type="checkbox" checked>
+                  <span class="checkbox__box" aria-hidden="true"></span>
+                  <span class="checkbox__text">Web(홈페이지)</span>
+                </label>
+                <label class="checkbox">
+                  <input type="checkbox">
+                  <span class="checkbox__box" aria-hidden="true"></span>
+                  <span class="checkbox__text">App</span>
+                </label>
+                <label class="checkbox">
+                  <input type="checkbox" disabled>
+                  <span class="checkbox__box" aria-hidden="true"></span>
+                  <span class="checkbox__text">비활성</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <span class="form-row__label">공개 범위</span>
+              <div class="form-row__controls">
+                <label class="radio">
+                  <input type="radio" name="open-type" checked>
+                  <span class="radio__box" aria-hidden="true"></span>
+                  <span class="radio__text">공개</span>
+                </label>
+                <label class="radio">
+                  <input type="radio" name="open-type">
+                  <span class="radio__box" aria-hidden="true"></span>
+                  <span class="radio__text">비공개</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="form-row__label" for="guide-title">제목<span class="required">*</span></label>
+              <div class="form-row__controls">
+                <input class="input input--block" id="guide-title" type="text" placeholder="제목을 입력해 주세요">
+              </div>
+            </div>
+
+            <div class="form-row form-row--top">
+              <label class="form-row__label" for="guide-desc">소개<span class="required">*</span></label>
+              <div class="form-row__controls">
+                <textarea class="input input--block" id="guide-desc" placeholder="소개를 입력해 주세요"></textarea>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <span class="form-row__label">게시기간</span>
+              <div class="form-row__controls">
+                <div class="range">
+                  <div class="datepicker" data-datepicker>
+                    <input class="input input--date datepicker__input" type="text" value="2026.10.31" readonly aria-label="시작일">
+                  </div>
+                  <input class="input input--time" type="text" value="09:00" aria-label="시작 시간">
+                  <span class="range__sep">~</span>
+                  <div class="datepicker" data-datepicker>
+                    <input class="input input--date datepicker__input" id="guide-end-date" type="text" value="2026.12.31" readonly aria-label="종료일">
+                  </div>
+                  <input class="input input--time" type="text" value="18:00" aria-label="종료 시간">
+                </div>
+                <label class="checkbox">
+                  <input type="checkbox" data-toggle-disable="guide-end-date">
+                  <span class="checkbox__box" aria-hidden="true"></span>
+                  <span class="checkbox__text">종료일 없음</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="guide__section" aria-labelledby="guide-upload">
+          <h2 class="guide__heading" id="guide-upload">파일 업로드</h2>
+          <div class="guide__stack">
+            <div class="upload upload--line" data-upload>
+              <input class="upload__input" type="file" accept=".png,.jpg,.jpeg">
+              <svg class="upload__icon" viewBox="0 0 18 18" aria-hidden="true">
+                <rect x="2" y="3.5" width="14" height="11" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+                <circle cx="6.2" cy="7.2" r="1.1" fill="currentColor"></circle>
+                <path d="M3.5 12.5 7 9.2l2.2 2.1 1.6-1.4 3.7 3.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              <span>이 곳에 이미지 파일을 드래그 하세요, 또는 <button type="button" class="upload__pick">파일선택</button> (.png, .jpg/500MB)</span>
+              <span class="upload__name"></span>
+            </div>
+            <div class="upload" data-upload>
+              <input class="upload__input" type="file">
+              <svg class="upload__icon" viewBox="0 0 18 18" aria-hidden="true">
+                <path d="M5 8.5 9 4.5l4 4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M9 5v7.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                <path d="M4 13.5h10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+              </svg>
+              <span>이 곳에 파일을 드래그 하세요, 또는 <button type="button" class="upload__pick">파일선택</button> (1.6MB)</span>
+              <span class="upload__name"></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="guide__section" aria-labelledby="guide-table">
+          <h2 class="guide__heading" id="guide-table">테이블 · 페이지네이션</h2>
+          <div class="tabs" data-tabs role="tablist" aria-label="행사 상태">
+            <button type="button" class="tabs__item is-active" role="tab" aria-selected="true">전체</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">모집예정</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">모집중</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">정원마감</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">기한마감</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false">기관취소</button>
+          </div>
+          <div class="list-block">
+            <div class="list-filters">
+              <div class="select" data-select>
+                <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="select__label">전체기간</span>
+                  <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                    <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                  </svg>
+                </button>
+                <ul class="select__list" role="listbox" hidden>
+                  <li><button type="button" class="select__option is-selected" data-value="all">전체기간</button></li>
+                  <li><button type="button" class="select__option" data-value="1m">최근 1개월</button></li>
+                  <li><button type="button" class="select__option" data-value="3m">최근 3개월</button></li>
+                </ul>
+                <input type="hidden" name="period" value="all">
+              </div>
+              <div class="select" data-select>
+                <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="select__label">상태</span>
+                  <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                    <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                  </svg>
+                </button>
+                <ul class="select__list" role="listbox" hidden>
+                  <li><button type="button" class="select__option is-selected" data-value="">상태</button></li>
+                  <li><button type="button" class="select__option" data-value="open">게시중</button></li>
+                  <li><button type="button" class="select__option" data-value="hidden">비공개</button></li>
+                  <li><button type="button" class="select__option" data-value="draft">임시저장</button></li>
+                </ul>
+                <input type="hidden" name="status" value="">
+              </div>
+              <input class="input input--search" type="search" placeholder="제목+내용" aria-label="검색어">
+              <button type="button" class="btn">검색</button>
+              <div class="list-actions">
+                <button type="button" class="btn" data-require-check="#guide-table-sample" disabled>삭제</button>
+                <button type="button" class="btn">+ 신규등록</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="table" id="guide-table-sample">
+                <thead>
+                  <tr>
+                    <th class="table__check" scope="col">
+                      <label class="checkbox">
+                        <input type="checkbox" data-check-all>
+                        <span class="checkbox__box" aria-hidden="true"></span>
+                        <span class="sr-only">전체 선택</span>
+                      </label>
+                    </th>
+                    <th scope="col">No</th>
+                    <th scope="col">구분</th>
+                    <th scope="col">제목</th>
+                    <th scope="col">채널</th>
+                    <th scope="col">상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="table__check">
+                      <label class="checkbox">
+                        <input type="checkbox">
+                        <span class="checkbox__box" aria-hidden="true"></span>
+                        <span class="sr-only">10번 선택</span>
+                      </label>
+                    </td>
+                    <td>10</td>
+                    <td>공지</td>
+                    <td>과원관리 요령</td>
+                    <td><span class="badge">Web</span><span class="badge">App</span></td>
+                    <td>게시중</td>
+                  </tr>
+                  <tr>
+                    <td class="table__check">
+                      <label class="checkbox">
+                        <input type="checkbox">
+                        <span class="checkbox__box" aria-hidden="true"></span>
+                        <span class="sr-only">9번 선택</span>
+                      </label>
+                    </td>
+                    <td>9</td>
+                    <td>복숭아정보</td>
+                    <td>과원관리 요령</td>
+                    <td><span class="badge">Web</span></td>
+                    <td class="status--progress">진행중</td>
+                  </tr>
+                  <tr class="is-muted">
+                    <td class="table__check">
+                      <label class="checkbox">
+                        <input type="checkbox">
+                        <span class="checkbox__box" aria-hidden="true"></span>
+                        <span class="sr-only">8번 선택</span>
+                      </label>
+                    </td>
+                    <td>8</td>
+                    <td>복숭아정보</td>
+                    <td>과원관리 요령</td>
+                    <td><span class="badge">App</span></td>
+                    <td class="status--end">종료</td>
+                  </tr>
+                  <tr class="is-alert">
+                    <td class="table__check">
+                      <label class="checkbox">
+                        <input type="checkbox">
+                        <span class="checkbox__box" aria-hidden="true"></span>
+                        <span class="sr-only">7번 선택</span>
+                      </label>
+                    </td>
+                    <td>7</td>
+                    <td>과원관리</td>
+                    <td>과원관리 요령</td>
+                    <td><span class="badge">Web</span><span class="badge">App</span></td>
+                    <td>정원마감</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <nav class="pagination" data-pagination data-current="1" data-total="5" aria-label="페이지"></nav>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-delete" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-delete-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="modal-delete-title">삭제</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p>선택한 항목을 삭제하시겠습니까?</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" data-modal-close>취소</button>
+        <button type="button" class="btn btn--danger" data-modal-close>삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/mock-data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/components.js"></script>
+</body>
+</html>

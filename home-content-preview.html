@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>앱 홈 연결 미리보기 | 복숭아자조금 관리자</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/flow-alignment.css">
+</head>
+<body data-page="orchard-content" data-resource="home">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="contents-list.html">
+        <img class="header__logo" src="assets/logo.svg" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+        <a class="sidebar__link" href="permissions.html" data-menu="permissions">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          운영자·권한 관리
+        </a>
+      </nav>
+
+      <main class="main"><h1 class="page-title" id="resource-heading"><a href="orchard-content.html">월별 과원관리</a><span class="page-title__sep">&gt;</span>앱 홈 연결 미리보기</h1><p class="flow-guide">자료 저장·공개 설정과 회원 알림 발송은 별도 업무입니다. 이 화면의 저장은 해당 브라우저에서 확인하는 시연용이며 통합 검수 실행 주소에서는 앱의 connected=1 모드로 저장 결과를 확인할 수 있습니다. 실제 서버 연동은 별도입니다.</p><p class="flow-status" id="resource-status" role="status" aria-live="polite"></p><p class="flow-guide flow-pending">월별 자료를 먼저 표시하고 7초마다 자동 전환합니다. 수동 이동 후에는 자동 전환을 멈추며 홈에 다시 진입하면 재시작합니다. 홈은 현재 월 기준이며 올해 공개 자료가 없으면 작년 같은 월 공개 자료를 유지합니다. 한 자료만 공개되어 있으면 해당 자료만 표시합니다. 실제 동작은 저장한 자료의 앱 검수 링크에서 확인합니다.</p><div class="flow-home-tabs"><button type="button" class="btn" id="home-slide-month">월별 과원관리</button><button type="button" class="btn" id="home-slide-calendar">상시 재배력</button></div><div id="home-preview-body"></div><a class="btn" href="orchard-content.html">관리자 목록으로</a></main>
+    </div>
+  </div>
+
+  <script src="js/mock-data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/resource-store.js"></script>
+<script src="js/orchard-source.js"></script>
+<script src="js/pages/resources.js"></script>
+<dialog class="flow-preview-dialog" id="resource-preview-dialog" aria-labelledby="resource-preview-heading"><header><h2 id="resource-preview-heading">App 자료 미리보기</h2><button type="button" class="btn" data-flow-close>닫기</button></header><p class="flow-guide">공개 전 검수 화면입니다. 실제 앱에는 저장된 공개 상태와 App 채널 설정에 따라 노출합니다.</p><div id="resource-preview-body"></div></dialog><dialog class="flow-zoom" id="resource-zoom" aria-labelledby="resource-zoom-title"><header><h2 id="resource-zoom-title">원본 확대</h2><button type="button" class="btn" id="resource-zoom-toggle">확대 / 원래 크기</button><button type="button" class="btn" data-flow-close>닫기</button></header><div class="flow-zoom__viewport"></div></dialog></body>
+</html>

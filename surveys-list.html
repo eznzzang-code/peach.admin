@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>설문 관리 | 복숭아자조금 관리자</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+<script>location.replace("contents-list.html");</script>
+<link rel="stylesheet" href="css/flow-alignment.css">
+</head>
+<body hidden data-page="surveys">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="contents-list.html">
+        <img class="header__logo" src="assets/logo.svg" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+        <a class="sidebar__link" href="permissions.html" data-menu="permissions">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          운영자·권한 관리
+        </a>
+      </nav>
+
+      <main class="main surveys-page">
+        <h1 class="page-title">설문 관리</h1>
+
+        <div class="surveys-list__top">
+          <div class="tabs" role="tablist" aria-label="설문 상태">
+            <button type="button" class="tabs__item is-active" role="tab" aria-selected="true" data-survey-tab="전체">전체</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false" data-survey-tab="진행중">진행중</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false" data-survey-tab="진행예정">진행예정</button>
+            <button type="button" class="tabs__item" role="tab" aria-selected="false" data-survey-tab="종료">종료</button>
+          </div>
+        </div>
+
+        <div class="list-filters">
+          <div class="select select--period" data-select>
+            <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="select__label">전체기간</span>
+              <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+              </svg>
+            </button>
+            <ul class="select__list" role="listbox" hidden>
+              <li><button type="button" class="select__option is-selected" data-value="all">전체기간</button></li>
+              <li><button type="button" class="select__option" data-value="1">최근 1개월</button></li>
+              <li><button type="button" class="select__option" data-value="3">최근 3개월</button></li>
+              <li><button type="button" class="select__option" data-value="6">최근 6개월</button></li>
+              <li><button type="button" class="select__option" data-value="custom">직접 기간 선택</button></li>
+            </ul>
+            <input type="hidden" name="period" value="all">
+          </div>
+
+          <div class="surveys-custom-period" id="surveys-custom-period" hidden>
+            <div class="datepicker" data-datepicker>
+              <input class="input input--date datepicker__input" id="surveys-period-start" name="periodStart" type="text" readonly aria-label="검색 시작일">
+            </div>
+            <span class="range__sep">~</span>
+            <div class="datepicker" data-datepicker>
+              <input class="input input--date datepicker__input" id="surveys-period-end" name="periodEnd" type="text" readonly aria-label="검색 종료일">
+            </div>
+          </div>
+
+          <div class="select select--status" data-select>
+            <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="select__label">전체</span>
+              <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+              </svg>
+            </button>
+            <ul class="select__list" role="listbox" hidden>
+              <li><button type="button" class="select__option is-selected" data-value="">전체</button></li>
+              <li><button type="button" class="select__option" data-value="진행중">진행중</button></li>
+              <li><button type="button" class="select__option" data-value="진행예정">진행예정</button></li>
+              <li><button type="button" class="select__option" data-value="종료">종료</button></li>
+            </ul>
+            <input type="hidden" name="status" value="">
+          </div>
+
+          <div class="select select--field" data-select>
+            <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="select__label">제목+내용</span>
+              <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+              </svg>
+            </button>
+            <ul class="select__list" role="listbox" hidden>
+              <li><button type="button" class="select__option is-selected" data-value="titleBody">제목+내용</button></li>
+              <li><button type="button" class="select__option" data-value="title">제목</button></li>
+              <li><button type="button" class="select__option" data-value="body">내용</button></li>
+            </ul>
+            <input type="hidden" name="field" value="titleBody">
+          </div>
+
+          <input class="input input--search" type="search" name="keyword" placeholder="검색어" aria-label="검색어">
+          <button type="button" class="btn" id="surveys-search">검색</button>
+          <button type="button" class="btn" id="surveys-reset">초기화</button>
+
+          <div class="list-actions">
+            <button type="button" class="btn" id="surveys-delete" disabled>삭제</button>
+          </div>
+        </div>
+
+        <p class="surveys-list__delete-note" id="surveys-delete-note" hidden>응답이 있는 설문은 삭제할 수 없습니다.</p>
+        <p class="surveys-period-error" id="surveys-period-error" hidden></p>
+
+        <div class="table-wrap">
+          <table class="table surveys-table" id="surveys-table">
+            <colgroup>
+              <col class="col-check">
+              <col class="col-no">
+              <col>
+              <col class="col-status">
+              <col class="col-period">
+              <col class="col-count">
+              <col class="col-action">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="table__check" scope="col">
+                  <label class="checkbox">
+                    <input type="checkbox" data-check-all>
+                    <span class="checkbox__box" aria-hidden="true"></span>
+                    <span class="sr-only">전체 선택</span>
+                  </label>
+                </th>
+                <th scope="col">No</th>
+                <th scope="col">설문명</th>
+                <th scope="col">상태</th>
+                <th scope="col">기간</th>
+                <th scope="col">응답수</th>
+                <th scope="col">응답보기</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <nav class="pagination" data-pagination data-current="1" data-total="1" aria-label="페이지"></nav>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-survey-delete" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="survey-delete-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="survey-delete-title">설문 삭제</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p>이 설문을 삭제하시겠습니까?</p>
+        <p class="surveys-confirm__note">삭제한 설문은 복구할 수 없습니다.</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" data-modal-close>취소</button>
+        <button type="button" class="btn btn--danger" id="survey-delete-confirm">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-survey-action-notice" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="survey-action-notice-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="survey-action-notice-title">안내</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p id="survey-action-notice"></p>
+      </div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn" data-modal-close>확인</button>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  
+  <!-- 추후 반영 예정 안내: 이 script를 제거하면 기존 화면 복구 -->
+  
+<noscript><p>현재 제공하지 않는 메뉴입니다.</p><a href="contents-list.html">게시물 관리로 이동</a></noscript></body>
+</html>

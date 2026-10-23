@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>행사 신규등록 | 복숭아자조금 관리자</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+<script>location.replace("contents-list.html");</script>
+<link rel="stylesheet" href="css/flow-alignment.css">
+</head>
+<body hidden data-page="events">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="contents-list.html">
+        <img class="header__logo" src="assets/logo.svg" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+        <a class="sidebar__link" href="permissions.html" data-menu="permissions">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          운영자·권한 관리
+        </a>
+      </nav>
+
+      <main class="main events-page events-create">
+        <h1 class="page-title">
+          <span class="page-title__sep">&gt;</span>
+          <span id="event-page-mode">신규등록</span>
+        </h1>
+        <div class="contents-missing" id="event-create-blocked" hidden>
+          <p id="event-create-blocked-message">행사를 찾을 수 없습니다.</p>
+        </div>
+        <p class="events-edit-limit" id="event-edit-limit" hidden></p>
+
+        <form id="event-form" class="form" novalidate>
+          <div class="form-row">
+            <span class="form-row__label">행사일시<span class="required">*</span></span>
+            <div class="form-row__controls">
+              <div class="datepicker" data-datepicker>
+                <input class="input input--date datepicker__input" id="event-start-date" name="eventStartDate" type="text" readonly aria-label="행사 시작일">
+              </div>
+              <div class="event-time" data-event-time>
+                <input class="input input--time" id="event-start-time" name="eventStartTime" type="text" readonly value="09:00" placeholder="HH:MM" aria-label="행사 시작시간" aria-haspopup="dialog">
+              </div>
+              <span class="range__sep">~</span>
+              <span class="events-create__inline-label">종료일시</span>
+              <div class="datepicker" data-datepicker>
+                <input class="input input--date datepicker__input" id="event-end-date" name="eventEndDate" type="text" readonly aria-label="행사 종료일">
+              </div>
+              <div class="event-time" data-event-time>
+                <input class="input input--time" id="event-end-time" name="eventEndTime" type="text" readonly value="18:00" placeholder="HH:MM" aria-label="행사 종료시간" aria-haspopup="dialog">
+              </div>
+              <label class="checkbox">
+                <input type="checkbox" id="event-no-end" name="eventNoEnd" value="true">
+                <span class="checkbox__box" aria-hidden="true"></span>
+                <span class="checkbox__text">종료일 없음</span>
+              </label>
+              <p class="field-error" id="event-start-error" hidden></p>
+              <p class="field-error" id="event-end-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label" for="event-title">행사명<span class="required">*</span></label>
+            <div class="form-row__controls">
+              <input class="input input--block" id="event-title" name="title" type="text" placeholder="행사명을 입력해 주세요">
+              <p class="field-error" id="event-title-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row form-row--top">
+            <label class="form-row__label" for="event-intro">소개<span class="required">*</span></label>
+            <div class="form-row__controls">
+              <textarea class="input input--block" id="event-intro" name="intro" rows="3" placeholder="행사 소개를 입력해 주세요"></textarea>
+              <p class="field-error" id="event-intro-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label" for="event-place">장소</label>
+            <div class="form-row__controls">
+              <input class="input input--block" id="event-place" name="place" type="text" placeholder="장소를 입력해 주세요">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <span class="form-row__label">모집시작<span class="required">*</span></span>
+            <div class="form-row__controls">
+              <div class="datepicker" data-datepicker>
+                <input class="input input--date datepicker__input" id="event-recruit-start-date" name="recruitStartDate" type="text" readonly aria-label="모집 시작일">
+              </div>
+              <div class="event-time" data-event-time>
+                <input class="input input--time" id="event-recruit-start-time" name="recruitStartTime" type="text" readonly value="09:00" placeholder="HH:MM" aria-label="모집 시작시간" aria-haspopup="dialog">
+              </div>
+              <span class="range__sep">~</span>
+              <span class="events-create__inline-label">모집마감<span class="required">*</span></span>
+              <div class="datepicker" data-datepicker>
+                <input class="input input--date datepicker__input" id="event-recruit-end-date" name="recruitEndDate" type="text" readonly aria-label="모집 마감일">
+              </div>
+              <div class="event-time" data-event-time>
+                <input class="input input--time" id="event-recruit-end-time" name="recruitEndTime" type="text" readonly value="18:00" placeholder="HH:MM" aria-label="모집 마감시간" aria-haspopup="dialog">
+              </div>
+              <label class="checkbox">
+                <input type="checkbox" id="event-recruit-no-end" name="recruitNoEnd" value="true">
+                <span class="checkbox__box" aria-hidden="true"></span>
+                <span class="checkbox__text">종료일 없음</span>
+              </label>
+              <p class="field-error" id="event-recruit-start-error" hidden></p>
+              <p class="field-error" id="event-recruit-end-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label" for="event-capacity">모집인원<span class="required">*</span></label>
+            <div class="form-row__controls">
+              <input class="input events-capacity" id="event-capacity" name="capacity" type="text" inputmode="numeric" value="0" aria-label="모집인원">
+              <span class="events-capacity__unit">명</span>
+              <label class="checkbox">
+                <input type="checkbox" id="event-unlimited" name="unlimited" value="true">
+                <span class="checkbox__box" aria-hidden="true"></span>
+                <span class="checkbox__text">정원 제한 없음</span>
+              </label>
+              <span class="events-create__inline-label">대상조건</span>
+              <input class="input events-target" id="event-target-label" type="text" value="선택한 대상이 없습니다" readonly aria-label="대상조건">
+              <button type="button" class="btn" id="event-target">대상 선택</button>
+              <p class="field-error" id="event-capacity-error" hidden></p>
+              <p class="field-error" id="event-audience-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <span class="form-row__label">추가질문</span>
+            <div class="form-row__controls">
+              <span id="event-question-count">0개</span>
+              <button type="button" class="btn" id="event-questions">질문 편집</button>
+              <p class="field-error" id="event-question-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row form-row--top events-create__files">
+            <span class="form-row__label">파일첨부</span>
+            <div class="form-row__controls">
+              <div class="upload upload--file" id="event-file-upload">
+                <input class="upload__input" id="event-files" type="file" multiple>
+                <svg class="upload__icon" viewBox="0 0 18 18" aria-hidden="true">
+                  <path d="M5 8.5 9 4.5l4 4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M9 5v7.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                  <path d="M4 13.5h10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                </svg>
+                <span class="upload__hint">이 곳에 파일을 드래그 하세요, 또는 <button type="button" class="upload__pick">파일선택</button> (1.6MB)</span>
+                <ul class="events-files" id="event-file-list" hidden></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="events-actions">
+            <div class="events-actions__group">
+              <button type="button" class="btn" id="event-preview">미리보기</button>
+              <button type="button" class="btn" id="event-draft">임시저장</button>
+              <button type="button" class="btn" id="event-submit">등록</button>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-event-questions" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog modal__dialog--lg survey-question-modal" role="dialog" aria-modal="true" aria-labelledby="event-question-dialog-title">
+      <h2 id="event-question-dialog-title" class="sr-only">추가질문 편집</h2>
+      <div class="survey-question-modal__body">
+        <section class="survey-question-list" aria-label="질문 목록">
+          <h3 class="survey-question-list__title">질문 목록</h3>
+          <div class="survey-question-items" id="event-question-items"></div>
+          <p class="survey-question-empty" id="event-question-empty">질문이 없습니다.</p>
+          <button type="button" class="btn survey-question-add" id="event-question-add">질문 추가</button>
+        </section>
+        <section class="survey-question-editor" id="event-question-editor" hidden>
+          <div class="survey-question-editor__head">
+            <h3 id="event-question-editor-title">질문 편집</h3>
+            <button type="button" class="modal__close js-event-question-close" aria-label="닫기">×</button>
+          </div>
+          <div class="survey-question-field">
+            <label for="event-q-title">질문<span class="required">*</span></label>
+            <div class="survey-question-control">
+              <input class="input input--block" id="event-q-title" type="text">
+              <p class="field-error" id="event-q-title-error" hidden></p>
+            </div>
+          </div>
+          <div class="survey-question-field survey-question-field--top">
+            <label for="event-q-description">설명</label>
+            <textarea class="input input--block" id="event-q-description" rows="3" placeholder="설명을 입력해 주세요"></textarea>
+          </div>
+          <div class="survey-question-field">
+            <span>유형<span class="required">*</span></span>
+            <div class="survey-question-type">
+              <div class="select" data-select>
+                <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="select__label">단일 선택</span>
+                  <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                    <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                  </svg>
+                </button>
+                <ul class="select__list" role="listbox" hidden>
+                  <li><button type="button" class="select__option is-selected" data-value="single">단일 선택</button></li>
+                  <li><button type="button" class="select__option" data-value="multi">복수 선택</button></li>
+                  <li><button type="button" class="select__option" data-value="text">주관식</button></li>
+                </ul>
+                <input type="hidden" id="event-q-type" value="single">
+              </div>
+              <label class="checkbox">
+                <input type="checkbox" id="event-q-required" checked>
+                <span class="checkbox__box" aria-hidden="true"></span>
+                <span class="checkbox__text">필수응답</span>
+              </label>
+            </div>
+          </div>
+          <div class="survey-question-warn" id="event-question-warn" hidden>
+            <p>주관식으로 변경하면 선택지가 삭제됩니다. 변경하시겠습니까?</p>
+            <div>
+              <button type="button" class="btn" id="event-question-warn-cancel">취소</button>
+              <button type="button" class="btn" id="event-question-warn-ok">변경</button>
+            </div>
+          </div>
+          <div id="event-choice-fields">
+            <p class="field-error" id="event-q-choice-error" hidden></p>
+            <div id="event-choice-list"></div>
+            <button type="button" class="btn survey-choice-add" id="event-choice-add">+ 선택지 추가</button>
+          </div>
+          <div class="survey-question-field" id="event-text-answer" hidden>
+            <span>답변</span>
+            <p class="survey-text-answer">주관식 답변 · 최대 1,000자</p>
+          </div>
+        </section>
+        <section class="survey-question-placeholder" id="event-question-placeholder">
+          <button type="button" class="modal__close js-event-question-close" aria-label="닫기">×</button>
+          <p>질문을 추가해 주세요.</p>
+        </section>
+      </div>
+      <div class="survey-question-confirm" id="event-question-discard" hidden>
+        <p>편집 중인 질문이 적용되지 않았습니다. 변경사항을 버리고 닫으시겠습니까?</p>
+        <div>
+          <button type="button" class="btn" id="event-question-discard-cancel">취소</button>
+          <button type="button" class="btn" id="event-question-discard-ok">확인</button>
+        </div>
+      </div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn js-event-question-close" id="event-question-cancel">취소</button>
+        <button type="button" class="btn" id="event-question-apply">적용</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-question-popup" id="event-question-delete-confirm" hidden>
+    <div class="survey-question-popup__backdrop" data-event-question-delete-dismiss></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="event-question-delete-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="event-question-delete-title">삭제</h2>
+        <button type="button" class="modal__close" data-event-question-delete-dismiss aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p>선택한 질문을 삭제하시겠습니까?</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" id="event-question-delete-cancel" data-event-question-delete-dismiss>취소</button>
+        <button type="button" class="btn" id="event-question-delete-ok">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-event-target" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog modal__dialog--lg survey-target-modal" role="dialog" aria-modal="true" aria-labelledby="event-target-dialog-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="event-target-dialog-title">참가 대상 선택</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body survey-target-modal__body">
+        <div class="survey-target-modes">
+          <label class="radio">
+            <input type="radio" name="event-target-mode" value="all">
+            <span class="radio__box" aria-hidden="true"></span>
+            <span class="radio__text">전체 회원</span>
+          </label>
+          <label class="radio">
+            <input type="radio" name="event-target-mode" value="conditions">
+            <span class="radio__box" aria-hidden="true"></span>
+            <span class="radio__text">조건별 대상</span>
+          </label>
+        </div>
+        <p class="survey-target-note">같은 조건 안에서 여러 항목을 고르면 그중 하나에 해당하면 포함됩니다. 지역과 회원 구분을 함께 고르면 두 조건을 모두 만족해야 합니다.</p>
+        <div class="survey-target-fields" id="event-target-fields">
+          <fieldset class="survey-target-group" id="event-target-region-group">
+            <legend>지역</legend>
+            <div class="survey-target-options" id="event-target-regions"></div>
+          </fieldset>
+          <fieldset class="survey-target-group" id="event-target-member-group">
+            <legend>회원 구분</legend>
+            <div class="survey-target-options" id="event-target-members"></div>
+          </fieldset>
+        </div>
+        <p class="survey-target-summary" id="event-target-summary"></p>
+        <p class="field-error" id="event-target-modal-error" hidden></p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" id="event-target-cancel">취소</button>
+        <button type="button" class="btn" id="event-target-apply">적용</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-question-popup" id="event-target-discard" hidden>
+    <div class="survey-question-popup__backdrop" data-event-target-dismiss></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="event-target-discard-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="event-target-discard-title">닫기 확인</h2>
+        <button type="button" class="modal__close" data-event-target-dismiss aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p>선택한 대상조건이 적용되지 않았습니다. 변경사항을 버리고 닫으시겠습니까?</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" data-event-target-dismiss>취소</button>
+        <button type="button" class="btn" id="event-target-discard-ok">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-preview" id="event-preview-modal" hidden>
+    <div class="survey-preview__backdrop" data-event-preview-close></div>
+    <div class="modal__dialog modal__dialog--lg survey-preview__dialog" role="dialog" aria-modal="true" aria-labelledby="event-preview-title">
+      <div class="modal__header">
+        <div>
+          <h2 class="modal__title" id="event-preview-title">행사 미리보기</h2>
+          <p class="survey-preview__note">관리자 검수용 미리보기입니다.</p>
+        </div>
+        <button type="button" class="modal__close" id="event-preview-close" data-event-preview-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body survey-preview__body" id="event-preview-body"></div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn" data-event-preview-close>닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-event-leave" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="event-leave-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="event-leave-title">이동 확인</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p>입력한 내용을 저장하지 않고 이동하시겠습니까?</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" data-modal-close>취소</button>
+        <button type="button" class="btn" id="event-leave-confirm">이동</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-event-create-notice" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="event-create-notice-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="event-create-notice-title">안내</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p id="event-create-notice"></p>
+      </div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn" data-modal-close>확인</button>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  
+  <!-- 추후 반영 예정 안내: 이 script를 제거하면 기존 화면 복구 -->
+  
+<noscript><p>현재 제공하지 않는 메뉴입니다.</p><a href="contents-list.html">게시물 관리로 이동</a></noscript></body>
+</html>

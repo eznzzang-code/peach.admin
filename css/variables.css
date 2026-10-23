@@ -1,0 +1,29 @@
+/* 디자인 기준: references 화면 1408px. 로드 순서의 첫 파일입니다. */
+:root {
+  --color-text: #1c1b1f;
+  --color-text-secondary: #6d6d6d;
+  --color-text-muted: #717173;
+  --color-text-soft: #9a9a9a;
+  --color-placeholder: #bdbdbd;
+  --color-border: #ebebeb;
+  --color-border-dashed: #d9d9d9;
+  --color-bg: #ffffff;
+  --color-bg-soft: #fafafa;
+  --color-bg-muted: #f9f9f9;
+  --color-bg-alert: #fff5f5;
+  --color-accent: #ea5763;
+  --color-primary: #0059ff;
+  --color-point: #f45b7c;
+  --color-point-strong: #f45b61;
+  --color-point-strong-hover: #e14b51;
+  --color-link: #4a78cf;
+  --color-danger: #e6555f;
+  --color-badge-bg: #f3f3f3;
+  --header-height: 78px;
+  --sidebar-width: 247px;
+  --control-height: 34px;
+  --tab-height: 36px;
+  --radius: 4px;
+  --page-x: 32px;
+  --font: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+}

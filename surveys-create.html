@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>설문 신규등록 | 복숭아자조금 관리자</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+<script>location.replace("contents-list.html");</script>
+<link rel="stylesheet" href="css/flow-alignment.css">
+</head>
+<body hidden data-page="surveys">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="contents-list.html">
+        <img class="header__logo" src="assets/logo.svg" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+        <a class="sidebar__link" href="permissions.html" data-menu="permissions">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          운영자·권한 관리
+        </a>
+      </nav>
+
+      <main class="main surveys-page surveys-create">
+        <h1 class="page-title">
+          <span class="page-title__sep">&gt;</span>
+          신규등록
+        </h1>
+
+        <form id="survey-form" class="form" novalidate>
+          <div class="form-line">
+            <span class="form-line__label">시작일시</span>
+            <div class="datepicker" data-datepicker>
+              <input class="input input--date datepicker__input" id="survey-start-date" name="startDate" type="text" readonly aria-label="시작일">
+            </div>
+            <div class="survey-time" data-survey-time>
+              <input class="input input--time" id="survey-start-time" name="startTime" type="text" readonly value="09:00" placeholder="HH:MM" aria-label="시작시간" aria-haspopup="dialog">
+            </div>
+            <span class="range__sep">~</span>
+            <span class="form-line__label">종료일시</span>
+            <div class="datepicker" data-datepicker>
+              <input class="input input--date datepicker__input" id="survey-end-date" name="endDate" type="text" readonly aria-label="종료일">
+            </div>
+            <div class="survey-time" data-survey-time>
+              <input class="input input--time" id="survey-end-time" name="endTime" type="text" readonly value="18:00" placeholder="HH:MM" aria-label="종료시간" aria-haspopup="dialog">
+            </div>
+            <label class="checkbox">
+              <input type="checkbox" id="survey-no-end" name="noEnd" value="true">
+              <span class="checkbox__box" aria-hidden="true"></span>
+              <span class="checkbox__text">종료일 없음</span>
+            </label>
+            <p class="field-error" id="survey-start-error" hidden></p>
+            <p class="field-error" id="survey-end-error" hidden></p>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label" for="survey-title">설문명<span class="required">*</span></label>
+            <div class="form-row__controls">
+              <input class="input input--block" id="survey-title" name="title" type="text" placeholder="설문명을 입력해 주세요">
+              <p class="field-error" id="survey-title-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row form-row--top">
+            <label class="form-row__label" for="survey-intro">소개<span class="required">*</span></label>
+            <div class="form-row__controls">
+              <textarea class="input input--block" id="survey-intro" name="intro" rows="3" placeholder="설문 소개를 입력해 주세요"></textarea>
+              <p class="field-error" id="survey-intro-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <span class="form-row__label">대상조건</span>
+            <div class="form-row__controls">
+              <input class="input surveys-target" id="survey-target-label" type="text" value="미설정" readonly aria-label="참여 대상조건">
+              <button type="button" class="btn" id="survey-target">대상 선택</button>
+              <p class="field-error" id="survey-target-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <span class="form-row__label">문항 수</span>
+            <div class="form-row__controls">
+              <span id="survey-question-count">0개</span>
+              <button type="button" class="btn" id="survey-questions">문항 편집</button>
+              <p class="field-error" id="survey-question-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="surveys-actions">
+            <div class="surveys-actions__group">
+              <button type="button" class="btn" id="survey-preview">미리보기</button>
+              <button type="button" class="btn" id="survey-draft">임시저장</button>
+              <button type="button" class="btn" id="survey-submit">등록</button>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-survey-questions" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog modal__dialog--lg survey-question-modal" role="dialog" aria-modal="true" aria-labelledby="survey-question-dialog-title">
+      <h2 id="survey-question-dialog-title" class="sr-only">문항 편집</h2>
+      <div class="survey-question-modal__body">
+        <section class="survey-question-list" aria-label="문항 목록">
+          <h3 class="survey-question-list__title">문항 목록</h3>
+          <div class="survey-question-items" id="survey-question-items"></div>
+          <p class="survey-question-empty" id="survey-question-empty">문항이 없습니다.</p>
+          <p class="field-error" id="survey-question-empty-error" hidden></p>
+          <button type="button" class="btn survey-question-add" id="survey-question-add">문항 추가</button>
+        </section>
+        <section class="survey-question-editor" id="survey-question-editor" hidden>
+          <div class="survey-question-editor__head">
+            <h3 id="survey-question-editor-title">문항 편집</h3>
+            <button type="button" class="modal__close js-survey-question-close" aria-label="닫기">×</button>
+          </div>
+          <div class="survey-question-field">
+            <label for="survey-q-title">질문<span class="required">*</span></label>
+            <div class="survey-question-control">
+              <input class="input input--block" id="survey-q-title" type="text">
+              <p class="field-error" id="survey-q-title-error" hidden></p>
+            </div>
+          </div>
+          <div class="survey-question-field survey-question-field--top">
+            <label for="survey-q-description">설명</label>
+            <textarea class="input input--block" id="survey-q-description" rows="3" placeholder="설명을 입력해 주세요"></textarea>
+          </div>
+          <div class="survey-question-field">
+            <span>유형<span class="required">*</span></span>
+            <div class="survey-question-type">
+              <div class="select" data-select>
+                <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="select__label">단일 선택</span>
+                  <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+                    <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+                  </svg>
+                </button>
+                <ul class="select__list" role="listbox" hidden>
+                  <li><button type="button" class="select__option is-selected" data-value="single">단일 선택</button></li>
+                  <li><button type="button" class="select__option" data-value="multi">복수 선택</button></li>
+                  <li><button type="button" class="select__option" data-value="text">주관식</button></li>
+                </ul>
+                <input type="hidden" id="survey-q-type" value="single">
+              </div>
+              <label class="checkbox">
+                <input type="checkbox" id="survey-q-required" checked>
+                <span class="checkbox__box" aria-hidden="true"></span>
+                <span class="checkbox__text">필수응답</span>
+              </label>
+            </div>
+          </div>
+          <div class="survey-question-warn" id="survey-question-warn" hidden>
+            <p>주관식으로 변경하면 선택지가 삭제됩니다. 변경하시겠습니까?</p>
+            <div>
+              <button type="button" class="btn" id="survey-question-warn-cancel">취소</button>
+              <button type="button" class="btn" id="survey-question-warn-ok">변경</button>
+            </div>
+          </div>
+          <div id="survey-choice-fields">
+            <p class="field-error" id="survey-q-choice-error" hidden></p>
+            <div id="survey-choice-list"></div>
+            <button type="button" class="btn survey-choice-add" id="survey-choice-add">+ 선택지 추가</button>
+          </div>
+          <div class="survey-question-field" id="survey-text-answer" hidden>
+            <span>답변</span>
+            <p class="survey-text-answer">주관식 답변 · 최대 1,000자</p>
+          </div>
+        </section>
+        <section class="survey-question-placeholder" id="survey-question-placeholder">
+          <button type="button" class="modal__close js-survey-question-close" aria-label="닫기">×</button>
+          <p>문항을 추가해 주세요.</p>
+        </section>
+      </div>
+      <div class="survey-question-confirm" id="survey-question-discard" hidden>
+        <p>편집 중인 문항이 저장되지 않았습니다. 변경사항을 버리고 닫으시겠습니까?</p>
+        <div>
+          <button type="button" class="btn" id="survey-question-discard-cancel">취소</button>
+          <button type="button" class="btn" id="survey-question-discard-ok">확인</button>
+        </div>
+      </div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn" id="survey-question-preview">미리보기</button>
+        <button type="button" class="btn" id="survey-question-apply">등록</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-question-popup" id="survey-question-delete-confirm" hidden>
+    <div class="survey-question-popup__backdrop" data-question-delete-dismiss></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="survey-question-delete-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="survey-question-delete-title">삭제</h2>
+        <button type="button" class="modal__close" data-question-delete-dismiss aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p>선택한 문항을 삭제하시겠습니까?</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" id="survey-question-delete-cancel" data-question-delete-dismiss>취소</button>
+        <button type="button" class="btn" id="survey-question-delete-ok">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-survey-target" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog modal__dialog--lg survey-target-modal" role="dialog" aria-modal="true" aria-labelledby="survey-target-dialog-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="survey-target-dialog-title">참여 대상 선택</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body survey-target-modal__body">
+        <div class="survey-target-modes">
+          <label class="radio">
+            <input type="radio" name="survey-target-mode" value="all">
+            <span class="radio__box" aria-hidden="true"></span>
+            <span class="radio__text">전체 회원</span>
+          </label>
+          <label class="radio">
+            <input type="radio" name="survey-target-mode" value="conditions">
+            <span class="radio__box" aria-hidden="true"></span>
+            <span class="radio__text">조건별 대상</span>
+          </label>
+        </div>
+        <p class="survey-target-note">지역 또는 회원 구분을 여러 개 고르면 그중 하나에 해당하면 포함됩니다. 지역과 회원 구분을 함께 고르면 두 조건을 모두 만족해야 합니다.</p>
+        <div class="survey-target-fields" id="survey-target-fields">
+          <fieldset class="survey-target-group" id="survey-target-region-group">
+            <legend>지역</legend>
+            <div class="survey-target-options" id="survey-target-regions"></div>
+          </fieldset>
+          <fieldset class="survey-target-group" id="survey-target-member-group">
+            <legend>회원 구분</legend>
+            <div class="survey-target-options" id="survey-target-members"></div>
+          </fieldset>
+        </div>
+        <p class="survey-target-summary" id="survey-target-summary"></p>
+        <p class="field-error" id="survey-target-modal-error" hidden></p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" id="survey-target-cancel">취소</button>
+        <button type="button" class="btn" id="survey-target-apply">적용</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-question-popup" id="survey-target-discard" hidden>
+    <div class="survey-question-popup__backdrop" data-survey-target-dismiss></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="survey-target-discard-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="survey-target-discard-title">닫기 확인</h2>
+        <button type="button" class="modal__close" data-survey-target-dismiss aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p>선택한 대상조건이 저장되지 않았습니다. 변경사항을 버리고 닫으시겠습니까?</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" data-survey-target-dismiss>취소</button>
+        <button type="button" class="btn" id="survey-target-discard-ok">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-preview" id="survey-preview-modal" hidden>
+    <div class="survey-preview__backdrop" data-survey-preview-close></div>
+    <div class="modal__dialog modal__dialog--lg survey-preview__dialog" role="dialog" aria-modal="true" aria-labelledby="survey-preview-title">
+      <div class="modal__header">
+        <div>
+          <h2 class="modal__title" id="survey-preview-title">설문 미리보기</h2>
+          <p class="survey-preview__note">읽기 전용입니다. 응답은 저장되지 않습니다.</p>
+        </div>
+        <button type="button" class="modal__close" id="survey-preview-close" data-survey-preview-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body survey-preview__body" id="survey-preview-body"></div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn" data-survey-preview-close>닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-survey-leave" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="survey-leave-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="survey-leave-title">이동 확인</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p>입력한 내용을 저장하지 않고 이동하시겠습니까?</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn" data-modal-close>취소</button>
+        <button type="button" class="btn" id="survey-leave-confirm">이동</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-survey-save-notice" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="survey-save-notice-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="survey-save-notice-title">안내</h2>
+        <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <p id="survey-save-notice">서버가 연결되지 않아 임시저장할 수 없습니다.</p>
+      </div>
+      <div class="modal__footer modal__footer--center">
+        <button type="button" class="btn" data-modal-close>확인</button>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  
+  <!-- 추후 반영 예정 안내: 이 script를 제거하면 기존 화면 복구 -->
+  
+<noscript><p>현재 제공하지 않는 메뉴입니다.</p><a href="contents-list.html">게시물 관리로 이동</a></noscript></body>
+</html>
