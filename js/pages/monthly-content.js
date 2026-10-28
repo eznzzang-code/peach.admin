@@ -1,4 +1,4 @@
-/* 보존용 이전 구현. 현재 월별·상시 재배력 화면에서는 resources.js를 사용합니다. 이 파일은 활성 페이지에서 로드하지 않습니다. */
+﻿/* 보존용 이전 구현. 현재 월별·상시 재배력 화면에서는 resources.js를 사용합니다. 이 파일은 활성 페이지에서 로드하지 않습니다. */
 (function () {
   var MONTH_COUNT = 12;
 
@@ -104,7 +104,7 @@
       var mode = item ? "edit" : "create";
       var action = item ? "수정" : "등록";
       var typeCode = type === "재배력" ? "cultivation" : "orchard";
-      var href = "monthly-content-form.html?type=" + typeCode + "&year=" + selectedYear + "&month=" + month + "&mode=" + mode;
+      var href = "monthly-content-form.asp?type=" + typeCode + "&year=" + selectedYear + "&month=" + month + "&mode=" + mode;
       var visibilityClass = visibility === "공개" ? " contents-status--live" : (visibility === "비공개" ? " contents-status--private" : "");
       return "<tr>" +
         "<th scope=\"row\">" + month + "월</th>" +

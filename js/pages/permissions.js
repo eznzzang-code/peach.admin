@@ -1,12 +1,30 @@
-/* 운영자·권한 조회·수정 화면. 체크 변경은 이 화면 안에서만 유지하고 Mock Data는 바꾸지 않습니다. */
+/* 운영자·권한 조회·수정 화면. */
 (function () {
   var SAVE_MESSAGE = "현재는 시연용 화면으로, 권한 저장 기능은 연결되지 않았습니다.";
   var NO_CHANGE_MESSAGE = "변경된 권한이 없습니다.";
   var LEAVE_MESSAGE = "변경한 권한을 저장하지 않고 이동하시겠습니까?";
   var RELOAD_MESSAGE = "변경한 권한을 취소하고 기존 권한을 불러오시겠습니까?";
 
-  function operators() {
+  var dbOperators = null;
+  function fetchDbOperatorsSync() {
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "proc/operator_proc.asp?action=list&_t=" + Date.now(), false);
+      xhr.send(null);
+      if (xhr.status === 200) {
+        var json = JSON.parse(xhr.responseText);
+        if (json && json.success && Array.isArray(json.items) && json.items.length > 0) {
+          dbOperators = json.items;
+          return dbOperators;
+        }
+      }
+    } catch(e) {}
     return (window.MockData && MockData.operators) || [];
+  }
+
+  function operators() {
+    if (dbOperators != null) return dbOperators;
+    return fetchDbOperatorsSync();
   }
 
   function tasks() {
@@ -91,8 +109,13 @@
   function showStatus(operator) {
     var status = document.getElementById("permissions-status");
     if (!status) return;
-    status.textContent = operator.status;
-    status.classList.toggle("is-inactive", operator.status === "미사용");
+    var label = (operator.status === "ACTIVE" || operator.status === "사용중")
+      ? "사용중"
+      : (operator.status === "INACTIVE" || operator.status === "미사용")
+        ? "미사용"
+        : (operator.status || "");
+    status.textContent = label;
+    status.classList.toggle("is-inactive", label === "미사용");
   }
 
   function renderTable(readOnly, values) {
@@ -141,7 +164,7 @@
       fillOperatorSelect(select, operator);
       showStatus(operator);
       renderTable(true, clonePermissions(operator.permissions));
-      if (editLink) editLink.href = "permissions-edit.html?operator=" + encodeURIComponent(operator.id);
+      if (editLink) editLink.href = "permissions-edit.asp?operator=" + encodeURIComponent(operator.id);
       writeOperatorId(operator.id);
     }
 
@@ -180,7 +203,7 @@
     editor.hidden = false;
     fillOperatorSelect(select, operator);
     renderTable(false, draft);
-    if (cancel) cancel.href = "permissions.html?operator=" + encodeURIComponent(operator.id);
+    if (cancel) cancel.href = "permissions.asp?operator=" + encodeURIComponent(operator.id);
 
     function isDirty() {
       return !samePermissions(draft, baseline);
@@ -197,7 +220,7 @@
       fillOperatorSelect(select, next);
       renderTable(false, draft);
       writeOperatorId(next.id);
-      if (cancel) cancel.href = "permissions.html?operator=" + encodeURIComponent(next.id);
+      if (cancel) cancel.href = "permissions.asp?operator=" + encodeURIComponent(next.id);
       hideNote();
     }
 
@@ -293,8 +316,49 @@
 
     if (save && note) {
       save.addEventListener("click", function () {
-        note.textContent = isDirty() ? SAVE_MESSAGE : NO_CHANGE_MESSAGE;
-        note.hidden = false;
+        if (!isDirty()) {
+          note.textContent = NO_CHANGE_MESSAGE;
+          note.hidden = false;
+          return;
+        }
+        var params = new URLSearchParams();
+        params.append("action", "save");
+        params.append("operator_id", operator.id);
+        params.append("status", (operator.status === "미사용" || operator.status === "INACTIVE") ? "INACTIVE" : "ACTIVE");
+        params.append("perm_notice_write", (draft.content && draft.content.write) ? "Y" : "N");
+        params.append("perm_notice_post", (draft.content && draft.content.publish) ? "Y" : "N");
+        params.append("perm_video_write", (draft.video && draft.video.write) ? "Y" : "N");
+        params.append("perm_video_post", (draft.video && draft.video.publish) ? "Y" : "N");
+        params.append("perm_cal_write", (draft.calendar && draft.calendar.write) ? "Y" : "N");
+        params.append("perm_cal_post", (draft.calendar && draft.calendar.publish) ? "Y" : "N");
+        params.append("perm_orchard_write", (draft.orchard && draft.orchard.write) ? "Y" : "N");
+        params.append("perm_orchard_post", (draft.orchard && draft.orchard.publish) ? "Y" : "N");
+
+        save.disabled = true;
+        fetch("proc/operator_proc.asp", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+          body: params.toString()
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (json) {
+            save.disabled = false;
+            if (json && json.success) {
+              note.textContent = "권한 변경사항이 데이터베이스에 저장되었습니다.";
+              note.hidden = false;
+              baseline = clonePermissions(draft);
+              operator.permissions = clonePermissions(draft);
+              dbOperators = null;
+            } else {
+              note.textContent = "저장 실패: " + (json ? json.message : "");
+              note.hidden = false;
+            }
+          })
+          .catch(function () {
+            save.disabled = false;
+            note.textContent = "저장 중 통신 오류가 발생했습니다.";
+            note.hidden = false;
+          });
       });
     }
 
@@ -325,7 +389,7 @@
   }
 
   Admin.ready(function () {
-    var mode = document.body.getAttribute("data-permissions");
+    var mode = document.body.getAttribute("data-permissions") || (document.getElementById("permissions-editor") ? "edit" : "view");
     if (mode === "view") bindView();
     if (mode === "edit") bindEdit();
   });

@@ -21,7 +21,18 @@ Admin.ready(async function () {
   if (!form || !kindInput || !targetInput || !targetList || !targetButton) return;
 
   var current = new URLSearchParams(location.search).get("id");
-  var editing = current && window.ContentStore ? ContentStore.get(current) : null;
+  var editing = null;
+  if (current) {
+    try {
+      var editRes = await fetch("proc/board_proc.asp?action=get&id=" + encodeURIComponent(current));
+      var editJson = await editRes.json();
+      if (editJson && editJson.success && editJson.item) {
+        editing = editJson.item;
+      }
+    } catch (e) {
+      if (window.ContentStore) editing = ContentStore.get(current);
+    }
+  }
   var kindLabels = {
     "": "자료 유형",
     video: "영상",
@@ -36,16 +47,29 @@ Admin.ready(async function () {
   };
 
   function sameTarget(left, right) {
-    if (!left || !right || left.kind !== right.kind) return false;
-    if (left.kind === "video" || left.kind === "post") return String(left.id) === String(right.id);
-    if (left.kind === "orchard") return Number(left.year) === Number(right.year) && Number(left.month) === Number(right.month);
-    if (left.kind === "calendar") return true;
+    if (!left || !right) return false;
+    var lKind = left.kind || left.type;
+    var rKind = right.kind || right.type;
+    if (lKind !== rKind) return false;
+    if (lKind === "video" || lKind === "post") {
+      return String(left.id || "") === String(right.id || "");
+    }
+    if (lKind === "orchard") {
+      var lY = left.year || (left.id && left.id.indexOf(":") > -1 ? left.id.split(":")[0] : "");
+      var lM = left.month || (left.id && left.id.indexOf(":") > -1 ? left.id.split(":")[1] : "");
+      var rY = right.year || (right.id && right.id.indexOf(":") > -1 ? right.id.split(":")[0] : "");
+      var rM = right.month || (right.id && right.id.indexOf(":") > -1 ? right.id.split(":")[1] : "");
+      return Number(lY) === Number(rY) && Number(lM) === Number(rM);
+    }
+    if (lKind === "calendar") return true;
     return JSON.stringify(left) === JSON.stringify(right);
   }
 
   function knownKind(target) {
-    if (!target || !kindLabels[target.kind]) return "";
-    return target.kind;
+    if (!target) return "";
+    var k = target.kind || target.type;
+    if (!k || !kindLabels[k]) return "";
+    return k;
   }
 
   function setKind(kind) {
@@ -188,56 +212,67 @@ Admin.ready(async function () {
   var catalog = { video: [], post: [], orchard: [], calendar: [] };
 
   try {
-    var records = await ResourceStore.all();
-    var videos = (window.MockData && Array.isArray(MockData.videos) ? MockData.videos.slice() : []);
-    var videoIds = {};
-    videos.forEach(function (video) { videoIds[String(video.id)] = true; });
-    records.filter(function (record) { return record.kind === "video" && record.id != null && !videoIds[String(record.id)]; }).forEach(function (record) {
-      videos.push(record);
-    });
-    catalog.video = videos.map(function (video) {
-      var stored = records.find(function (record) {
-        return record.kind === "video" && String(record.id) === String(video.id);
-      });
-      var title = (stored && (stored.displayTitle || stored.originalTitle)) || video.displayTitle || video.originalTitle || ("영상 " + video.id);
-      return { label: title, value: { kind: "video", id: video.id } };
-    });
-
-    catalog.post = (window.ContentStore ? ContentStore.list() : []).filter(function (post) {
-      return post.category !== "과원관리" && String(post.id) !== String(current || "");
-    }).map(function (post) {
-      var title = String(post.title || "").trim() ? post.title : "(제목 없음)";
-      return { label: title, category: post.category, value: { kind: "post", id: post.id } };
-    });
-
-    var orchardMap = {};
-    records.filter(function (record) {
-      return record.kind === "orchard" && record.year && record.month;
-    }).forEach(function (record) {
-      orchardMap[record.year + ":" + record.month] = {
-        label: record.title || (record.year + "년 " + record.month + "월 과원관리"),
-        value: { kind: "orchard", year: Number(record.year), month: Number(record.month) }
-      };
-    });
-    for (var month = 1; month <= 12; month += 1) {
-      var key = "2026:" + month;
-      if (!orchardMap[key]) {
-        orchardMap[key] = {
-          label: "2026년 " + month + "월 중점 과원관리",
-          value: { kind: "orchard", year: 2026, month: month }
-        };
+    // 1) 영상 목록 (DB: proc/video_proc.asp?action=list)
+    try {
+      var vRes = await fetch("proc/video_proc.asp?action=list");
+      var vData = await vRes.json();
+      if (vData && vData.success && Array.isArray(vData.items)) {
+        catalog.video = vData.items.map(function (v) {
+          var title = v.displayTitle || v.originalTitle || ("영상 " + v.id);
+          return { label: title, value: { kind: "video", type: "video", id: String(v.id) } };
+        });
       }
+    } catch (ve) {
+      console.warn("DB 영상 목록 조회 실패:", ve);
     }
-    catalog.orchard = Object.keys(orchardMap).map(function (key) { return orchardMap[key]; }).sort(function (left, right) {
-      if (left.value.year !== right.value.year) return right.value.year - left.value.year;
-      return left.value.month - right.value.month;
-    });
 
-    var calendar = records.find(function (record) { return record.kind === "calendar" || record.key === "calendar"; });
-    catalog.calendar = [{
-      label: calendar && calendar.title ? calendar.title : "복숭아 재배력",
-      value: { kind: "calendar" }
-    }];
+    // 2) 게시글 목록 (DB: proc/board_proc.asp?action=list)
+    try {
+      var bRes = await fetch("proc/board_proc.asp?action=list");
+      var bData = await bRes.json();
+      if (bData && bData.success && Array.isArray(bData.items)) {
+        catalog.post = bData.items.filter(function (post) {
+          return post.category !== "과원관리" && String(post.id) !== String(current || "");
+        }).map(function (post) {
+          var title = String(post.title || "").trim() ? post.title : "(제목 없음)";
+          return { label: title, category: post.category, value: { kind: "post", type: "post", id: String(post.id) } };
+        });
+      }
+    } catch (be) {
+      console.warn("DB 게시글 목록 조회 실패:", be);
+    }
+
+    // 3) 월별 과원관리 목록 (DB: proc/orchard_proc.asp?action=list)
+    try {
+      var oRes = await fetch("proc/orchard_proc.asp?action=list");
+      var oData = await oRes.json();
+      if (oData && oData.success && Array.isArray(oData.items)) {
+        var year = oData.year || 2026;
+        catalog.orchard = oData.items.map(function (item) {
+          var m = Number(item.month);
+          var label = item.title ? (year + "년 " + m + "월: " + item.title) : (year + "년 " + m + "월 과원관리");
+          return {
+            label: label,
+            value: { kind: "orchard", type: "orchard", year: Number(year), month: m, id: year + ":" + m }
+          };
+        }).sort(function (a, b) { return a.value.month - b.value.month; });
+      }
+    } catch (oe) {
+      console.warn("DB 과원관리 목록 조회 실패:", oe);
+    }
+
+    // 4) 상시 재배력 (DB: proc/calendar_proc.asp?action=get)
+    try {
+      var cRes = await fetch("proc/calendar_proc.asp?action=get");
+      var cData = await cRes.json();
+      var calTitle = (cData && cData.success && cData.item && cData.item.title) ? cData.item.title : "복숭아 재배력";
+      catalog.calendar = [{
+        label: calTitle,
+        value: { kind: "calendar", type: "calendar", id: "calendar" }
+      }];
+    } catch (ce) {
+      console.warn("DB 상시 재배력 조회 실패:", ce);
+    }
   } catch (error) {
     fail("연결 자료를 불러오지 못했습니다. 새로고침 후 다시 확인해 주세요.");
     return;

@@ -1,4 +1,4 @@
-/* 2026.10.19 확정: 행사·설문은 추후 반영 예정입니다.
+﻿/* 2026.10.19 확정: 행사·설문은 추후 반영 예정입니다.
  * 원래 HTML과 업무 코드는 보존합니다.
  * 각 HTML의 이 파일 script 참조를 제거하면 안내를 없앨 수 있습니다.
  */
@@ -13,7 +13,7 @@
     notice.id = "deferred-feature-notice";
     notice.className = "deferred-feature";
     notice.setAttribute("aria-labelledby", "deferred-feature-title");
-    notice.innerHTML = '<div class="deferred-feature__content"><h1 id="deferred-feature-title" tabindex="-1">추후 반영 예정</h1><p>행사 신청·설문 참여는 추후 제공할 예정입니다.</p><p>기존 페이지는 보존하며 이번 운영 범위에서 제외합니다.</p><small>2026.10.19 기획 기준</small><a href="contents-list.html">게시물 관리로 이동</a></div>';
+    notice.innerHTML = '<div class="deferred-feature__content"><h1 id="deferred-feature-title" tabindex="-1">추후 반영 예정</h1><p>행사 신청·설문 참여는 추후 제공할 예정입니다.</p><p>기존 페이지는 보존하며 이번 운영 범위에서 제외합니다.</p><small>2026.10.19 기획 기준</small><a href="contents-list.asp">게시물 관리로 이동</a></div>';
     Array.prototype.forEach.call(document.body.children, function (el) { el.inert = true; });
     document.body.appendChild(notice);
     document.getElementById("deferred-feature-title").focus({ preventScroll: true });

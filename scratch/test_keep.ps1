@@ -1,0 +1,20 @@
+$body = @{
+    action = "save"
+    id = "1"
+    category = "공지"
+    title = "과원관리 요령 - 긴급"
+    body = "<p>가을철 과원관리 요령 긴급 공지사항입니다.</p>"
+    visibility = "public"
+    isDraft = "false"
+    pinned = "true"
+    channels = "Web,App"
+    publishStart = "2026-01-01"
+    noEnd = "true"
+    urgentUse = "true"
+    urgentStart = "2026-01-01"
+    urgentEnd = "2027-12-31"
+    keep_attach_ids = "2"
+    attach_count = "0"
+}
+$res = Invoke-RestMethod -Uri "http://peachlocal.admin.edu-ok.co.kr/proc/board_proc.asp" -Method Post -Body $body
+Write-Host "Save response: $($res | ConvertTo-Json)"

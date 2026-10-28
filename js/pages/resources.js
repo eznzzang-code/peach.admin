@@ -189,9 +189,56 @@
     var yearList=q('.select__list', select);
     yearList.innerHTML=Array.from(years).sort(function(a,b){return b-a;}).map(function(y){return '<li><button type="button" class="select__option" data-value="'+y+'">'+y+'</button></li>';}).join('');
     setSelectValue(select, selected);
-    select.addEventListener('select:change', function(event){selected=Number(event.detail.value);history.replaceState(null,'','?year='+selected);render();});
-    function render(){var savedCount=0,demoCount=0;var now=today();var nowYear=Number(now.slice(0,4));var nowMonth=Number(now.slice(5,7));q('#resource-rows').innerHTML=Array.from({length:12},function(_,i){var m=i+1;var stored=records.find(function(r){return r.key==='orchard:'+selected+':'+m;});var saved=stored&&!stored.deleted?stored:null;var demo=!stored&&selected===2026?seed(m):null;var shown=saved||demo;if(saved)savedCount++;else if(demo)demoCount++;var open=shown?'공개':'—';if(shown){if(shown.visibility==='public'||shown.visibility==='공개')open='공개';else if(shown.visibility==='private'||shown.visibility==='비공개')open='비공개';else open='—';}var href='monthly-content-form.html?type=orchard&year='+selected+'&month='+m+'&mode='+(shown?'edit':'create');var titleCell=shown?'<a class="contents-title" href="'+href+'">'+escapeText(shown.title||'(제목 없음)')+'</a>':'—';var current=selected===nowYear&&m===nowMonth;return '<tr'+(current?' class="is-current"':'')+'><th scope="row">'+m+'월</th><td>'+titleCell+'</td><td>'+escapeText(shown?shown.preparation||'작성중':'미등록')+'</td><td>'+escapeText(open)+'</td><td>'+escapeText(shown?shown.channels.join(' / '):'—')+'</td><td>'+escapeText(shown?shown.updatedAt:'—')+'</td><td><a class="btn" href="'+href+'">'+(shown?'수정':'등록')+'</a></td></tr>';}).join('');q('#resource-summary').textContent='저장 '+savedCount+'개월 / 시연 '+demoCount+'개월 / 미등록 '+(12-savedCount-demoCount)+'개월';}
-    render();var listQuery=new URLSearchParams(location.search);if(listQuery.get('saved')==='1')status('이 브라우저에 저장했습니다. 통합 검수의 앱 탭에서 저장값을 확인할 수 있습니다. 실제 서버 반영은 별도입니다.');else if(listQuery.get('deleted')==='1')status('이 브라우저에서 해당 월 콘텐츠를 삭제했습니다.');
+    select.addEventListener('select:change', function(event){selected=Number(event.detail.value);history.replaceState(null,'','?year='+selected);loadAndRender();});
+
+    async function loadAndRender() {
+      var dbItems = null;
+      try {
+        var res = await fetch('proc/orchard_proc.asp?action=list&year=' + selected);
+        var json = await res.json();
+        if (json && json.success && Array.isArray(json.items)) {
+          dbItems = json.items;
+        }
+      } catch(e) {}
+
+      var savedCount=0,demoCount=0;
+      var now=today();
+      var nowYear=Number(now.slice(0,4));
+      var nowMonth=Number(now.slice(5,7));
+
+      q('#resource-rows').innerHTML=Array.from({length:12},function(_,i){
+        var m=i+1;
+        var dbItem = dbItems ? dbItems.find(function(item){ return item.month === m && item.id; }) : null;
+        var stored=records.find(function(r){return r.key==='orchard:'+selected+':'+m;});
+        var saved=dbItem ? {
+          title: dbItem.title,
+          visibility: dbItem.visibility,
+          channels: dbItem.channels || [],
+          updatedAt: dbItem.updatedAt,
+          preparation: '검수완료'
+        } : (stored&&!stored.deleted?stored:null);
+
+        var demo=!saved&&selected===2026?seed(m):null;
+        var shown=saved||demo;
+        if(saved)savedCount++;else if(demo)demoCount++;
+        var open=shown?'공개':'—';
+        if(shown){
+          if(shown.visibility==='public'||shown.visibility==='공개')open='공개';
+          else if(shown.visibility==='private'||shown.visibility==='비공개')open='비공개';
+          else open='—';
+        }
+        var href='monthly-content-form.asp?type=orchard&year='+selected+'&month='+m+'&mode='+(shown?'edit':'create');
+        var titleCell=shown?'<a class="contents-title" href="'+href+'">'+escapeText(shown.title||'(제목 없음)')+'</a>':'—';
+        var current=selected===nowYear&&m===nowMonth;
+        return '<tr'+(current?' class="is-current"':'')+'><th scope="row">'+m+'월</th><td>'+titleCell+'</td><td>'+escapeText(shown?shown.preparation||'작성중':'미등록')+'</td><td>'+escapeText(open)+'</td><td>'+escapeText(shown?shown.channels.join(' / '):'—')+'</td><td>'+escapeText(shown?shown.updatedAt:'—')+'</td><td><a class="btn" href="'+href+'">'+(shown?'수정':'등록')+'</a></td></tr>';
+      }).join('');
+      q('#resource-summary').textContent='저장 '+savedCount+'개월 / 시연 '+demoCount+'개월 / 미등록 '+(12-savedCount-demoCount)+'개월';
+    }
+
+    loadAndRender();
+    var listQuery=new URLSearchParams(location.search);
+    if(listQuery.get('saved')==='1')status('자료가 데이터베이스에 저장되었습니다.');
+    else if(listQuery.get('deleted')==='1')status('해당 월 콘텐츠가 데이터베이스에서 삭제되었습니다.');
   }
   function exposureMarkup() {
     var channel = '<div class="orchard-field"><span class="orchard-field__label">노출채널</span><div class="orchard-field__control"><div class="orchard-cluster"><label class="checkbox"><input type="checkbox" id="resource-web"><span class="checkbox__box" aria-hidden="true"></span><span class="checkbox__text">Web(홈페이지)</span></label><label class="checkbox"><input type="checkbox" id="resource-app"><span class="checkbox__box" aria-hidden="true"></span><span class="checkbox__text">App</span></label></div></div></div>';
@@ -335,14 +382,48 @@
   }
   async function edit(){
     var params=new URLSearchParams(location.search);kind=document.body.dataset.resource==='calendar'?'calendar':'orchard';
-    if(params.get('type')==='cultivation'){location.replace('cultivation-content.html');return;}
+    if(params.get('type')==='cultivation'){location.replace('cultivation-content.asp');return;}
     year=Number(params.get('year'));month=Number(params.get('month'));
     if(kind==='orchard'&&(!Number.isInteger(year)||year<2000||year>2100||!Number.isInteger(month)||month<1||month>12||params.get('type')!=='orchard')){status('연도·월이 올바르지 않습니다. 목록에서 자료를 선택해 주세요.',true);return;}
-    var key=kind==='calendar'?'calendar':'orchard:'+year+':'+month;
-    var stored=records.find(function(r){return r.key===key;});
-    var saved=stored || defaults(key);
-    record=saved || {key:key,kind:kind,year:year,month:month,title:'',blocks:[],channels:[],visibility:'private',preparation:'작성중'};
-    record=structuredClone(record);
+    if (kind === 'calendar') {
+      try {
+        var cRes = await fetch('proc/calendar_proc.asp?action=get');
+        var cJson = await cRes.json();
+        if (cJson && cJson.success && cJson.item) {
+          record = {
+            key: 'calendar',
+            kind: 'calendar',
+            title: cJson.item.title || '복숭아 재배력',
+            channels: cJson.item.channels || ['Web', 'App'],
+            visibility: cJson.item.visibility || 'public',
+            thumbnail: cJson.item.thumbnail ? { name: cJson.item.thumbnail.split('/').pop(), src: cJson.item.thumbnail } : null,
+            webImages: [],
+            appImages: []
+          };
+          if (Array.isArray(cJson.images) && cJson.images.length > 0) {
+            cJson.images.forEach(function (img) {
+              var itm = {
+                id: 'cal-' + img.channel.toLowerCase() + '-' + img.id,
+                name: img.name,
+                src: img.path,
+                path: img.path
+              };
+              if (img.channel.toUpperCase() === 'WEB') record.webImages.push(itm);
+              else if (img.channel.toUpperCase() === 'APP') record.appImages.push(itm);
+            });
+          }
+        }
+      } catch (ce) {
+        console.warn('DB 재배력 조회 실패:', ce);
+      }
+    }
+    if (!record) {
+      var key=kind==='calendar'?'calendar':'orchard:'+year+':'+month;
+      var stored=records.find(function(r){return r.key===key;});
+      var saved=stored || defaults(key);
+      record=saved || {key:key,kind:kind,year:year,month:month,title:'',blocks:[],channels:[],visibility:'private',preparation:'작성중'};
+      record=structuredClone(record);
+    }
     if(kind==='calendar' && !record.thumbnail && !(record.webImages && record.webImages.length) && !(record.appImages && record.appImages.length)){
       var calendarDemo=defaults('calendar');
       record.thumbnail=calendarDemo.thumbnail;
@@ -351,6 +432,7 @@
       record.channels=['Web','App'];
     }
     var heading=kind==='calendar'?'상시 재배력':year+'년 '+month+'월 과원관리 자료 '+((stored || (saved && params.get('mode')!=='create'))?'수정':'등록');
+    if (params.get('saved') === '1') status('자료가 데이터베이스에 저장되었습니다.');
     q('#resource-heading').textContent=heading;
     form=q('#resource-form');form.hidden=false;q('#resource-fields').innerHTML=fields();
     var exposureHost=q('#resource-exposure'); if(exposureHost) exposureHost.innerHTML=exposureMarkup();
@@ -396,7 +478,86 @@
     if(kind==='calendar') bindCalendarContents();
     if(kind==='orchard')q('#resource-preparation').value=record.preparation || '작성중';
     form.addEventListener('input',function(){dirty=true;});form.addEventListener('change',function(){dirty=true;});form.addEventListener('select:change',function(){dirty=true;});
-    form.onsubmit=async function(e){e.preventDefault();var value=readForm();if(!valid(value))return;var btn=q('#resource-save');btn.disabled=true;try{value.updatedAt=today();await ResourceStore.put(value);dirty=false;location.href=kind==='calendar'?'cultivation-content.html?saved=1':'orchard-content.html?year='+year+'&saved=1';}catch(err){status('저장하지 못했습니다. 브라우저 저장 공간과 권한을 확인해 주세요. 입력 내용은 유지됩니다.',true);}finally{btn.disabled=false;}};
+    form.onsubmit=async function(e){
+      e.preventDefault();
+      var value=readForm();
+      if(!valid(value))return;
+      var btn=q('#resource-save');
+      btn.disabled=true;
+      try{
+        var fd = new FormData();
+        fd.append('action', 'save');
+        if (kind === 'calendar') {
+          fd.append('year', String(value.year || currentYear()));
+          fd.append('title', value.title || '복숭아 재배력');
+          fd.append('visibility', value.visibility || 'public');
+          fd.append('channels', (value.channels || []).join(','));
+
+          var thumbInput = q('#resource-thumb');
+          if (thumbInput && thumbInput.files && thumbInput.files[0]) {
+            fd.append('thumbnail_file', thumbInput.files[0]);
+          } else if (record && record.thumbnail && record.thumbnail.src) {
+            fd.append('thumbnail', record.thumbnail.src);
+          }
+
+          var webItems = (calendarGalleries && calendarGalleries.web) || [];
+          fd.append('web_count', String(webItems.length));
+          webItems.forEach(function (item, idx) {
+            if (item.file) {
+              fd.append('web_item_kind_' + idx, 'new');
+              fd.append('web_file_' + idx, item.file);
+            } else {
+              fd.append('web_item_kind_' + idx, 'keep');
+              fd.append('web_item_name_' + idx, item.name || '');
+              fd.append('web_item_path_' + idx, item.src || item.path || '');
+            }
+          });
+
+          var appItems = (calendarGalleries && calendarGalleries.app) || [];
+          fd.append('app_count', String(appItems.length));
+          appItems.forEach(function (item, idx) {
+            if (item.file) {
+              fd.append('app_item_kind_' + idx, 'new');
+              fd.append('app_file_' + idx, item.file);
+            } else {
+              fd.append('app_item_kind_' + idx, 'keep');
+              fd.append('app_item_name_' + idx, item.name || '');
+              fd.append('app_item_path_' + idx, item.src || item.path || '');
+            }
+          });
+
+          var res = await fetch('proc/calendar_proc.asp', { method: 'POST', body: fd });
+          var json = await res.json();
+          if (json && json.success) {
+            dirty = false;
+            location.href = 'cultivation-content.asp?saved=1';
+          } else {
+            status('저장 실패: ' + (json ? json.message : ''), true);
+          }
+        } else {
+          fd.append('year', String(year));
+          fd.append('month', String(month));
+          fd.append('title', value.title || '');
+          fd.append('visibility', value.visibility || 'public');
+          fd.append('channels', (value.channels || []).join(','));
+          if (record.thumbnail && record.thumbnail.name) {
+            fd.append('thumbnail', '/uploads/' + record.thumbnail.name);
+          }
+          var res = await fetch('proc/orchard_proc.asp', { method: 'POST', body: fd });
+          var json = await res.json();
+          if (json && json.success) {
+            dirty = false;
+            location.href = 'orchard-content.asp?year=' + year + '&saved=1';
+          } else {
+            status('저장 실패: ' + (json ? json.message : ''), true);
+          }
+        }
+      }catch(err){
+        status('저장 중 통신 오류가 발생했습니다.', true);
+      }finally{
+        btn.disabled=false;
+      }
+    };
     var listLink=q('#resource-list');if(listLink)listLink.onclick=function(e){if(dirty&&!confirm('입력한 내용을 저장하지 않고 목록으로 이동하시겠습니까?'))e.preventDefault();};
     var addBlock=q('#resource-add');
     if(addBlock){addBlock.hidden=kind==='calendar';addBlock.onclick=function(){record.blocks.push({kind:'body',name:'',alt:''});dirty=true;renderBlocks();};}
@@ -526,7 +687,137 @@
   function preview(value){revoke(previewUrls);var root=q('#resource-preview-body');root.replaceChildren();var phone=phoneRoot(kind==='calendar'?'복숭아 재배력':'월별 과원관리');if(kind==='orchard'){var bar=document.createElement('div');bar.className='flow-phone__month';bar.textContent=year+'년 '+month+'월　　월 선택은 앱에서 검수';phone.body.append(bar);phone.body.style.background=value.bg || '#f4f6f0';phone.body.style.setProperty('--flow-accent',value.accent || '#245d46');}
     var paper=document.createElement('div');paper.className='flow-phone__paper';if(value.spiral){var spiral=document.createElement('img');spiral.src=value.spiral;spiral.alt='';paper.append(spiral);}value.blocks.forEach(function(block){if(block.kind==='table'){var wide=document.createElement('div');wide.className='flow-wide';addImage(wide,block,true);paper.append(wide);}else if(block.fragments&&block.fragments.length){var button=document.createElement('button');button.type='button';button.className='flow-phone__image';button.setAttribute('aria-label',(block.alt||'본문')+' 확대');block.fragments.forEach(function(f){var im=document.createElement('img');im.src=f.src;im.alt=block.alt || '';button.append(im);});button.onclick=function(){zoom(block);};paper.append(button);}else addImage(paper,block,false);});phone.body.append(paper);root.append(phone.phone);var actual=document.createElement('a');actual.className='btn';actual.textContent='저장한 자료를 실제 앱에서 검수';actual.href='../../퍼블리싱_v3/복숭아자조금_앱/index.html?connected=1&review=1&target='+encodeURIComponent(JSON.stringify(kind==='calendar'?{kind:'calendar'}:{kind:'orchard',year:year,month:month}));actual.target='_blank';actual.rel='noopener';root.append(actual);var note=document.createElement('p');note.className='flow-guide';note.textContent='통합 검수 실행 주소에서 이용합니다. 저장 전 입력값은 위 미리보기에서 확인하고, 실제 앱에는 마지막 저장값·공개 상태·App 채널을 적용합니다.';root.append(note);q('#resource-preview-dialog').showModal();}
   function zoom(block){var dialog=q('#resource-zoom'),viewport=q('.flow-zoom__viewport',dialog);viewport.replaceChildren();viewport.classList.remove('is-zoomed');var images=block.fragments&&block.fragments.length?block.fragments:[block];images.forEach(function(b){var im=document.createElement('img');im.src=fileSource(b,true);im.alt=block.alt || '원본 확대';viewport.append(im);});q('#resource-zoom-title').textContent=block.alt || block.name || '원본 확대';dialog.showModal();}
-  async function homePreview(){records=await ResourceStore.all();var current=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Seoul'}),y=Number(current.slice(0,4)),m=Number(current.slice(5,7));function appMonthly(){var isPublic=function(r){return r&&r.visibility==='public'&&r.channels.includes('App');};var currentRecord=resolved(y,m);if(isPublic(currentRecord))return currentRecord;var previous=resolved(y-1,m);return isPublic(previous)?previous:null;}var monthly=appMonthly();var calendar=records.find(function(r){return r.key==='calendar';}) || defaults('calendar');var selected=0;var root=q('#home-preview-body');function render(){root.replaceChildren();var phone=phoneRoot('앱 홈 영역 미리보기'),card=document.createElement('div');card.className='flow-home-card';var r=selected===0?monthly:calendar;var title=document.createElement('strong');title.textContent=selected===0?m+'월의 복숭아 과원관리':'복숭아 재배력';card.append(title);var p=document.createElement('p');p.textContent=r&&r.visibility==='public'&&r.channels.includes('App')?r.title:'앱 공개 자료가 없습니다.';card.append(p);var btn=document.createElement('button');btn.type='button';btn.textContent=selected===0?'월별 관리 자료 보기':'재배력 보기';btn.disabled=!(r&&r.visibility==='public'&&r.channels.includes('App'));btn.onclick=function(){var previousKind=kind;kind=selected===0?'orchard':'calendar';year=r.year||y;month=m;preview(r);kind=previousKind;};card.append(btn);phone.body.append(card);root.append(phone.phone);q('#home-slide-month').setAttribute('aria-pressed',String(selected===0));q('#home-slide-calendar').setAttribute('aria-pressed',String(selected===1));}var controls=document.createElement('div');controls.className='flow-row';controls.innerHTML='<label>검수 연도 <input id=home-review-year type=number min=2000 max=2100 value='+y+'></label><label>검수 월 <select id=home-review-month>'+Array.from({length:12},function(_,i){return '<option value='+ (i+1) +'>'+ (i+1) +'월</option>';}).join('')+'</select></label>';root.before(controls);q('#home-review-month').value=m;controls.onchange=function(){var yy=Number(q('#home-review-year').value),mm=Number(q('#home-review-month').value);if(!Number.isInteger(yy)||yy<2000||yy>2100)return;y=yy;m=mm;monthly=appMonthly();render();};q('#home-slide-month').onclick=function(){selected=0;render();};q('#home-slide-calendar').onclick=function(){selected=1;render();};render();}
+  function previewDbAppRecord(headerTitle, rec){
+    var root=q('#resource-preview-body');
+    if(!root)return;
+    root.replaceChildren();
+    var phone=phoneRoot(headerTitle);
+    var paper=document.createElement('div');
+    paper.className='flow-phone__paper';
+    var title=document.createElement('h3');
+    title.className='flow-phone__title';
+    title.textContent=(rec && rec.title) ? rec.title : '제목이 입력되지 않았습니다.';
+    paper.append(title);
+    var items=(rec && rec.appImages) || [];
+    if(!items.length){
+      var empty=document.createElement('p');
+      empty.className='flow-phone__empty';
+      empty.textContent='첨부한 App 이미지가 없습니다.';
+      paper.append(empty);
+    }else{
+      items.forEach(function(item){
+        var figure=document.createElement('div');
+        figure.className='flow-phone__image';
+        var image=document.createElement('img');
+        image.src=item.path || item.url || '';
+        image.alt=item.name || '';
+        figure.append(image);
+        paper.append(figure);
+      });
+    }
+    phone.body.append(paper);
+    root.append(phone.phone);
+    var dlg=q('#resource-preview-dialog');
+    if(dlg && dlg.showModal) dlg.showModal();
+  }
+  async function fetchDbOrchard(yy, mm){
+    try{
+      var res=await fetch('proc/orchard_proc.asp?action=get&year='+yy+'&month='+mm);
+      var json=await res.json();
+      if(json && json.success && json.item){
+        var it=json.item;
+        var imgs=Array.isArray(json.images)?json.images:[];
+        var appImgs=imgs.filter(function(img){return String(img.channel).toUpperCase()==='APP';});
+        return {
+          id:it.id,
+          year:it.year,
+          month:it.month,
+          title:it.title,
+          visibility:it.visibility,
+          channels:it.channels||[],
+          appImages:appImgs
+        };
+      }
+    }catch(e){}
+    return null;
+  }
+  async function fetchDbCalendar(yy){
+    try{
+      var res=await fetch('proc/calendar_proc.asp?action=get&year='+yy);
+      var json=await res.json();
+      if(json && json.success && json.item){
+        var it=json.item;
+        var imgs=Array.isArray(json.images)?json.images:[];
+        var appImgs=imgs.filter(function(img){return String(img.channel).toUpperCase()==='APP';});
+        return {
+          id:it.id,
+          year:it.year,
+          title:it.title,
+          visibility:it.visibility,
+          channels:it.channels||[],
+          appImages:appImgs
+        };
+      }
+    }catch(e){}
+    return null;
+  }
+  async function homePreview(){
+    var current=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Seoul'}),y=Number(current.slice(0,4)),m=Number(current.slice(5,7));
+    var isPublicApp=function(r){return !!(r && r.visibility==='public' && Array.isArray(r.channels) && r.channels.includes('App'));};
+    async function loadAppMonthly(yy, mm){
+      var cur=await fetchDbOrchard(yy, mm);
+      if(isPublicApp(cur)) return cur;
+      var prev=await fetchDbOrchard(yy-1, mm);
+      if(isPublicApp(prev)) return prev;
+      return null;
+    }
+    var monthly=await loadAppMonthly(y, m);
+    var calendar=await fetchDbCalendar(y);
+    var selected=0;
+    var root=q('#home-preview-body');
+    function render(){
+      root.replaceChildren();
+      var phone=phoneRoot('앱 홈 영역 미리보기'),card=document.createElement('div');
+      card.className='flow-home-card';
+      var r=selected===0?monthly:calendar;
+      var avail=isPublicApp(r);
+      var title=document.createElement('strong');
+      title.textContent=selected===0?m+'월의 복숭아 과원관리':'복숭아 재배력';
+      card.append(title);
+      var p=document.createElement('p');
+      p.textContent=avail?r.title:'앱 공개 자료가 없습니다.';
+      card.append(p);
+      var btn=document.createElement('button');
+      btn.type='button';
+      btn.textContent=selected===0?'월별 관리 자료 보기':'재배력 보기';
+      btn.disabled=!avail;
+      btn.onclick=function(){
+        if(!avail) return;
+        previewDbAppRecord(selected===0?'월별 과원관리':'복숭아 재배력', r);
+      };
+      card.append(btn);
+      phone.body.append(card);
+      root.append(phone.phone);
+      q('#home-slide-month').setAttribute('aria-pressed',String(selected===0));
+      q('#home-slide-calendar').setAttribute('aria-pressed',String(selected===1));
+    }
+    var controls=document.createElement('div');
+    controls.className='flow-row';
+    controls.innerHTML='<label>검수 연도 <input id=home-review-year type=number min=2000 max=2100 value='+y+'></label><label>검수 월 <select id=home-review-month>'+Array.from({length:12},function(_,i){return '<option value='+ (i+1) +'>'+ (i+1) +'월</option>';}).join('')+'</select></label>';
+    root.before(controls);
+    q('#home-review-month').value=m;
+    controls.onchange=async function(){
+      var yy=Number(q('#home-review-year').value),mm=Number(q('#home-review-month').value);
+      if(!Number.isInteger(yy)||yy<2000||yy>2100)return;
+      y=yy;m=mm;
+      monthly=await loadAppMonthly(y, m);
+      calendar=await fetchDbCalendar(y);
+      render();
+    };
+    q('#home-slide-month').onclick=function(){selected=0;render();};
+    q('#home-slide-calendar').onclick=function(){selected=1;render();};
+    render();
+  }
   Admin.ready(async function(){try{records=await ResourceStore.all();var mode=document.body.dataset.resource;if(mode==='list')await list();else if(mode==='home')await homePreview();else await edit();}catch(error){status('자료를 불러오지 못했습니다. 브라우저 저장소 사용 권한을 확인한 후 새로고침해 주세요.',true);}
     document.querySelectorAll('[data-flow-close]').forEach(function(btn){btn.onclick=function(){btn.closest('dialog').close();};});document.querySelectorAll('dialog.flow-zoom,dialog.flow-preview-dialog').forEach(function(d){d.addEventListener('click',function(e){var b=d.getBoundingClientRect();if(e.target===d&&(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom))d.close();});});var toggle=q('#resource-zoom-toggle');if(toggle)toggle.onclick=function(){q('.flow-zoom__viewport').classList.toggle('is-zoomed');};
     window.addEventListener('pagehide',function(){revoke(urls);revoke(previewUrls);});

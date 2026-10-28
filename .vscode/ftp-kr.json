@@ -1,0 +1,26 @@
+{
+    "host": "121.78.131.31",
+    "username": "can1130",
+    "password": "can007",
+    "remotePath": "/selfhelpPeachAdmin",
+    "protocol": "ftp",
+    "port": 12000,
+    "fileNameEncoding": "utf8",
+    "autoUpload": false,
+    "autoDelete": false,
+    "autoDownload": false,
+    "ignore": [
+        ".git",
+        "/.vscode",
+        "/scratch",
+        "/docs",
+        "/references",
+        "*.html",
+        "*.pptx",
+        "*.ps1",
+        "*.py",
+        "*.sql",
+        "pptx_slides_text.txt"
+    ],
+    "ignoreWrongFileEncoding": true
+}

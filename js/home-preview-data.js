@@ -1,4 +1,4 @@
-/* 홈페이지 메인 미리보기용 데이터입니다.
+﻿/* 홈페이지 메인 미리보기용 데이터입니다.
    출처: peach-web/js/home-data.js, peach-web/js/monthly-data.js, peach-web 이미지.
    관리자 localStorage·IndexedDB와 저장 형식이 다릅니다. 서버 연동 시 이 객체만 교체하면 됩니다. */
 window.HomePreviewData = {
@@ -19,18 +19,18 @@ window.HomePreviewData = {
     12: "새로운 계절을 준비하는 때"
   },
   orchard: [
-    { type: "orchard", year: 2026, month: 1, published: true, image: "assets/home/orchard-01-thumb.png", sourceId: "peach-web:orchard:2026:1", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=1&mode=edit" },
-    { type: "orchard", year: 2026, month: 2, published: true, image: "assets/home/orchard-02-thumb.png", sourceId: "peach-web:orchard:2026:2", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=2&mode=edit" },
-    { type: "orchard", year: 2026, month: 3, published: true, image: "assets/home/orchard-03-thumb.png", sourceId: "peach-web:orchard:2026:3", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=3&mode=edit" },
-    { type: "orchard", year: 2026, month: 4, published: true, image: "assets/home/orchard-04-thumb.png", sourceId: "peach-web:orchard:2026:4", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=4&mode=edit" },
-    { type: "orchard", year: 2026, month: 5, published: true, image: "assets/home/orchard-05-thumb.png", sourceId: "peach-web:orchard:2026:5", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=5&mode=edit" },
-    { type: "orchard", year: 2026, month: 6, published: true, image: "assets/home/orchard-06-thumb.png", sourceId: "peach-web:orchard:2026:6", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=6&mode=edit" },
-    { type: "orchard", year: 2026, month: 7, published: true, image: "assets/home/orchard-07-thumb.png", sourceId: "peach-web:orchard:2026:7", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=7&mode=edit" },
-    { type: "orchard", year: 2026, month: 8, published: true, image: "assets/home/orchard-08-thumb.png", sourceId: "peach-web:orchard:2026:8", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=8&mode=edit" },
-    { type: "orchard", year: 2026, month: 9, published: true, image: "assets/home/orchard-09-thumb.png", sourceId: "peach-web:orchard:2026:9", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=9&mode=edit" },
-    { type: "orchard", year: 2026, month: 10, published: true, image: "assets/home/orchard-10-thumb.png", sourceId: "peach-web:orchard:2026:10", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=10&mode=edit" },
-    { type: "orchard", year: 2026, month: 11, published: true, image: "assets/home/orchard-11-thumb.png", sourceId: "peach-web:orchard:2026:11", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=11&mode=edit" },
-    { type: "orchard", year: 2026, month: 12, published: true, image: "assets/home/orchard-12-thumb.png", sourceId: "peach-web:orchard:2026:12", manageUrl: "monthly-content-form.html?type=orchard&year=2026&month=12&mode=edit" }
+    { type: "orchard", year: 2026, month: 1, published: true, image: "assets/home/orchard-01-thumb.png", sourceId: "peach-web:orchard:2026:1", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=1&mode=edit" },
+    { type: "orchard", year: 2026, month: 2, published: true, image: "assets/home/orchard-02-thumb.png", sourceId: "peach-web:orchard:2026:2", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=2&mode=edit" },
+    { type: "orchard", year: 2026, month: 3, published: true, image: "assets/home/orchard-03-thumb.png", sourceId: "peach-web:orchard:2026:3", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=3&mode=edit" },
+    { type: "orchard", year: 2026, month: 4, published: true, image: "assets/home/orchard-04-thumb.png", sourceId: "peach-web:orchard:2026:4", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=4&mode=edit" },
+    { type: "orchard", year: 2026, month: 5, published: true, image: "assets/home/orchard-05-thumb.png", sourceId: "peach-web:orchard:2026:5", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=5&mode=edit" },
+    { type: "orchard", year: 2026, month: 6, published: true, image: "assets/home/orchard-06-thumb.png", sourceId: "peach-web:orchard:2026:6", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=6&mode=edit" },
+    { type: "orchard", year: 2026, month: 7, published: true, image: "assets/home/orchard-07-thumb.png", sourceId: "peach-web:orchard:2026:7", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=7&mode=edit" },
+    { type: "orchard", year: 2026, month: 8, published: true, image: "assets/home/orchard-08-thumb.png", sourceId: "peach-web:orchard:2026:8", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=8&mode=edit" },
+    { type: "orchard", year: 2026, month: 9, published: true, image: "assets/home/orchard-09-thumb.png", sourceId: "peach-web:orchard:2026:9", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=9&mode=edit" },
+    { type: "orchard", year: 2026, month: 10, published: true, image: "assets/home/orchard-10-thumb.png", sourceId: "peach-web:orchard:2026:10", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=10&mode=edit" },
+    { type: "orchard", year: 2026, month: 11, published: true, image: "assets/home/orchard-11-thumb.png", sourceId: "peach-web:orchard:2026:11", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=11&mode=edit" },
+    { type: "orchard", year: 2026, month: 12, published: true, image: "assets/home/orchard-12-thumb.png", sourceId: "peach-web:orchard:2026:12", manageUrl: "monthly-content-form.asp?type=orchard&year=2026&month=12&mode=edit" }
   ],
   cultivation: {
     type: "cultivation",
@@ -42,7 +42,7 @@ window.HomePreviewData = {
     emptyDescription: "등록된 콘텐츠가 없습니다.",
     image: "assets/home/cultivation-thumbnail.png",
     sourceId: "peach-web:cultivation:2026",
-    manageUrl: "cultivation-content.html"
+    manageUrl: "cultivation-content.asp"
   },
   videos: [
     {

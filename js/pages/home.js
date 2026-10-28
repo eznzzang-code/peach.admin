@@ -88,14 +88,14 @@
     var record = (data.orchard || []).filter(function (item) {
       return item.published && Number(item.year) === today.year && Number(item.month) === today.month;
     })[0];
-    var title = (data.orchardLines && data.orchardLines[today.month]) || "";
+    var title = (record && record.title) || (data.orchardLines && data.orchardLines[today.month]) || "";
     var description = record ? data.orchardDescription : data.orchardEmptyDescription;
     var manageUrl = record && record.manageUrl
       ? record.manageUrl
-      : "monthly-content-form.html?type=orchard&year=" + today.year + "&month=" + today.month + "&mode=edit";
+      : "monthly-content-form.asp?type=orchard&year=" + today.year + "&month=" + today.month + "&mode=edit";
     var monthText = today.month < 10 ? "0" + today.month : String(today.month);
     host.innerHTML =
-      '<div class="home-media">' + media(record && record.image, today.year + "년 " + today.month + "월 과원관리", true) + "</div>" +
+      '<div class="home-media">' + media(record && record.image, title || (today.year + "년 " + today.month + "월 과원관리"), true) + "</div>" +
       '<p class="home-card__period">' + today.year + "년 " + monthText + "월</p>" +
       '<h2 class="home-card__title">' + escapeHtml(title || today.month + "월 과원관리") + "</h2>" +
       '<div class="home-card__foot">' +
@@ -114,14 +114,14 @@
     var description = available ? source.headline : source.emptyDescription;
     var detail = available ? source.description : "";
     host.innerHTML =
-      '<div class="home-media">' + media(source.image, source.title || "복숭아 재배력", true) + "</div>" +
+      '<div class="home-media">' + media(available ? source.image : "", source.title || "복숭아 재배력", true) + "</div>" +
       '<h2 class="home-card__title">' + escapeHtml(source.title || "복숭아 재배력") + "</h2>" +
       '<div class="home-card__foot">' +
         '<div class="home-card__copy">' +
           '<p class="home-card__desc">' + escapeHtml(description || "") + "</p>" +
           (detail ? '<p class="home-card__detail">' + escapeHtml(detail) + "</p>" : "") +
         "</div>" +
-        '<a class="btn btn--primary home-card__action" href="' + escapeHtml(source.manageUrl || "cultivation-content.html") + '">수정</a>' +
+        '<a class="btn btn--primary home-card__action" href="' + escapeHtml(source.manageUrl || "cultivation-content.asp") + '">수정</a>' +
       "</div>";
   }
 
@@ -135,7 +135,7 @@
     }
     list.innerHTML = items.map(function (entry) {
       var admin = findAdminVideo(entry);
-      var href = admin ? "videos-detail.html?id=" + encodeURIComponent(admin.id) : "videos-list.html";
+      var href = admin ? "videos-detail.asp?id=" + encodeURIComponent(admin.id) : "videos-list.asp";
       return '<article class="home-video">' +
         '<div class="home-media home-media--video">' + media(entry.image, entry.title || "", false) + "</div>" +
         '<div class="home-card__foot">' +
@@ -158,6 +158,34 @@
     return category || "";
   }
 
+  var statusClass = {
+    "게시예정": "contents-status--scheduled",
+    "게시중": "contents-status--live",
+    "게시종료": "contents-status--ended",
+    "비공개": "contents-status--private",
+    "임시저장": "contents-status--draft"
+  };
+
+  function renderRecentFromDB(posts) {
+    var body = document.getElementById("home-recent-body");
+    if (!body) return;
+    if (!posts || !posts.length) {
+      body.innerHTML = '<tr><td class="home-empty" colspan="4">표시할 게시글이 없습니다.</td></tr>';
+      return;
+    }
+    body.innerHTML = posts.map(function (item) {
+      var status = item.status || "게시중";
+      var title = String(item.title || "").trim() ? item.title : "(제목 없음)";
+      var href = "contents-edit.asp?id=" + encodeURIComponent(item.id) + boardHash(item.category);
+      return "<tr>" +
+        "<td>" + escapeHtml(categoryLabel(item.category)) + "</td>" +
+        '<td><a class="home-recent__title" href="' + href + '">' + escapeHtml(title) + "</a></td>" +
+        '<td><span class="contents-status ' + (statusClass[status] || "") + '">' + escapeHtml(status) + "</span></td>" +
+        "<td>" + escapeHtml(item.updatedAt || "") + "</td>" +
+        "</tr>";
+    }).join("");
+  }
+
   function renderRecent() {
     var body = document.getElementById("home-recent-body");
     if (!body || !window.ContentStore || !ContentStore.peek) return;
@@ -171,13 +199,6 @@
       body.innerHTML = '<tr><td class="home-empty" colspan="4">' + escapeHtml(ContentStore.problemMessage()) + "</td></tr>";
       return;
     }
-    var statusClass = {
-      "게시예정": "contents-status--scheduled",
-      "게시중": "contents-status--live",
-      "게시종료": "contents-status--ended",
-      "비공개": "contents-status--private",
-      "임시저장": "contents-status--draft"
-    };
     var posts = items.filter(function (item) {
       return item.category === "공지" || item.category === "복숭아정보" || item.category === "재배자료";
     }).sort(function (a, b) {
@@ -191,7 +212,7 @@
     body.innerHTML = posts.map(function (item) {
       var status = ContentStore.statusOf(item);
       var title = String(item.title || "").trim() ? item.title : "(제목 없음)";
-      var href = "contents-edit.html?id=" + encodeURIComponent(item.id) + boardHash(item.category);
+      var href = "contents-edit.asp?id=" + encodeURIComponent(item.id) + boardHash(item.category);
       return "<tr>" +
         "<td>" + escapeHtml(categoryLabel(item.category)) + "</td>" +
         '<td><a class="home-recent__title" href="' + href + '">' + escapeHtml(title) + "</a></td>" +
@@ -203,10 +224,63 @@
 
   Admin.ready(function () {
     var today = seoulToday();
-    renderOrchard(today);
-    renderCultivation(today);
-    renderVideos();
-    renderRecent();
+
+    // 1) 홈 대시보드 프로시저 API 호출 (USP_ADMIN_HOME_DATA)
+    fetch("proc/home_proc.asp?year=" + today.year + "&month=" + today.month)
+      .then(function (res) { return res.json(); })
+      .then(function (json) {
+        if (!json || !json.success) return;
+
+        // DB 과원관리 자료 반영
+        data.orchard = json.orchard ? [json.orchard] : [];
+
+        // DB 재배력 자료 반영
+        if (json.cultivation) {
+          data.cultivation = Object.assign({}, data.cultivation || {}, json.cultivation);
+        } else if (data.cultivation) {
+          data.cultivation.published = false;
+        }
+
+        // DB 교육영상 반영
+        if (Array.isArray(json.videos)) {
+          var vList = document.getElementById("home-videos");
+          if (vList) {
+            if (!json.videos.length) {
+              vList.innerHTML = '<p class="home-videos__empty">등록된 재배기술 영상이 없습니다.</p>';
+            } else {
+              vList.innerHTML = json.videos.map(function (v) {
+                var href = "videos-detail.asp?id=" + encodeURIComponent(v.id);
+                return '<article class="home-video">' +
+                  '<div class="home-media home-media--video">' + media(v.thumbnail, v.title, false) + "</div>" +
+                  '<div class="home-card__foot">' +
+                    '<h3 class="home-video__title">' + escapeHtml(v.title || "제목 없음") + "</h3>" +
+                    '<a class="btn btn--primary home-card__action" href="' + href + '">수정</a>' +
+                  "</div>" +
+                  "</article>";
+              }).join("");
+            }
+          }
+        } else {
+          renderVideos();
+        }
+
+        // DB 최근 게시글 반영
+        if (Array.isArray(json.recentPosts)) {
+          renderRecentFromDB(json.recentPosts);
+        } else {
+          renderRecent();
+        }
+
+        renderOrchard(today);
+        renderCultivation(today);
+      })
+      .catch(function () {
+        renderOrchard(today);
+        renderCultivation(today);
+        renderVideos();
+        renderRecent();
+      });
+
     document.querySelectorAll(".home-media img").forEach(function (image) {
       image.addEventListener("error", function () {
         var empty = document.createElement("div");

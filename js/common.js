@@ -86,6 +86,13 @@ var Admin = (function () {
       logout.addEventListener("click", function (event) {
         event.preventDefault();
         // TODO: 로그아웃 API 연동
+        try {
+          sessionStorage.removeItem("peach-admin-session");
+          localStorage.removeItem("peach-admin-auto");
+        } catch (error) {
+          /* 저장소를 사용할 수 없어도 로그인 화면으로 이동합니다. */
+        }
+        window.location.href = "login.html";
       });
     }
   }

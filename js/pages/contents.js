@@ -39,7 +39,7 @@
   }
 
   function listHref(category) {
-    return "contents-list.html" + boardHash(category);
+    return "contents-list.asp" + boardHash(category);
   }
 
   function escapeHtml(value) {
@@ -113,41 +113,44 @@
     return ContentStore.statusOf(item) === "임시저장";
   }
 
-  function draftCount() {
-    if (!state.category) return 0;
-    return ContentStore.list().filter(function (item) {
-      return item.category === state.category && isDraftItem(item);
-    }).length;
-  }
-
-  function syncDraftButton() {
+  async function syncDraftButton() {
     var button = qs("#contents-drafts");
     if (!button) return;
-    button.textContent = "임시저장(" + draftCount() + ")";
+    if (!state.category) {
+      button.textContent = "임시저장(0)";
+      return;
+    }
+    try {
+      var res = await fetch("proc/board_proc.asp?action=draft_count&category=" + encodeURIComponent(state.category));
+      var json = await res.json();
+      if (json && json.success) {
+        button.textContent = "임시저장(" + (json.count || 0) + ")";
+      }
+    } catch(e) {}
     button.setAttribute("aria-pressed", state.drafts ? "true" : "false");
   }
 
-  function filteredItems() {
-    // TODO: 콘텐츠 목록 조회 API 연동
-    return ContentStore.list().filter(function (item) {
-      // 운영자 목록에서만 제외합니다. 저장된 과원관리 게시글과 저장 구조는 바꾸지 않습니다.
-      if (item.category === "과원관리") return false;
-      if (!state.category || item.category !== state.category) return false;
-      if (state.drafts) {
-        if (!isDraftItem(item)) return false;
-      } else if (isDraftItem(item)) {
-        return false;
-      } else if (state.status && ContentStore.statusOf(item) !== state.status) {
-        return false;
+  async function fetchBoardItems() {
+    if (!state.category) return [];
+    try {
+      var url = "proc/board_proc.asp?action=list&category=" + encodeURIComponent(state.category) +
+                "&is_draft=" + (state.drafts ? "Y" : "N");
+      if (state.period) url += "&period_type=" + encodeURIComponent(state.period);
+      if (state.periodStart) url += "&period_start=" + encodeURIComponent(state.periodStart);
+      if (state.periodEnd) url += "&period_end=" + encodeURIComponent(state.periodEnd);
+      if (state.status) url += "&status=" + encodeURIComponent(state.status);
+      if (state.field) url += "&field=" + encodeURIComponent(state.field);
+      if (state.keyword) url += "&keyword=" + encodeURIComponent(state.keyword);
+
+      var res = await fetch(url);
+      var json = await res.json();
+      if (json && json.success && Array.isArray(json.items)) {
+        return json.items;
       }
-      if (!matchesPeriod(item)) return false;
-      return matchesKeyword(item);
-    }).sort(function (a, b) {
-      var aPin = isLivePin(a);
-      var bPin = isLivePin(b);
-      if (aPin !== bPin) return aPin ? -1 : 1;
-      return compareLatest(a, b);
-    });
+    } catch (e) {
+      console.warn("게시글 목록 조회 실패:", e);
+    }
+    return [];
   }
 
   function renderStatus(status) {
@@ -156,6 +159,7 @@
   }
 
   function renderChannels(channels) {
+    if (!Array.isArray(channels)) return "";
     return channels.map(function (channel) {
       return '<span class="badge">' + escapeHtml(channel) + "</span>";
     }).join("");
@@ -185,20 +189,20 @@
 
     var regularTotal = 0;
     items.forEach(function (item) {
-      if (!isLivePin(item)) regularTotal += 1;
+      if (!item.pinned) regularTotal += 1;
     });
     var regularBefore = 0;
     items.slice(0, start).forEach(function (item) {
-      if (!isLivePin(item)) regularBefore += 1;
+      if (!item.pinned) regularBefore += 1;
     });
 
     tbody.innerHTML = pageItems.map(function (item) {
-      var href = "contents-edit.html?id=" + encodeURIComponent(item.id) + boardHash(item.category);
-      var pinned = isLivePin(item);
+      var href = "contents-edit.asp?id=" + encodeURIComponent(item.id) + boardHash(item.category);
+      var pinned = !!item.pinned;
       var numberCell = pinned
         ? '<span class="contents-pin">공지</span>'
         : String(regularTotal - regularBefore++);
-      // 수정·등록일 열은 수정일(updatedAt)을 표시합니다. No는 화면 순번이며 게시글 id와 다릅니다.
+      var statusText = item.status || (item.isDraft ? "임시저장" : (item.visibility === "private" ? "비공개" : "게시중"));
       return (
         '<tr' + (pinned ? ' class="is-notice"' : "") + ">" +
           '<td class="table__check"><label class="checkbox">' +
@@ -209,12 +213,12 @@
           "<td>" + numberCell + "</td>" +
           '<td><span class="contents-title-line">' +
             '<a class="contents-title" href="' + href + '">' + escapeHtml(String(item.title || "").trim() ? item.title : "(제목 없음)") + "</a>" +
-            (ContentStore.urgentActive(item) ? '<span class="contents-urgent">· 긴급</span>' : "") +
+            (item.urgentUse ? '<span class="contents-urgent">· 긴급</span>' : "") +
           "</span></td>" +
           "<td>" + renderChannels(item.channels) + "</td>" +
-          "<td>" + renderStatus(ContentStore.statusOf(item)) + "</td>" +
-          "<td>" + escapeHtml(item.author) + "</td>" +
-          "<td>" + escapeHtml(item.updatedAt) + "</td>" +
+          "<td>" + renderStatus(statusText) + "</td>" +
+          "<td>" + escapeHtml(item.author || "관리자") + "</td>" +
+          "<td>" + escapeHtml(item.updatedAt || "") + "</td>" +
         "</tr>"
       );
     }).join("");
@@ -230,48 +234,22 @@
 
   function showStorageProblem() {
     var storage = qs("#contents-storage");
-    var message = ContentStore.problemMessage();
-    if (!storage) return;
-    storage.hidden = !message;
-    var messageEl = qs("#contents-storage-message");
-    if (messageEl) messageEl.textContent = message;
+    if (storage) storage.hidden = true;
   }
 
-  function render(updatePager) {
-    syncDraftButton();
-    var items = filteredItems();
-    var problem = ContentStore.problem();
-    showStorageProblem();
-    if (problem) {
-      var tbody = qs("#contents-table tbody");
-      if (tbody) tbody.innerHTML = "";
-      var master = qs("#contents-table [data-check-all]");
-      var removeButton = qs("#contents-delete");
-      if (master) {
-        master.checked = false;
-        master.indeterminate = false;
-      }
-      if (removeButton) removeButton.disabled = true;
-      if (updatePager) {
-        var brokenNav = qs("[data-pagination]");
-        if (brokenNav) {
-          brokenNav.setAttribute("data-current", "1");
-          brokenNav.setAttribute("data-total", "1");
-          AdminUI.refreshPagination(brokenNav);
-        }
-      }
-      return;
-    }
-    var totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
-    if (state.page > totalPages) state.page = totalPages;
+  async function render(updatePager) {
+    await syncDraftButton();
+    var items = await fetchBoardItems();
     renderRows(items);
-
-    if (!updatePager) return;
-    var nav = qs("[data-pagination]");
-    if (!nav) return;
-    nav.setAttribute("data-current", String(state.page));
-    nav.setAttribute("data-total", String(items.length ? totalPages : 1));
-    AdminUI.refreshPagination(nav);
+    if (updatePager) {
+      var nav = qs("[data-pagination]");
+      if (nav) {
+        var totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+        nav.setAttribute("data-current", String(state.page));
+        nav.setAttribute("data-total", String(totalPages));
+        AdminUI.refreshPagination(nav);
+      }
+    }
   }
 
   function periodErrorMessage(startValue, endValue) {
@@ -339,7 +317,7 @@
     render(true);
   }
 
-  function initCreate() {
+  async function initCreate() {
     var form = qs("#contents-form");
     if (!form) return;
 
@@ -362,7 +340,7 @@
       var messageEl = qs("#contents-board-message");
       if (messageEl) messageEl.textContent = message;
       var back = qs("#contents-board-back");
-      if (back) back.href = backHref || "contents-list.html";
+      if (back) back.href = backHref || "contents-list.asp";
     }
 
     function applyBoard(category) {
@@ -375,7 +353,7 @@
       if (heading) heading.textContent = label + " " + action;
       document.title = label + " " + action + " | 복숭아자조금 관리자";
       var href = listHref(category);
-      qsa("main a[href='contents-list.html'], main a[href^='contents-list.html#']").forEach(function (link) {
+      qsa("main a[href='contents-list.asp'], main a[href^='contents-list.asp#']").forEach(function (link) {
         link.href = href;
       });
       var pinRow = qs("#contents-pin-row");
@@ -389,7 +367,22 @@
     }
 
     if (isEdit) {
-      editing = ContentStore.get(new URLSearchParams(window.location.search).get("id"));
+      var editId = new URLSearchParams(window.location.search).get("id");
+      if (editId) {
+        try {
+          var getRes = await fetch("proc/board_proc.asp?action=get&id=" + encodeURIComponent(editId));
+          var getJson = await getRes.json();
+          if (getJson && getJson.success && getJson.item) {
+            editing = getJson.item;
+            editing.attachments = getJson.attachments || [];
+          }
+        } catch (e) {
+          console.warn("DB 게시글 단건 조회 실패, ContentStore 폴백:", e);
+        }
+      }
+      if (!editing && editId) {
+        editing = ContentStore.get(editId);
+      }
       if (ContentStore.problem()) {
         showStorageProblem();
         return;
@@ -784,22 +777,41 @@
 
       function render() {
         if (!listEl) return;
-        listEl.replaceChildren();
+        listEl.innerHTML = "";
         entries.forEach(function (entry) {
           var source = entry.file || entry.meta || {};
           var item = document.createElement("li");
           item.className = "upload-list__item";
+
           var meta = document.createElement("div");
           meta.className = "upload-list__meta";
+
           var name = document.createElement("span");
           name.className = "upload-list__name";
-          name.textContent = source.name || "";
+          if (entry.meta && entry.meta.path) {
+            var link = document.createElement("a");
+            link.href = entry.meta.path;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = source.name || "";
+            link.style.textDecoration = "underline";
+            link.style.color = "#0d6efd";
+            name.appendChild(link);
+          } else {
+            name.textContent = source.name || "";
+          }
+
           var size = document.createElement("span");
           size.className = "upload-list__size";
           var sizeText = formatFileSize(source.size);
-          if (!entry.file && !(entry.meta && entry.meta.resourceKey)) sizeText += " · 파일 내용은 보관되지 않습니다";
+          if (entry.meta && entry.meta.path) {
+            sizeText += " · 서버 저장됨";
+          }
           size.textContent = sizeText;
-          meta.append(name, size);
+
+          meta.appendChild(name);
+          meta.appendChild(size);
+
           var removeButton = document.createElement("button");
           removeButton.type = "button";
           removeButton.className = "upload__remove";
@@ -811,8 +823,10 @@
             render();
             if (onChange) onChange();
           });
-          item.append(meta, removeButton);
-          listEl.append(item);
+
+          item.appendChild(meta);
+          item.appendChild(removeButton);
+          listEl.appendChild(item);
         });
       }
 
@@ -838,15 +852,15 @@
 
       input.addEventListener("change", function (event) {
         var picked = Array.prototype.slice.call(input.files || []);
-        input.value = "";
         if (!picked.length) return;
         clearFileError();
         try {
-          if (!addFiles(picked)) event.stopPropagation();
+          addFiles(picked);
         } catch (error) {
+          console.error("파일 추가 오류:", error);
           showFileError("파일을 선택하지 못했습니다. 다시 선택해 주세요.");
-          event.stopPropagation();
         }
+        input.value = "";
       });
 
       return {
@@ -1057,10 +1071,29 @@
       });
     }
     if (editDeleteConfirm && isEdit && editing) {
-      editDeleteConfirm.addEventListener("click", function () {
-        if (!ContentStore.remove([editing.id])) return;
-        dirty = false;
-        window.location.href = listHref(editing.category);
+      editDeleteConfirm.addEventListener("click", async function () {
+        try {
+          var params = new URLSearchParams();
+          params.append("action", "delete");
+          params.append("ids", String(editing.id));
+
+          var res = await fetch("proc/board_proc.asp", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
+            body: params.toString()
+          });
+          var json = await res.json();
+          if (json && json.success) {
+            try { ContentStore.remove([editing.id]); } catch(e) {}
+            dirty = false;
+            window.location.href = listHref(editing.category);
+          } else {
+            alert("삭제 실패: " + (json && json.message ? json.message : "서버 오류가 발생했습니다."));
+          }
+        } catch (e) {
+          console.error("게시글 삭제 실패:", e);
+          alert("게시글 삭제 중 오류가 발생했습니다.");
+        }
       });
     }
 
@@ -1155,13 +1188,13 @@
 
     function showDone(isDraft) {
       var title = "등록 완료";
-      var message = "게시글이 시연용 데이터에 등록되었습니다.";
+      var message = "게시글이 데이터베이스에 등록되었습니다.";
       if (isDraft) {
         title = "임시저장 완료";
-        message = "게시글이 시연용 데이터에 임시저장되었습니다.";
+        message = "게시글이 데이터베이스에 임시저장되었습니다.";
       } else if (isEdit && editing && !editing.isDraft) {
         title = "수정 완료";
-        message = "게시글이 시연용 데이터에 수정되었습니다.";
+        message = "게시글이 데이터베이스에 수정되었습니다.";
       }
       qs("#contents-done-title").textContent = title;
       qs("#contents-done-message").textContent = message;
@@ -1180,6 +1213,13 @@
       callback(editing ? editing.image : null);
     }
 
+    function safeUUID() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        try { return window.crypto.randomUUID(); } catch (e) {}
+      }
+      return "post-" + Date.now() + "-" + Math.floor(Math.random() * 1000000);
+    }
+
     function materializeAttachments() {
       if (!attachmentTouched) {
         if (editing && Array.isArray(editing.attachments)) return Promise.resolve(editing.attachments.slice());
@@ -1192,8 +1232,12 @@
         for (var index = 0; index < entries.length; index += 1) {
           var entry = entries[index];
           if (entry.file) {
-            var binaryKey = "post-file:" + crypto.randomUUID();
-            await ResourceStore.put({ key: binaryKey, kind: "post-file", file: entry.file });
+            var binaryKey = "post-file:" + safeUUID();
+            try {
+              if (window.ResourceStore && ResourceStore.put) {
+                await ResourceStore.put({ key: binaryKey, kind: "post-file", file: entry.file });
+              }
+            } catch (err) {}
             var meta = fileMeta(entry.file);
             meta.resourceKey = binaryKey;
             saved.push(meta);
@@ -1205,35 +1249,85 @@
       })();
     }
 
-    function saveContent(isDraft) {
+    async function saveContent(isDraft) {
       if (saveLocked) return;
-      if (!formValue().category || formValue().category === "과원관리") return;
-      saveLocked = true;
       var payload = formValue();
+      if (!payload.category || payload.category === "과원관리") return;
+      saveLocked = true;
       payload.isDraft = isDraft;
-      currentImage(async function (image) {
-        payload.image = image;
-        try {
-          var attachments = await materializeAttachments();
-          payload.attachments = attachments;
-          payload.attachment = attachments.length ? attachments[0] : null;
-        } catch (error) {
+
+      var submitBtn = qs("#contents-submit");
+      var draftBtn = qs("#contents-draft");
+      if (submitBtn) submitBtn.disabled = true;
+      if (draftBtn) draftBtn.disabled = true;
+
+      try {
+        var fd = new FormData();
+        fd.append("action", "save");
+        if (isEdit && editing && editing.id) {
+          fd.append("id", String(editing.id));
+        }
+        fd.append("category", payload.category);
+        fd.append("title", payload.title);
+        fd.append("body", payload.body);
+        fd.append("visibility", payload.visibility);
+        fd.append("isDraft", isDraft ? "true" : "false");
+        fd.append("pinned", payload.pinned ? "true" : "false");
+        fd.append("channels", payload.channels.join(","));
+        fd.append("publishStart", payload.publishStart || "");
+        fd.append("publishEnd", payload.publishEnd || "");
+        fd.append("noEnd", payload.noEnd ? "true" : "false");
+        fd.append("urgentUse", payload.urgentUse ? "true" : "false");
+        fd.append("urgentStart", payload.urgentStart || "");
+        fd.append("urgentEnd", payload.urgentEnd || "");
+        if (payload.relatedTarget) {
+          var rKind = payload.relatedTarget.kind || payload.relatedTarget.type || "";
+          var rTarget = payload.relatedTarget.id || (payload.relatedTarget.year ? (payload.relatedTarget.year + ":" + payload.relatedTarget.month) : "") || "calendar";
+          fd.append("relatedType", rKind);
+          fd.append("relatedTarget", String(rTarget));
+        } else {
+          fd.append("relatedType", "");
+          fd.append("relatedTarget", "");
+        }
+
+        // 첨부파일 전송 처리 (TABSUpload & 기존 파일 유지)
+        var entries = fileUpload.entries();
+        var attachIndex = 0;
+        var keepAttachIds = [];
+        entries.forEach(function (entry) {
+          if (entry.file) {
+            fd.append("attach_file_" + attachIndex, entry.file);
+            attachIndex++;
+          } else if (entry.meta && entry.meta.id) {
+            keepAttachIds.push(entry.meta.id);
+          }
+        });
+        fd.append("attach_count", String(attachIndex));
+        fd.append("keep_attach_ids", keepAttachIds.join(","));
+
+        var res = await fetch("proc/board_proc.asp", { method: "POST", body: fd });
+        var json = await res.json();
+
+        if (json && json.success) {
+          try {
+            ContentStore.reload();
+          } catch (e) {}
+
+          dirty = false;
           saveLocked = false;
-          fileUpload.showFileError("첨부파일을 저장하지 못했습니다. 입력 내용은 유지됩니다. 다시 저장해 주세요.");
-          return;
-        }
-        if (image && image.readError && imageUpload) {
-          imageUpload.showFileError("이미지를 읽지 못했습니다. 파일명과 용량만 시연 데이터에 남습니다.");
-        }
-        var savedRecord = isEdit ? ContentStore.update(editing.id, payload) : ContentStore.add(payload);
-        if (!savedRecord) {
+          showDone(isDraft);
+        } else {
           saveLocked = false;
-          if (ContentStore.problem()) showStorageProblem();
-          return;
+          alert("저장 실패: " + (json && json.message ? json.message : "서버 오류가 발생했습니다."));
         }
-        dirty = false;
-        showDone(isDraft);
-      });
+      } catch (err) {
+        saveLocked = false;
+        console.error("게시글 저장 오류:", err);
+        alert("게시글 저장 중 서버 통신 오류가 발생했습니다.");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (draftBtn) draftBtn.disabled = false;
+      }
     }
 
     qs("#contents-draft").addEventListener("click", function () {
@@ -1311,10 +1405,10 @@
         createLink.classList.toggle("is-disabled", !category);
         createLink.setAttribute("aria-disabled", category ? "false" : "true");
         if (category) {
-          createLink.href = "contents-create.html#" + hash;
+          createLink.href = "contents-create.asp#" + hash;
           createLink.removeAttribute("tabindex");
         } else {
-          createLink.href = "contents-list.html";
+          createLink.href = "contents-list.asp";
           createLink.tabIndex = -1;
         }
       }
@@ -1387,29 +1481,39 @@
 
     var confirmButton = qs("#contents-delete-confirm");
     if (confirmButton) {
-      confirmButton.addEventListener("click", function () {
+      confirmButton.addEventListener("click", async function () {
         var ids = qsa("#contents-table tbody input[type='checkbox']:checked").map(function (box) {
           return box.getAttribute("data-id");
-        });
+        }).filter(Boolean);
+
         if (!ids.length) {
           AdminUI.closeModal("modal-contents-delete");
           return;
         }
-        ids = ids.filter(function (id) {
-          var item = ContentStore.get(id);
-          return item && item.category !== "과원관리";
-        });
-        if (!ids.length) {
-          AdminUI.closeModal("modal-contents-delete");
-          return;
+
+        try {
+          var params = new URLSearchParams();
+          params.append("action", "delete");
+          params.append("ids", ids.join(","));
+
+          var res = await fetch("proc/board_proc.asp", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
+            body: params.toString()
+          });
+          var json = await res.json();
+          if (json && json.success) {
+            AdminUI.closeModal("modal-contents-delete");
+            try { ContentStore.remove(ids); } catch (e) {}
+            await render(true);
+            AdminUI.openModal("modal-contents-deleted");
+          } else {
+            alert("삭제 실패: " + (json && json.message ? json.message : "서버 오류가 발생했습니다."));
+          }
+        } catch (e) {
+          console.error("게시글 다중 삭제 실패:", e);
+          alert("게시글 삭제 중 통신 오류가 발생했습니다.");
         }
-        if (!ContentStore.remove(ids)) {
-          AdminUI.closeModal("modal-contents-delete");
-          render(true);
-          return;
-        }
-        render(true);
-        AdminUI.openModal("modal-contents-deleted");
       });
     }
 

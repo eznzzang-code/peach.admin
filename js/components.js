@@ -286,6 +286,7 @@ var AdminUI = (function () {
         pick.addEventListener("click", function (event) {
           event.preventDefault();
           event.stopPropagation();
+          input.value = "";
           input.click();
         });
       });

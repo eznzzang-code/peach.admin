@@ -1,0 +1,3 @@
+[2026-10-26 오후 5:51:36] clientSessionId: E73C9E3B5198EDBAAC001F5C31E70B1D
+[2026-10-26 오후 5:51:36] postBody: authNumber=2879&p_empname=%ED%85%8C%EC%8A%A4%ED%8A%B8&pEmpname=%ED%85%8C%EC%8A%A4%ED%8A%B8&pempname=%ED%85%8C%EC%8A%A4%ED%8A%B8&empname=%ED%85%8C%EC%8A%A4%ED%8A%B8&user_name=%ED%85%8C%EC%8A%A4%ED%8A%B8&p_mobile=01074991011&pMobile=01074991011&pmobile=01074991011&mobile=01074991011&branchid=2020&branchId=2020&p_branchid=2020&pBranchid=2020
+[2026-10-26 오후 5:51:36] jsonRes: {"empno":"2020500013","empid":"test0001","branchid":"2020","branchname":"(사)한국복숭아생산자협의회","resultcode":200,"pemppwd":null,"pmobile":null,"pempname":null}

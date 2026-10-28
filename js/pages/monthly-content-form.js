@@ -61,17 +61,41 @@
   }
 
   async function loadOrchardContent(year, month) {
-    var saved = null;
-    if (window.ResourceStore && ResourceStore.get) {
-      try {
-        saved = await ResourceStore.get("orchard:" + year + ":" + month);
-      } catch (error) {
-        saved = null;
+    try {
+      var res = await fetch("proc/orchard_proc.asp?action=get&year=" + year + "&month=" + month);
+      var json = await res.json();
+      if (json && json.success && json.item) {
+        var it = json.item;
+        var imgs = Array.isArray(json.images) ? json.images : [];
+        var webImgs = imgs.filter(function (img) { return String(img.channel).toUpperCase() === "WEB"; }).map(function (img) {
+          return { id: "db-" + img.id, name: img.name, url: img.path, file: { name: img.name } };
+        });
+        var appImgs = imgs.filter(function (img) { return String(img.channel).toUpperCase() === "APP"; }).map(function (img) {
+          return { id: "db-" + img.id, name: img.name, url: img.path, file: { name: img.name } };
+        });
+        var thumbObj = null;
+        if (it.thumbnail) {
+          var tName = String(it.thumbnail).split("/").pop();
+          thumbObj = { name: tName, url: it.thumbnail };
+        }
+        return {
+          source: "db",
+          record: {
+            id: it.id,
+            year: it.year,
+            month: it.month,
+            title: it.title,
+            visibility: it.visibility === "public" ? "공개" : "비공개",
+            channels: it.channels || [],
+            thumbnail: thumbObj,
+            webImages: webImgs,
+            appImages: appImgs,
+            updatedAt: it.updatedAt
+          }
+        };
       }
-    }
-    if (saved && saved.deleted) return { source: "empty", record: null };
-    if (saved && saved.kind === "orchard" && Number(saved.year) === year && Number(saved.month) === month) {
-      return { source: "saved", record: saved };
+    } catch (e) {
+      console.warn("DB 과원관리 로드 실패:", e);
     }
     var demo = demoOrchard(year, month);
     if (demo) return { source: "demo", record: demo };
@@ -156,8 +180,8 @@
   }
 
   function listPage(typeCode) {
-    if (typeCode === "orchard") return "orchard-content.html";
-    if (typeCode === "cultivation") return "cultivation-content.html";
+    if (typeCode === "orchard") return "orchard-content.asp";
+    if (typeCode === "cultivation") return "cultivation-content.asp";
     return "";
   }
 
@@ -203,6 +227,48 @@
     var submitButton = Admin.qs("#monthly-submit");
     var notice = Admin.qs("#monthly-notice");
 
+    var thumbInput = Admin.qs("#monthly-thumb");
+    var thumbName = Admin.qs("#monthly-thumb-name");
+    var thumbPick = Admin.qs("#monthly-thumb-pick");
+    var thumbClear = Admin.qs("#monthly-thumb-clear");
+    function paintMonthlyThumb(file, message) {
+      var name = file && file.name ? file.name : "";
+      if (thumbPick) thumbPick.textContent = name ? "파일 변경" : "파일 선택";
+      if (thumbName) {
+        thumbName.textContent = name || message || "선택된 파일이 없습니다.";
+        thumbName.title = name;
+        thumbName.classList.toggle("is-empty", !name);
+      }
+      if (thumbClear) thumbClear.hidden = !name;
+    }
+    if (thumbPick && thumbInput) {
+      thumbPick.addEventListener("click", function () { thumbInput.click(); });
+    }
+    if (thumbClear && thumbInput) {
+      thumbClear.addEventListener("click", function () {
+        thumbInput.value = "";
+        if (record && record.thumbnail) record.thumbnail = null;
+        dirty = true;
+        paintMonthlyThumb(null);
+      });
+    }
+    if (thumbInput) {
+      thumbInput.addEventListener("change", function () {
+        var file = thumbInput.files && thumbInput.files[0];
+        if (!file) {
+          paintMonthlyThumb(null);
+          return;
+        }
+        if (!isContentImage(file)) {
+          thumbInput.value = "";
+          paintMonthlyThumb(null, "PNG·JPG·WebP 파일을 선택해 주세요.");
+          return;
+        }
+        dirty = true;
+        paintMonthlyThumb(file);
+      });
+    }
+
     if (gateCheck.ok) showForm();
     else showGate(gateCheck);
 
@@ -247,22 +313,23 @@
         if (target.typeCode !== "orchard" || !target.year || !target.month) return;
         monthlyDeleteConfirm.disabled = true;
         try {
-          await ResourceStore.put({
-            key: "orchard:" + target.year + ":" + target.month,
-            kind: "orchard",
-            year: target.year,
-            month: target.month,
-            deleted: true
-          });
-          dirty = false;
-          var back = listHref();
-          window.location.href = back + (back.indexOf("?") === -1 ? "?" : "&") + "deleted=1";
+          var fd = new FormData();
+          fd.append("action", "delete");
+          fd.append("year", String(target.year));
+          fd.append("month", String(target.month));
+          var res = await fetch("proc/orchard_proc.asp", { method: "POST", body: fd });
+          var json = await res.json();
+          if (json && json.success) {
+            dirty = false;
+            var back = listHref();
+            window.location.href = back + (back.indexOf("?") === -1 ? "?" : "&") + "deleted=1";
+          } else {
+            alert("삭제 실패: " + (json && json.message ? json.message : ""));
+            monthlyDeleteConfirm.disabled = false;
+          }
         } catch (error) {
           monthlyDeleteConfirm.disabled = false;
-          if (notice) {
-            notice.textContent = "삭제하지 못했습니다. 브라우저 저장 공간과 권한을 확인해 주세요.";
-            AdminUI.openModal("modal-monthly-notice");
-          }
+          alert("삭제 중 서버 통신 오류가 발생했습니다.");
         }
       });
     }
@@ -280,44 +347,6 @@
     submitButton.addEventListener("click", submitForm);
 
     ["web", "app"].forEach(bindGallery);
-    var thumbInput = Admin.qs("#monthly-thumb");
-    var thumbName = Admin.qs("#monthly-thumb-name");
-    var thumbPick = Admin.qs("#monthly-thumb-pick");
-    var thumbClear = Admin.qs("#monthly-thumb-clear");
-    function paintMonthlyThumb(file, message) {
-      var name = file && file.name ? file.name : "";
-      if (thumbPick) thumbPick.textContent = name ? "파일 변경" : "파일 선택";
-      if (thumbName) {
-        thumbName.textContent = name || message || "선택된 파일이 없습니다.";
-        thumbName.title = name;
-        thumbName.classList.toggle("is-empty", !name);
-      }
-      if (thumbClear) thumbClear.hidden = !name;
-    }
-    if (thumbPick && thumbInput) {
-      thumbPick.addEventListener("click", function () { thumbInput.click(); });
-    }
-    if (thumbClear && thumbInput) {
-      thumbClear.addEventListener("click", function () {
-        thumbInput.value = "";
-        paintMonthlyThumb(null);
-      });
-    }
-    if (thumbInput) {
-      thumbInput.addEventListener("change", function () {
-        var file = thumbInput.files && thumbInput.files[0];
-        if (!file) {
-          paintMonthlyThumb(null);
-          return;
-        }
-        if (!isContentImage(file)) {
-          thumbInput.value = "";
-          paintMonthlyThumb(null, "PNG·JPG·WebP 파일을 선택해 주세요.");
-          return;
-        }
-        paintMonthlyThumb(file);
-      });
-    }
     Admin.qs("#monthly-preview-web").addEventListener("click", function () { previewChannel = "web"; paintPreviewStage(); });
     Admin.qs("#monthly-preview-app").addEventListener("click", function () { previewChannel = "app"; paintPreviewStage(); });
     window.addEventListener("pagehide", function () {
@@ -469,7 +498,7 @@
 
     function listHref() {
       var page = listPage(target.typeCode);
-      if (!page) return "orchard-content.html";
+      if (!page) return "orchard-content.asp";
       if (!target.year) return page;
       return page + "?year=" + encodeURIComponent(target.year);
     }
@@ -546,11 +575,11 @@
       if (target.typeCode && listPage(target.typeCode)) {
         actions.appendChild(gateLink(listHref(), "목록"));
       } else {
-        actions.appendChild(gateLink("orchard-content.html", "과원관리 목록"));
-        actions.appendChild(gateLink("cultivation-content.html", "재배력 목록"));
+        actions.appendChild(gateLink("orchard-content.asp", "과원관리 목록"));
+        actions.appendChild(gateLink("cultivation-content.asp", "재배력 목록"));
       }
       if (result.code === "duplicate") {
-        var editUrl = "monthly-content-form.html?type=" + encodeURIComponent(target.typeCode) +
+        var editUrl = "monthly-content-form.asp?type=" + encodeURIComponent(target.typeCode) +
           "&year=" + encodeURIComponent(target.year) +
           "&month=" + encodeURIComponent(target.month) +
           "&mode=edit";
@@ -675,12 +704,9 @@
       };
     }
 
-    function submitForm() {
+    async function submitForm() {
       var values = formValues();
       var screenErrors = validateMonthlyContentForm(values);
-      var saveResult = validateMonthlyContentSave(values, validationRows());
-      var beforeMonthly = JSON.stringify(records());
-      var beforeContents = window.MockData && MockData.contents ? JSON.stringify(MockData.contents) : "";
       clearErrors();
 
       var focusField = null;
@@ -688,28 +714,81 @@
         var field = showFieldError(error.field, error.message);
         if (!focusField && field) focusField = field;
       });
-      if (saveResult.field) {
-        var serverField = showFieldError(saveResult.field, saveResult.message);
-        if (!focusField && serverField) focusField = serverField;
-      }
       if (focusField && typeof focusField.focus === "function") focusField.focus();
-      if (screenErrors.length || !saveResult.ok) {
-        if (!saveResult.ok && !saveResult.field && notice) {
-          notice.textContent = saveResult.message;
-          AdminUI.openModal("modal-monthly-notice");
+      if (screenErrors.length) return;
+
+      if (target.typeCode === "orchard") {
+        submitButton.disabled = true;
+        var prevText = submitButton.textContent;
+        submitButton.textContent = "저장 중...";
+
+        try {
+          var fd = new FormData();
+          fd.append("action", "save");
+          fd.append("year", String(target.year));
+          fd.append("month", String(target.month));
+          fd.append("title", values.title);
+          fd.append("visibility", values.visibility === "공개" ? "public" : "private");
+          fd.append("channels", (values.webOn ? ["Web"] : []).concat(values.appOn ? ["App"] : []).join(","));
+
+          // 썸네일
+          var thumbInput = Admin.qs("#monthly-thumb");
+          if (thumbInput && thumbInput.files && thumbInput.files[0]) {
+            fd.append("thumbnail_file", thumbInput.files[0]);
+          } else if (record && record.thumbnail && record.thumbnail.url) {
+            fd.append("thumbnail_existing", record.thumbnail.url);
+          }
+
+          // Web 본문 이미지
+          fd.append("web_count", String(galleries.web.length));
+          galleries.web.forEach(function (item, idx) {
+            if (item.file instanceof File) {
+              fd.append("web_item_kind_" + idx, "new");
+              fd.append("web_file_" + idx, item.file);
+            } else {
+              fd.append("web_item_kind_" + idx, "keep");
+              fd.append("web_item_name_" + idx, (item.file && item.file.name) || item.name || "");
+              fd.append("web_item_path_" + idx, item.url || item.src || "");
+            }
+          });
+
+          // App 본문 이미지
+          fd.append("app_count", String(galleries.app.length));
+          galleries.app.forEach(function (item, idx) {
+            if (item.file instanceof File) {
+              fd.append("app_item_kind_" + idx, "new");
+              fd.append("app_file_" + idx, item.file);
+            } else {
+              fd.append("app_item_kind_" + idx, "keep");
+              fd.append("app_item_name_" + idx, (item.file && item.file.name) || item.name || "");
+              fd.append("app_item_path_" + idx, item.url || item.src || "");
+            }
+          });
+
+          var res = await fetch("proc/orchard_proc.asp", { method: "POST", body: fd });
+          var json = await res.json();
+
+          if (json && json.success) {
+            dirty = false;
+            alert(target.mode === "edit" ? "과원관리 콘텐츠가 성공적으로 수정되었습니다." : "과원관리 콘텐츠가 성공적으로 등록되었습니다.");
+            var back = listHref();
+            window.location.href = back + (back.indexOf("?") === -1 ? "?" : "&") + "saved=1";
+          } else {
+            alert("저장 실패: " + (json && json.message ? json.message : "알 수 없는 오류가 발생했습니다."));
+          }
+        } catch (err) {
+          console.error("저장 통신 오류:", err);
+          alert("저장 중 서버 통신 오류가 발생했습니다.");
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = prevText;
         }
         return;
       }
 
-      // 검증만 통과했습니다. 월별 콘텐츠, 게시글, localStorage는 바꾸지 않습니다.
       if (notice) {
-        notice.textContent = target.mode === "edit"
-          ? "서버가 연결되지 않아 콘텐츠를 수정할 수 없습니다."
-          : "서버가 연결되지 않아 콘텐츠를 등록할 수 없습니다.";
+        notice.textContent = "서버가 연결되지 않아 콘텐츠를 저장할 수 없습니다.";
         AdminUI.openModal("modal-monthly-notice");
-      }
-      if (JSON.stringify(records()) !== beforeMonthly || (window.MockData && MockData.contents && JSON.stringify(MockData.contents) !== beforeContents)) {
-        console.error("월별 콘텐츠 검증 중 저장 데이터가 변경되었습니다.");
       }
     }
   });
