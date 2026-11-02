@@ -1,0 +1,58 @@
+/* v0.2: official NAVER Form editor captures used as structural reference.
+   Peach branding and our branch editor are retained. */
+#peach-survey-prototype .ps-form-editor{display:grid;grid-template-columns:minmax(390px,760px) 245px;justify-content:center;gap:28px;align-items:start}
+#peach-survey-prototype .ps-canvas{min-width:0}
+#peach-survey-prototype .ps-form-editor .ps-card{border-radius:9px;padding:24px 28px;margin-bottom:18px;border-color:#dfe5df;box-shadow:0 2px 6px #29372a03}
+#peach-survey-prototype .ps-form-editor .ps-intro-card{position:relative;padding-top:35px;overflow:hidden}
+#peach-survey-prototype .ps-cover-line{height:7px;background:#52876a;position:absolute;inset:0 0 auto}
+#peach-survey-prototype input.ps-form-title{font-size:26px;font-weight:700;border:0;padding:8px 0;background:transparent;border-radius:0}
+#peach-survey-prototype textarea.ps-form-description{border:0;border-bottom:1px solid #e6ebe6;border-radius:0;padding:8px 0;min-height:70px;resize:vertical}
+#peach-survey-prototype .ps-intro-period{color:#818b81;font-size:12px}
+#peach-survey-prototype .ps-question-card{position:relative;transition:border-color .15s}
+#peach-survey-prototype .ps-question-card.selected{border-color:#4d9469;box-shadow:0 0 0 1px #4d9469}
+#peach-survey-prototype .ps-question-card:focus-within{border-color:#4d9469}
+#peach-survey-prototype .ps-drag-handle{text-align:center;color:#b4bdb4;height:18px;line-height:14px;margin:-18px auto 12px;width:60px;cursor:grab;user-select:none;letter-spacing:2px}
+#peach-survey-prototype .ps-question-type{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+#peach-survey-prototype .ps-question-type select{width:235px;padding:10px 12px;background:#fafcf9;border-color:#e5eae3}
+#peach-survey-prototype .ps-question-title{display:flex;align-items:center;font-size:18px;font-weight:700;margin-bottom:8px;gap:5px}
+#peach-survey-prototype .ps-question-title>span{white-space:nowrap;color:#43885e}
+#peach-survey-prototype .ps-question-title b{color:#43885e;font-size:15px;margin-right:2px}
+#peach-survey-prototype .ps-question-title input{border:0;border-radius:0;border-bottom:1px solid transparent;padding:8px 2px;font-size:17px;font-weight:700;background:transparent}
+#peach-survey-prototype .ps-question-title input:focus{outline:0;border-bottom-color:#78ab8b}
+#peach-survey-prototype input.ps-description-input{border:0;padding:4px 0 13px;border-radius:0;color:#7d897e;font-size:13px;background:transparent}
+#peach-survey-prototype .ps-question-card .ps-option{margin:5px 0;gap:11px}
+#peach-survey-prototype .ps-question-card .ps-option input{border:0;border-radius:4px;background:transparent;padding:9px 5px}
+#peach-survey-prototype .ps-question-card .ps-option input:focus{outline:0;background:#f3f8f1;box-shadow:inset 0 -1px #74a782}
+#peach-survey-prototype .ps-square{width:15px;height:15px;border:1px solid #b9c7bb;border-radius:3px;flex-shrink:0}
+#peach-survey-prototype button.ps-option-add{border:0;border-radius:20px;background:#eef8ef;color:#498662;font-size:12px;padding:7px 12px;margin:10px 0 18px}
+#peach-survey-prototype .ps-answer-skeleton{color:#a2ada2;background:#f7f9f6;border-radius:7px;min-height:55px;padding:16px;margin:8px 0 25px}
+#peach-survey-prototype .ps-question-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid #ecf0e9;padding-top:13px;margin-top:15px}
+#peach-survey-prototype .ps-switch{display:flex;align-items:center;gap:9px;font-size:12px;cursor:pointer;position:relative}
+#peach-survey-prototype .ps-switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+#peach-survey-prototype .ps-switch i{display:inline-block;width:32px;height:18px;border-radius:20px;background:#c9d0c7;position:relative;pointer-events:none}
+#peach-survey-prototype .ps-switch i:after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .15s}
+#peach-survey-prototype .ps-switch input:checked+i{background:#559b6c}
+#peach-survey-prototype .ps-switch input:checked+i:after{left:16px}
+#peach-survey-prototype .ps-switch input:focus-visible+i{outline:2px solid #326a48;outline-offset:3px}
+#peach-survey-prototype .ps-card-actions{gap:12px}
+#peach-survey-prototype .ps-card-actions button{font-size:12px;color:#828d80!important}
+#peach-survey-prototype .ps-branch-settings{border-top:1px solid #edf0e9;margin-top:14px;font-size:12px}
+#peach-survey-prototype .ps-branch-settings summary{padding:13px 0;color:#4d795a;cursor:pointer;list-style-position:inside}
+#peach-survey-prototype .ps-branch-settings summary>span{float:right;font-size:11px;color:#879683;background:#f1f5ee;padding:2px 8px;border-radius:4px}
+#peach-survey-prototype .ps-branch-body{padding:16px;background:#f4f8f1;border-radius:8px;margin-bottom:13px}
+#peach-survey-prototype .ps-route-row{display:grid;grid-template-columns:minmax(100px,1fr) minmax(160px,1.25fr);gap:14px;align-items:center;margin-bottom:10px}
+#peach-survey-prototype .ps-route-row select{font-size:12px;padding:9px}
+#peach-survey-prototype .ps-card-add{display:flex;justify-content:space-around;border-top:1px solid #edf0e9;margin:0 -28px -24px;padding:13px 15px;background:#fdfefd;border-radius:0 0 9px 9px}
+#peach-survey-prototype .ps-card-add>button{background:transparent;border:0;font-size:12px;padding:4px 14px}
+#peach-survey-prototype .ps-right-outline{grid-column:auto;position:sticky;top:22px;padding:20px;border-radius:9px;box-shadow:none}
+#peach-survey-prototype .ps-outline-tabs{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #e5ebe1;font-size:13px}
+#peach-survey-prototype .ps-outline-tabs strong{color:#49845c}
+#peach-survey-prototype .ps-outline-tabs button{width:auto;margin:0}
+#peach-survey-prototype .ps-outline-item{display:flex;align-items:center;border-radius:5px;padding-right:6px;cursor:grab;margin-bottom:5px}
+#peach-survey-prototype .ps-outline-item>button{margin:0;border:0;padding:10px 5px;white-space:normal;background:transparent;line-height:1.6}
+#peach-survey-prototype .ps-outline-item>span{color:#a5aea1;font-size:16px}
+#peach-survey-prototype .ps-outline-item.active{background:#edf5e9}
+#peach-survey-prototype .ps-outline button.ps-flow-link{color:#4b7e59;border:0;background:#f1f6ed;text-align:center;margin-top:14px}
+#peach-survey-prototype .ps-canvas-end{text-align:center;font-size:12px;color:#9aa393;margin:25px 0 40px}
+@media(max-width:1200px){#peach-survey-prototype .ps-form-editor{grid-template-columns:minmax(300px,1fr) 210px;gap:18px}#peach-survey-prototype .ps-right-outline{padding:14px}}
+@media(max-width:950px){#peach-survey-prototype .ps-form-editor{display:flex;flex-direction:column-reverse}#peach-survey-prototype .ps-canvas,#peach-survey-prototype .ps-right-outline{width:100%}#peach-survey-prototype .ps-right-outline{position:static}#peach-survey-prototype .ps-outline-item{display:inline-flex;width:45%;vertical-align:top}#peach-survey-prototype .ps-form-editor .ps-card{padding:22px 18px}#peach-survey-prototype .ps-card-add{margin:0 -18px -22px}#peach-survey-prototype .ps-route-row{grid-template-columns:1fr;gap:5px}}

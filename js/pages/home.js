@@ -250,14 +250,28 @@
             } else {
               vList.innerHTML = json.videos.map(function (v) {
                 var href = "videos-detail.asp?id=" + encodeURIComponent(v.id);
+                var ytId = v.youtubeId || youtubeIdFrom(v.thumbnail || v.image || "");
+                var thumbSrc = ytId ? ("https://i.ytimg.com/vi/" + ytId + "/maxresdefault.jpg") : (v.thumbnail || v.image || "");
                 return '<article class="home-video">' +
-                  '<div class="home-media home-media--video">' + media(v.thumbnail, v.title, false) + "</div>" +
+                  '<div class="home-media home-media--video">' + media(thumbSrc, v.title, false) + "</div>" +
                   '<div class="home-card__foot">' +
                     '<h3 class="home-video__title">' + escapeHtml(v.title || "제목 없음") + "</h3>" +
                     '<a class="btn btn--primary home-card__action" href="' + href + '">수정</a>' +
                   "</div>" +
                   "</article>";
               }).join("");
+              vList.querySelectorAll(".home-media--video img").forEach(function (img) {
+                img.addEventListener("load", function () {
+                  if (img.naturalWidth > 0 && img.naturalWidth <= 120 && img.src.indexOf("/maxresdefault.jpg") !== -1) {
+                    img.src = img.src.replace("/maxresdefault.jpg", "/hqdefault.jpg");
+                  }
+                });
+                img.addEventListener("error", function () {
+                  if (img.src.indexOf("/maxresdefault.jpg") !== -1) {
+                    img.src = img.src.replace("/maxresdefault.jpg", "/hqdefault.jpg");
+                  }
+                });
+              });
             }
           }
         } else {

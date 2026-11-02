@@ -1,4 +1,4 @@
-var Admin = (function () {
+﻿var Admin = (function () {
   function ready(fn) {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", fn);
@@ -67,8 +67,12 @@ var Admin = (function () {
     window.addEventListener("hashchange", applyMenuState);
 
     var nameEl = qs("[data-user-name]");
-    if (nameEl && window.MockData && MockData.currentUser) {
-      nameEl.textContent = MockData.currentUser.name;
+    if (nameEl) {
+      if (window.__ADMIN_USER__ && window.__ADMIN_USER__.name) {
+        nameEl.textContent = window.__ADMIN_USER__.name;
+      } else if (window.MockData && MockData.currentUser && !nameEl.textContent.trim()) {
+        nameEl.textContent = MockData.currentUser.name;
+      }
     }
 
     var siteHome = qs(".header__site");

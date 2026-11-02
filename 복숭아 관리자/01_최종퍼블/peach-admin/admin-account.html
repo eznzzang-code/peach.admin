@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>내 관리자 정보 | 복숭아자조금 관리자</title>
+  <script src="js/demo-auth.js?v=20261028.1"></script>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/flow-alignment.css">
+  <link rel="stylesheet" href="css/admin-account.css?v=20261028.1">
+</head>
+<body data-page="admin-account">
+  <div class="layout">
+    <header class="header">
+      <a class="header__brand" href="index.html">
+        <img class="header__logo" src="assets/logo-mark.png" alt="">
+        복숭아자조금 관리자
+      </a>
+      <div class="header__tools">
+        <a class="header__site" href="../../../../peach-web/index.html" target="_blank" rel="noopener noreferrer">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.8 7.1 8 2.9l5.2 4.2V13.2H9.4V9.2H6.6v4H2.8V7.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          </svg>
+          홈페이지
+        </a>
+        <span class="header__user">
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M3.2 13.2c.8-2.2 2.5-3.2 4.8-3.2s4 1 4.8 3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span data-user-name>정유현</span>
+        </span>
+        <button type="button" class="header__logout" data-logout>
+          <svg class="header__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.2 3.2H3.4v9.6h2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7.2 8h6M10.8 5.4 13.4 8l-2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <div class="layout__body">
+      <nav class="sidebar" aria-label="주요 메뉴">
+        <a class="sidebar__link" href="index.html" data-menu="home">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          홈
+        </a>
+        <div class="sidebar__group" data-menu-group="contents">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-posts">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            게시글 관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-posts" hidden>
+            <a class="sidebar__sublink" href="contents-list.html#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
+            <a class="sidebar__sublink" href="contents-list.html#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink" href="contents-list.html#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
+          </div>
+        </div>
+        <div class="sidebar__group" data-menu-group="content-hub">
+          <button type="button" class="sidebar__toggle" aria-expanded="false" aria-controls="sidebar-content-hub">
+            <span class="sidebar__dot" aria-hidden="true"></span>
+            재배·과원관리
+            <svg class="sidebar__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <div class="sidebar__sub" id="sidebar-content-hub" hidden>
+            <a class="sidebar__sublink" href="orchard-content.html" data-menu="orchard-content">월별 과원관리</a>
+            <a class="sidebar__sublink" href="cultivation-content.html" data-menu="cultivation-content">상시 재배력</a>
+          </div>
+        </div>
+        <a class="sidebar__link" href="videos-list.html" data-menu="videos">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          교육영상 관리
+        </a>
+      </nav>
+
+      <main class="main"><div class="account-page">
+        <h1 class="page-title">내 관리자 정보</h1>
+        <p class="account-intro">본인의 관리자 정보를 확인하고 수정합니다.</p>
+        <div id="account-load-error" class="account-message" role="alert" hidden></div>
+        <section class="account-section" aria-labelledby="account-basic-title"><h2 id="account-basic-title">기본정보</h2>
+          <form id="account-basic-form" novalidate>
+            <div class="account-row"><label for="account-id">아이디</label><div><input class="input" id="account-id" readonly><p class="account-help">가입한 아이디는 변경할 수 없습니다.</p></div></div>
+            <div class="account-row"><label for="account-name">이름</label><input class="input" id="account-name" autocomplete="name" maxlength="40" required></div>
+            <div class="account-row"><span>휴대폰 번호</span><div><strong id="account-current-phone">—</strong><button type="button" class="btn" data-account-open="phone">휴대폰 번호 변경</button></div></div>
+            <div class="account-row"><span>비밀번호</span><div><span>비밀번호는 표시하지 않습니다.</span><button type="button" class="btn" data-account-open="password">비밀번호 변경</button></div></div>
+            <p id="account-basic-message" class="account-message" role="status" hidden></p><div class="account-actions"><button type="submit" class="btn btn--primary">정보 저장</button></div>
+          </form>
+        </section>
+        <section class="account-section" aria-labelledby="account-invitation-title"><h2 id="account-invitation-title">가입 인증코드 관리</h2>
+          <p class="account-intro">관리자 가입에 사용하는 공통 코드입니다. 유효기간 없이 사용하며 재발행하면 기존 코드는 즉시 사용할 수 없습니다.</p>
+          <div class="account-code-line"><input class="input" id="account-invitation-code" aria-label="현재 가입 인증코드" readonly placeholder="아직 발행된 코드가 없습니다."><button type="button" class="btn" id="account-invitation-copy" hidden>인증코드 복사하기</button><button type="button" class="btn" id="account-invitation-issue">인증코드 발행하기</button></div>
+          <p id="account-invitation-message" class="account-message" role="status" hidden></p>
+        </section>
+      </div></main>
+    </div>
+  </div>
+  <dialog id="ps-dialog" aria-label="설문 행사 안내"></dialog>
+  <div id="ps-toast" role="status"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/admin-account-api.js?v=20261028.8"></script>
+  <script src="js/common.js?v=20261028.1"></script>
+  <noscript><p>설문·행사 관리 기능을 이용하려면 JavaScript를 활성화해 주세요.</p></noscript>
+  <script src="js/pages/admin-account.js?v=20261028.1"></script>
+</body>
+</html>

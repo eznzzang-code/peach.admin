@@ -1,0 +1,15 @@
+/* Only participation pages load this adapter. The actual administrator shell is retained. */
+.participation-main{flex:1;min-width:0;width:calc(100% - var(--sidebar-width));padding:32px var(--page-x)}
+.participation-main #peach-survey-prototype{min-height:0;width:100%;background:var(--color-bg);font-family:var(--font)}
+.participation-main .ps-heading{align-items:flex-start}
+.participation-main #peach-survey-prototype .ps-heading h1{font-size:26px;line-height:1.5}
+.participation-main #peach-survey-prototype .ps-form-editor{grid-template-columns:minmax(360px,1fr) 220px;gap:24px}
+.participation-main #peach-survey-prototype .ps-outline{top:calc(var(--header-height) + 20px)}
+#peach-survey-prototype :is([data-card],#ps-inline-settings,#ps-consent-editor,#ps-completion-editor){scroll-margin-top:calc(var(--header-height) + 25px)}
+#ps-dialog{max-width:720px}
+.participation-main #peach-survey-prototype .ps-table{table-layout:auto}
+.participation-main #peach-survey-prototype .ps-table :is(th,td){padding:16px 12px}
+.participation-main #peach-survey-prototype .ps-table td:last-child{min-width:175px}
+.participation-portal{min-width:0}
+@media(max-width:1050px){.participation-main #peach-survey-prototype .ps-form-editor{grid-template-columns:minmax(0,1fr)}.participation-main #peach-survey-prototype .ps-outline{position:static;grid-row:1}.participation-main #peach-survey-prototype .ps-outline button{display:inline-block;width:auto}}
+@media(max-width:760px){.participation-main{width:100%;padding:20px 14px}.participation-main .ps-heading{flex-wrap:wrap}.participation-main #peach-survey-prototype .ps-grid2{grid-template-columns:1fr}}

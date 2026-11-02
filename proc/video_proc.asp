@@ -122,8 +122,7 @@ Select Case action
       If Not first Then Response.Write ","
       first = False
 
-      Dim channelsJson, homesJson
-      channelsJson = "["
+      Dim channelsJson, homesJson, isMainBool
       If rs("channel_web") = "Y" And rs("channel_app") = "Y" Then
         channelsJson = "[""Web"",""App""]"
       ElseIf rs("channel_web") = "Y" Then
@@ -134,13 +133,9 @@ Select Case action
         channelsJson = "[]"
       End If
 
-      homesJson = "["
-      If rs("is_home_web") = "Y" And rs("is_home_app") = "Y" Then
+      isMainBool = (rs("is_home_web") = "Y" Or rs("is_home_app") = "Y")
+      If isMainBool Then
         homesJson = "[""Web"",""App""]"
-      ElseIf rs("is_home_web") = "Y" Then
-        homesJson = "[""Web""]"
-      ElseIf rs("is_home_app") = "Y" Then
-        homesJson = "[""App""]"
       Else
         homesJson = "[]"
       End If
@@ -159,15 +154,12 @@ Select Case action
       Response.Write """visibility"":""" & JsonEscape(rs("visibility")) & ""","
       Response.Write """channels"":" & channelsJson & ","
       Response.Write """homeChannels"":" & homesJson & ","
+      Response.Write """mainSelected"":" & LCase(CStr(isMainBool)) & ","
       Response.Write """publishStart"":""" & FormatDotDate(rs("period_start")) & ""","
       Response.Write """publishEnd"":""" & FormatDotDate(rs("period_end")) & ""","
       Response.Write """noEnd"":" & LCase(CStr(rs("has_end_date") = "N")) & ","
       Response.Write """collectedAt"":""" & FormatDotDate(rs("updated_at")) & ""","
-      If rs("is_playable") = "Y" Then
-        Response.Write """collectionStatus"":""정상"""
-      Else
-        Response.Write """collectionStatus"":""원본 없음"""
-      End If
+      Response.Write """collectionStatus"":""직접 등록"""
       Response.Write "}"
 
       rs.MoveNext
@@ -199,7 +191,6 @@ Select Case action
     If rs.EOF Then
       Response.Write "{""success"":false,""message"":""영상을 찾을 수 없습니다.""}"
     Else
-      channelsJson = "["
       If rs("channel_web") = "Y" And rs("channel_app") = "Y" Then
         channelsJson = "[""Web"",""App""]"
       ElseIf rs("channel_web") = "Y" Then
@@ -210,13 +201,9 @@ Select Case action
         channelsJson = "[]"
       End If
 
-      homesJson = "["
-      If rs("is_home_web") = "Y" And rs("is_home_app") = "Y" Then
+      isMainBool = (rs("is_home_web") = "Y" Or rs("is_home_app") = "Y")
+      If isMainBool Then
         homesJson = "[""Web"",""App""]"
-      ElseIf rs("is_home_web") = "Y" Then
-        homesJson = "[""Web""]"
-      ElseIf rs("is_home_app") = "Y" Then
-        homesJson = "[""App""]"
       Else
         homesJson = "[]"
       End If
@@ -245,9 +232,12 @@ Select Case action
       Response.Write """visibility"":""" & JsonEscape(rs("visibility")) & ""","
       Response.Write """channels"":" & channelsJson & ","
       Response.Write """homeChannels"":" & homesJson & ","
+      Response.Write """mainSelected"":" & LCase(CStr(isMainBool)) & ","
       Response.Write """publishStart"":""" & FormatDotDate(rs("period_start")) & ""","
       Response.Write """publishEnd"":""" & FormatDotDate(rs("period_end")) & ""","
       Response.Write """noEnd"":" & LCase(CStr(rs("has_end_date") = "N")) & ","
+      Response.Write """collectedAt"":""" & FormatDotDate(rs("updated_at")) & ""","
+      Response.Write """collectionStatus"":""직접 등록"","
       Response.Write """attachment"":" & attachJson
       Response.Write "}"
       Response.Write "}"
@@ -258,26 +248,42 @@ Select Case action
     Set cmd = Nothing
 
   ' ---------------------------------------------------------
-  ' [3] 교육영상 저장 (USP_ADMIN_VIDEO_SAVE)
+  ' [3] 교육영상 등록/수정 (USP_ADMIN_VIDEO_SAVE)
   ' ---------------------------------------------------------
   Case "save"
-    Dim v_id, v_title, v_cat, v_desc, v_vis
-    Dim v_chWeb, v_chApp, v_hWeb, v_hApp
-    Dim v_pStart, v_pEnd, v_noEnd, v_channels, v_homes
+    Dim v_id, v_ytId, v_url, v_title, v_origTitle, v_cat, v_desc, v_thumb, v_dur, v_vis
+    Dim v_chWeb, v_chApp, v_hWeb, v_hApp, v_mainSelected
+    Dim v_pStart, v_pEnd, v_noEnd
     Dim v_attName, v_attPath
 
-    v_id = CLng(GetFormField("id"))
-    v_title = GetFormField("displayTitle")
-    v_cat = GetFormField("category")
-    v_desc = GetFormField("description")
-    v_vis = GetFormField("visibility")
-    v_channels = GetFormField("channels")
-    v_homes = GetFormField("homeChannels")
-    v_pStart = GetFormField("publishStart")
-    v_pEnd = GetFormField("publishEnd")
-    v_noEnd = GetFormField("noEnd")
-    v_attName = GetFormField("attachmentName")
-    v_attPath = GetFormField("attachmentPath")
+    Dim rawId
+    rawId = Trim(CStr(GetFormField("id") & ""))
+    If rawId = "" Or Not IsNumeric(rawId) Then
+      v_id = 0
+    Else
+      v_id = CLng(rawId)
+    End If
+
+    v_ytId = Trim(CStr(GetFormField("youtubeId") & ""))
+    v_url = Trim(CStr(GetFormField("originalUrl") & ""))
+    v_title = Trim(CStr(GetFormField("displayTitle") & ""))
+    v_origTitle = Trim(CStr(GetFormField("originalTitle") & ""))
+    If v_origTitle = "" Then v_origTitle = v_title
+    v_cat = Trim(CStr(GetFormField("category") & ""))
+    v_desc = CStr(GetFormField("description") & "")
+    v_thumb = Trim(CStr(GetFormField("thumbnail") & ""))
+    If v_thumb = "" And v_ytId <> "" Then
+      v_thumb = "https://i.ytimg.com/vi/" & v_ytId & "/hqdefault.jpg"
+    End If
+    v_dur = Trim(CStr(GetFormField("duration") & ""))
+    v_vis = Trim(CStr(GetFormField("visibility") & ""))
+    If v_vis = "" Then v_vis = "public"
+    v_mainSelected = LCase(Trim(CStr(GetFormField("mainSelected") & "")))
+    v_pStart = Trim(CStr(GetFormField("publishStart") & ""))
+    v_pEnd = Trim(CStr(GetFormField("publishEnd") & ""))
+    v_noEnd = LCase(Trim(CStr(GetFormField("noEnd") & "")))
+    v_attName = Trim(CStr(GetFormField("attachmentName") & ""))
+    v_attPath = Trim(CStr(GetFormField("attachmentPath") & ""))
 
     If isMultipart Then
       Dim attFile, attExt, attSaved, hasNewAtt, attSize
@@ -299,13 +305,14 @@ Select Case action
       End If
     End If
 
-    v_chWeb = "N": v_chApp = "N"
-    If InStr(v_channels, "Web") > 0 Then v_chWeb = "Y"
-    If InStr(v_channels, "App") > 0 Then v_chApp = "Y"
-
-    v_hWeb = "N": v_hApp = "N"
-    If InStr(v_homes, "Web") > 0 Then v_hWeb = "Y"
-    If InStr(v_homes, "App") > 0 Then v_hApp = "Y"
+    v_chWeb = "Y": v_chApp = "Y"
+    If v_mainSelected = "true" Or v_mainSelected = "1" Or v_mainSelected = "y" Then
+      v_hWeb = "Y"
+      v_hApp = "Y"
+    Else
+      v_hWeb = "N"
+      v_hApp = "N"
+    End If
 
     Dim v_hasEnd
     If v_noEnd = "true" Or v_pEnd = "" Then
@@ -323,9 +330,15 @@ Select Case action
     cmd.CommandType = adCmdStoredProc
 
     cmd.Parameters.Append cmd.CreateParameter("@p_video_id", adInteger, adParamInput, 4, v_id)
-    cmd.Parameters.Append cmd.CreateParameter("@p_display_title", adVarChar, adParamInput, 200, v_title)
-    cmd.Parameters.Append cmd.CreateParameter("@p_category", adVarChar, adParamInput, 50, v_cat)
-    cmd.Parameters.Append cmd.CreateParameter("@p_description", adLongVarChar, adParamInput, Len(v_desc) + 1, v_desc)
+    cmd.Parameters.Append cmd.CreateParameter("@p_youtube_id", adVarChar, adParamInput, 50, v_ytId)
+    cmd.Parameters.Append cmd.CreateParameter("@p_source_url", adVarWChar, adParamInput, 500, v_url)
+    cmd.Parameters.Append cmd.CreateParameter("@p_display_title", adVarWChar, adParamInput, 200, v_title)
+    cmd.Parameters.Append cmd.CreateParameter("@p_original_title", adVarWChar, adParamInput, 200, v_origTitle)
+    cmd.Parameters.Append cmd.CreateParameter("@p_category", adVarWChar, adParamInput, 50, v_cat)
+    cmd.Parameters.Append cmd.CreateParameter("@p_description", adLongVarWChar, adParamInput, Len(v_desc) + 1, v_desc)
+    cmd.Parameters.Append cmd.CreateParameter("@p_thumbnail_url", adVarWChar, adParamInput, 500, v_thumb)
+    cmd.Parameters.Append cmd.CreateParameter("@p_duration_text", adVarChar, adParamInput, 20, v_dur)
+    cmd.Parameters.Append cmd.CreateParameter("@p_is_playable", adChar, adParamInput, 1, "Y")
     cmd.Parameters.Append cmd.CreateParameter("@p_visibility", adVarChar, adParamInput, 10, v_vis)
     cmd.Parameters.Append cmd.CreateParameter("@p_channel_web", adChar, adParamInput, 1, v_chWeb)
     cmd.Parameters.Append cmd.CreateParameter("@p_channel_app", adChar, adParamInput, 1, v_chApp)
@@ -338,13 +351,21 @@ Select Case action
       cmd.Parameters.Append cmd.CreateParameter("@p_period_end", adDate, adParamInput, 8, CDate(v_pEnd))
     End If
     cmd.Parameters.Append cmd.CreateParameter("@p_has_end_date", adChar, adParamInput, 1, v_hasEnd)
-    cmd.Parameters.Append cmd.CreateParameter("@p_attach_name", adVarChar, adParamInput, 260, CStr(v_attName & ""))
-    cmd.Parameters.Append cmd.CreateParameter("@p_attach_path", adVarChar, adParamInput, 500, CStr(v_attPath & ""))
+    If v_attName = "" Then
+      cmd.Parameters.Append cmd.CreateParameter("@p_attach_name", adVarWChar, adParamInput, 260, Null)
+      cmd.Parameters.Append cmd.CreateParameter("@p_attach_path", adVarWChar, adParamInput, 500, Null)
+    Else
+      cmd.Parameters.Append cmd.CreateParameter("@p_attach_name", adVarWChar, adParamInput, 260, v_attName)
+      cmd.Parameters.Append cmd.CreateParameter("@p_attach_path", adVarWChar, adParamInput, 500, v_attPath)
+    End If
+    cmd.Parameters.Append cmd.CreateParameter("@r_video_id", adInteger, adParamOutput, 4)
 
     cmd.Execute
+    Dim savedVideoId
+    savedVideoId = cmd.Parameters("@r_video_id").Value
     Set cmd = Nothing
 
-    Response.Write "{""success"":true}"
+    Response.Write "{""success"":true,""id"":" & CLng(savedVideoId) & "}"
 
   ' ---------------------------------------------------------
   ' [4] 교육영상 삭제 (USP_ADMIN_VIDEO_DELETE)

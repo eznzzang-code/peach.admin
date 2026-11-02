@@ -1,7 +1,8 @@
-var MockData = {
+﻿var MockData = {
   // TODO: 로그인 사용자 정보 API 연동
   currentUser: {
-    name: "정유현"
+    id: (typeof window !== "undefined" && window.__ADMIN_USER__ && window.__ADMIN_USER__.id) ? window.__ADMIN_USER__.id : "",
+    name: (typeof window !== "undefined" && window.__ADMIN_USER__ && window.__ADMIN_USER__.name) ? window.__ADMIN_USER__.name : "관리자"
   },
 
   // TODO: 콘텐츠 목록 조회 API 연동

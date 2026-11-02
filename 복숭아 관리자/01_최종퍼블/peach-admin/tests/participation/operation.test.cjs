@@ -1,0 +1,58 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const memory=new Map();let writes=0;
+const context={window:{},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>{writes++;memory.set(k,v);}}};
+vm.createContext(context);
+for(const f of ['model.js','store.js','runtime.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../../js/participation',f),'utf8'),context);
+const M=context.window.PeachSurveyModel,S=context.window.PeachSurveyStore,R=context.window.PeachSurveyRuntime;
+assert.equal(S.load().length,0,'final publishing starts without artificial production forms');
+const actor={id:'member-1',name:'Test',region:'경상북도',group:'납부 회원'};
+function published(kind='survey'){
+ const f=M.seed(kind);f.settings.endMode='manual';f.publishedAt=new Date().toISOString();f.isPublic=true;f.participationToken=M.uid();f.settings.start=new Date(Date.now()-3600000).toISOString();f.settings.end=new Date(Date.now()+3600000).toISOString();f.settings.entryPolicy='web';f.consent.included=false;return f;
+}
+const f=published();
+assert.equal(M.gate(f,{actor}).allowed,true);
+assert.equal(M.gate(f).allowed,true,'survey requires no account');assert.equal(M.gate(published('event')).code,'login');
+const future=M.clone(f);future.settings.start=new Date(Date.now()+100000).toISOString();assert.equal(M.gate(future,{actor}).code,'scheduled');
+const closed=M.clone(f);closed.closedAt=new Date().toISOString();assert.equal(M.gate(closed,{actor}).code,'closed');
+const hidden=M.clone(f);hidden.isPublic=false;assert.equal(M.gate(hidden,{actor}).code,'hidden');
+const pending=M.clone(f);pending.settings.entryPolicy='pending';assert.equal(M.gate(pending,{channel:'link'}).allowed,true,'legacy external-route flags ignored');
+const target=M.clone(f);target.settings.audience='지역별 회원';target.settings.targetDetail='충청북도';assert.equal(M.gate(target,{actor:null}).allowed,true,'legacy target filters ignored');
+const event=published('event');event.settings.capacityEnabled=true;event.settings.capacity=1;event.responses=[{source:'participation',memberId:'other'}];assert.equal(M.gate(event,{actor}).code,'capacity');
+const legacy=M.seed();legacy.responses=[{id:'old-preview',demo:false},{id:'old-demo',demo:true}];M.prepare(legacy);assert.equal(legacy.responses.length,0);assert.equal(legacy.testResponses.length,2);assert.equal(M.structureLocked(legacy),false);M.prepare(legacy);assert.equal(legacy.testResponses.length,2);
+S.save([f]);const before=memory.get('peach-admin-participation:v1'),writeCount=writes;
+const r=R.create(f,'preview');R.answer(r,'백도');R.advance(r);R.answer(r,'yes');R.advance(r);R.answer(r,'실습');R.advance(r);R.answer(r,['a']);
+assert.equal(R.destination(r),null);
+assert.equal(R.error(r), '');
+assert.equal(S.submit(f.id,R.payload(r,actor),{mode:'preview',actor}).preview,true);
+assert.equal(memory.get('peach-admin-participation:v1'),before);assert.equal(writes,writeCount);
+assert.equal(M.structureLocked(S.load()[0]),false,'preview does not lock questions');
+const live=R.create(f,'participation');R.answer(live,'백도');R.advance(live);R.answer(live,'no');R.advance(live);R.answer(live,['b']);
+const payload=R.payload(live,actor);assert.equal(JSON.stringify(payload.path),JSON.stringify(['q1','q2','q3']));
+assert.equal(S.submit(f.id,payload,{mode:'participation',actor}).ok,true);
+assert.equal(S.load()[0].responses.length,1);
+assert.equal(M.structureLocked(S.load()[0]),true);
+assert.equal(S.submit(f.id,payload,{mode:'participation',actor}).replayed,true,'retry uses same submission ID');
+assert.equal(S.load()[0].responses.length,1);
+const duplicate={...payload,id:'new',submissionId:'new'};assert.equal(S.submit(f.id,duplicate,{mode:'participation',actor}).ok,true,'new survey session is open without member restriction');
+const invalid={...payload,submissionId:'invalid',answers:{...payload.answers,q2:'removed-option'}};
+assert.equal(S.submit(f.id,invalid,{mode:'participation',actor:{...actor,id:'member-2'}}).ok,false,'stale or invalid answers rejected');
+const writtenBeforeInvalidMode=writes;
+assert.equal(S.submit(f.id,payload,{mode:'unknown',actor}).ok,false);
+assert.equal(writes,writtenBeforeInvalidMode,'unknown mode must not write');
+const consentForm=published();Object.assign(consentForm.consent,{included:true,purpose:'Purpose',items:'Items',retention:'Period'});consentForm.questions=[M.attendanceQuestion()];consentForm.kind='event';S.save([consentForm]);
+const staleConsent=R.create(consentForm,'participation');R.answer(staleConsent,'attend');const stalePayload=R.payload(staleConsent,actor);stalePayload.consent.purpose='Old purpose';
+assert.equal(S.submit(consentForm.id,stalePayload,{mode:'participation',actor}).ok,false,'changed consent notice requires restarting');
+const beforeEdit=M.clone(event),afterEdit=M.clone(event);afterEdit.settings.place='New place';assert.equal(M.majorEventChange(beforeEdit,afterEdit),true);
+const consent=published();consent.consent.included=true;const cr=R.create(consent);cr.form.questions=[];cr.id=null;assert(R.error(cr,false).includes('동의'));assert.equal(R.error(cr,true),'');
+console.log('PASS: public/period/target/channel gates, legacy test separation, preview zero-write, branch payload, duplicate/retry protection, event change notice, consent gate.');
+
+const memberEvent=published('event');memberEvent.questions=[M.attendanceQuestion()];S.save([memberEvent]);const memberSession=R.create(memberEvent,'participation');R.answer(memberSession,'attend');const eventPayload=R.payload(memberSession,actor);
+assert.equal(S.submit(memberEvent.id,eventPayload,{mode:'participation'}).ok,false,'event still requires authentication');
+assert.equal(S.submit(memberEvent.id,eventPayload,{mode:'participation',actor}).ok,true);
+assert.equal(S.submit(memberEvent.id,{...eventPayload,submissionId:'second-event'},{mode:'participation',actor}).ok,false,'event duplicate member blocked');
+const original=M.seed();S.save([original],{consentDefaults:{purpose:'Remembered purpose',items:'Remembered items',retention:'Remembered period'}});
+for(const kind of ['survey','event']){const created=S.newForm(kind);assert.equal(created.consent.purpose,'Remembered purpose');assert.equal(created.consent.items,'Remembered items');assert.equal(created.consent.retention,'Remembered period');assert.equal(created.consent.included,true);}
+S.save([original]);assert.equal(S.defaults().purpose,'Remembered purpose','unrelated saves preserve remembered text');assert.notEqual(S.load()[0].consent.purpose,'Remembered purpose','preferences do not overwrite existing forms');
+const openSurvey=published();S.save([openSurvey]);const anonymous=R.create(openSurvey,'participation');R.answer(anonymous,'Guest');R.advance(anonymous);R.answer(anonymous,'no');R.advance(anonymous);R.answer(anonymous,['a']);
+assert.equal(S.submit(openSurvey.id,R.payload(anonymous,null),{mode:'participation'}).ok,true);assert.equal(S.load()[0].responses[0].memberId,null);assert(S.load()[0].responses[0].respondentId);
+console.log('PASS: unrestricted survey links, event-only membership, remembered editable consent defaults, guest response with no member identity.');

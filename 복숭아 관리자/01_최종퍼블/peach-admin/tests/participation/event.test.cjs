@@ -1,0 +1,35 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const memory=new Map();let writes=0;
+const c={window:{},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>{writes++;memory.set(k,v);}}};vm.createContext(c);
+for(const f of ['model.js','store.js','runtime.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../../js/participation',f),'utf8'),c);
+const M=c.window.PeachSurveyModel,S=c.window.PeachSurveyStore,R=c.window.PeachSurveyRuntime;
+function form(capacityEnabled=true,waitlistEnabled=false){const f=M.seed('event');f.questions=[M.attendanceQuestion()];Object.assign(f.settings,{capacityEnabled,capacity:2,waitlistEnabled,start:'2026-01-01T09:00',end:'2027-01-01T09:00',endMode:'manual'});f.publishedAt='2026-01-01T09:00';f.isPublic=true;f.consent.included=false;return f;}
+function submit(f,id,choice){const actor={id,name:id},session=R.create(f,'participation');R.answer(session,choice);return S.submit(f.id,R.payload(session,actor),{mode:'participation',actor,now:new Date('2026-10-28T12:00')});}
+const f=form();assert.equal(f.questions[0].required,true);assert.deepEqual(Array.from(f.questions[0].options,o=>o.label),['참석','미참석']);
+M.prepare(f);M.prepare(f);assert.equal(f.questions.filter(M.isAttendance).length,1,'migration is idempotent');
+assert.equal(M.validate(f).length,0);
+Object.assign(f.settings,{scheduleMode:'period',eventEnd:'2026-12-12T18:00'});assert.equal(M.validate(f).length,0);assert(M.scheduleText(f).includes('2026-12-12'));
+f.settings.eventEnd=f.settings.date;assert(M.validate(f).some(e=>e.includes('행사 종료')));f.settings.eventEnd='2026-12-12T18:00';
+const edited=M.clone(f);edited.settings.eventEnd='2026-12-13T18:00';f.responses=[{source:'participation'}];assert(M.majorEventChange(f,edited));f.responses=[];
+S.save([f]);assert.equal(submit(f,'absent-1','absent').response.enrollment,'absent');assert.equal(M.attendanceCount(S.load()[0]),0);
+assert.equal(submit(f,'attend-1','attend').response.enrollment,'confirmed');assert.equal(submit(f,'attend-2','attend').response.enrollment,'confirmed');
+assert.equal(M.attendanceCount(S.load()[0]),2);assert.equal(M.status(S.load()[0],new Date('2026-10-28T12:00')),'capacity');
+assert.equal(submit(f,'absent-after-full','absent').ok,false,'no waiting: all responses stop after attendance capacity');
+assert.equal(submit(f,'overflow','attend').ok,false);
+const w=form(true,true);S.save([w]);submit(w,'w-a1','attend');submit(w,'w-a2','attend');
+const waitingActor={id:'waiting',name:'waiting'},waiting=R.create(w,'participation');R.answer(waiting,'attend');const wp=R.payload(waiting,waitingActor);
+const wr=S.submit(w.id,wp,{mode:'participation',actor:waitingActor,now:new Date('2026-10-28T12:00')});assert.equal(wr.response.enrollment,'waitlist');
+assert.equal(M.status(S.load()[0],new Date('2026-10-28T12:00')),'waitlist');assert.equal(M.attendanceCount(S.load()[0]),2);assert.equal(M.waitlistCount(S.load()[0]),1);
+assert.equal(submit(w,'w-absent','absent').response.enrollment,'absent','nonattendance never consumes waiting capacity');
+assert.equal(S.submit(w.id,wp,{mode:'participation',actor:waitingActor}).replayed,true);assert.equal(M.waitlistCount(S.load()[0]),1,'retry does not duplicate waiting record');
+const open=form(false,true);S.save([open]);for(let i=0;i<4;i++)assert.equal(submit(open,'open-'+i,'attend').response.enrollment,'confirmed');assert.equal(M.waitlistCount(S.load()[0]),0,'waiting is ignored without capacity');
+const thirty=form(true,false);thirty.settings.capacity=30;S.save([thirty]);for(let i=0;i<30;i++)assert.equal(submit(thirty,'seat-'+i,'attend').ok,true);assert.equal(submit(thirty,'seat-31','attend').ok,false,'31st attendance is rejected at capacity 30 without waiting');
+const extra=form();extra.questions.push({id:'extra',title:'추가 질문',type:'short',required:true,options:[],next:'next'});assert.equal(M.next(extra,extra.questions[0],'attend'),'extra');assert.equal(M.next(extra,extra.questions[0],'absent'),'extra');
+assert(M.validateResponse(extra,{path:[],answers:{}}),'fixed attendance cannot be omitted');
+const legacy=form();legacy.questions=[];legacy.responses=[{source:'participation',path:[],answers:{},memberId:'old'}];M.prepare(legacy);assert.equal(M.attendanceCount(legacy),1,'unknown legacy attendance conservatively occupies a place');assert.equal(M.attendanceOf(legacy.responses[0]),'legacy','old answers are not fabricated');
+const before=writes;S.submit(extra.id,{}, {mode:'preview'});assert.equal(writes,before,'preview does not reserve seats or waiting places');
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../../js/participation/participant-ui.js'),'utf8'),c);
+const uiWaiting=form(true,true);uiWaiting.responses=[1,2].map(i=>({source:'participation',memberId:'old-'+i,answers:{__event_attendance:'attend'},enrollment:'confirmed'}));S.save([uiWaiting]);
+const host={innerHTML:'',querySelector:()=>({value:'attend',checked:true})};c.window.PeachParticipantUI.mount(host,{form:uiWaiting,mode:'participation',actor:{id:'new-waiting',name:'New'}});
+host.onclick({target:{closest:()=>({dataset:{runAction:'next'}})}});assert(host.innerHTML.includes('대기 신청이 접수되었습니다.'),'waiting completion is visibly distinct');assert(host.innerHTML.includes('참석 확정 상태가 아닙니다.'));
+console.log('PASS: event schedule range, fixed attendance, additional questions, attendance-only count, full closure, optional waiting, unlimited mode, replay, migration, preview zero-write.');

@@ -34,8 +34,12 @@
           <span class="sidebar__dot" aria-hidden="true"></span>
           교육영상 관리
         </a>
-        <a class="sidebar__link<% If currentMenu = "permissions" Then Response.Write " is-active" %>" href="permissions.asp" data-menu="permissions">
+        <a class="sidebar__link<% If currentMenu = "events" Then Response.Write " is-active" %>" href="events-list.asp" data-menu="events">
           <span class="sidebar__dot" aria-hidden="true"></span>
-          운영자·권한 관리
+          행사·교육참여 관리
+        </a>
+        <a class="sidebar__link<% If currentMenu = "surveys" Then Response.Write " is-active" %>" href="surveys-list.asp" data-menu="surveys">
+          <span class="sidebar__dot" aria-hidden="true"></span>
+          설문조사 관리
         </a>
       </nav>

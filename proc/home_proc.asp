@@ -102,17 +102,22 @@ End If
 ' 3) 교육영상 (최대 3건)
 Set rs = rs.NextRecordset
 Response.Write """videos"":["
-Dim first
+Dim first, vYtId, vThumbUrl
 first = True
 Do While Not rs.EOF
     If Not first Then Response.Write ","
     first = False
+    vYtId = Trim(CStr(rs("youtube_id") & ""))
+    vThumbUrl = Trim(CStr(rs("thumbnail_url") & ""))
+    If vYtId <> "" And (vThumbUrl = "" Or Left(LCase(vThumbUrl), 7) = "assets/") Then
+        vThumbUrl = "https://i.ytimg.com/vi/" & vYtId & "/hqdefault.jpg"
+    End If
     Response.Write "{"
     Response.Write """id"":" & rs("video_id") & ","
-    Response.Write """youtubeId"":""" & JsonEscape(rs("youtube_id")) & ""","
+    Response.Write """youtubeId"":""" & JsonEscape(vYtId) & ""","
     Response.Write """title"":""" & JsonEscape(rs("display_title")) & ""","
-    Response.Write """image"":""" & JsonEscape(rs("thumbnail_url")) & ""","
-    Response.Write """thumbnail"":""" & JsonEscape(rs("thumbnail_url")) & ""","
+    Response.Write """image"":""" & JsonEscape(vThumbUrl) & ""","
+    Response.Write """thumbnail"":""" & JsonEscape(vThumbUrl) & ""","
     Response.Write """category"":""" & JsonEscape(rs("category")) & """"
     Response.Write "}"
     rs.MoveNext

@@ -15,6 +15,7 @@
         "/scratch",
         "/docs",
         "/references",
+        "/복숭아 관리자",
         "*.html",
         "*.pptx",
         "*.ps1",

@@ -22,5 +22,3 @@ extraScript = "<script src=""js/orchard-source.js""></script>" & vbCrLf & _
               "<script src=""js/pages/resources.js?v=" & Timer & """></script>"
 %>
 <!--#include file="inc/footer.asp"-->
-
-<!--#include file="inc/footer.asp"-->

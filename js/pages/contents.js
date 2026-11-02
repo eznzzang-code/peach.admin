@@ -176,7 +176,7 @@
         : state.drafts
           ? "임시저장된 게시글이 없습니다."
           : "검색 조건에 맞는 게시글이 없습니다.";
-      tbody.innerHTML = '<tr><td class="contents-empty" colspan="7">' + emptyText + "</td></tr>";
+      tbody.innerHTML = '<tr><td class="contents-empty" colspan="6">' + emptyText + "</td></tr>";
       var emptyMaster = qs("#contents-table [data-check-all]");
       var emptyRemove = qs("#contents-delete");
       if (emptyMaster) {
@@ -215,7 +215,7 @@
             '<a class="contents-title" href="' + href + '">' + escapeHtml(String(item.title || "").trim() ? item.title : "(제목 없음)") + "</a>" +
             (item.urgentUse ? '<span class="contents-urgent">· 긴급</span>' : "") +
           "</span></td>" +
-          "<td>" + renderChannels(item.channels) + "</td>" +
+
           "<td>" + renderStatus(statusText) + "</td>" +
           "<td>" + escapeHtml(item.author || "관리자") + "</td>" +
           "<td>" + escapeHtml(item.updatedAt || "") + "</td>" +
@@ -1014,8 +1014,8 @@
       urgentUnused.checked = !urgentUse.checked;
       urgentStart.value = editing.urgentStart || "";
       urgentEnd.value = editing.urgentEnd || "";
-      qs("#channel-web").checked = editing.channels.indexOf("Web") !== -1;
-      qs("#channel-app").checked = editing.channels.indexOf("App") !== -1;
+
+
       publishStart.value = editing.publishStart || "";
       publishEnd.value = editing.publishEnd || "";
       noEnd.checked = editing.noEnd === true;
@@ -1140,9 +1140,9 @@
     }
 
     function formValue() {
-      var channels = [];
-      if (qs("#channel-web").checked) channels.push("Web");
-      if (qs("#channel-app").checked) channels.push("App");
+      var channels = editing && Array.isArray(editing.channels) && editing.channels.length ? editing.channels.slice() : ["Web", "App"];
+
+
       return {
         category: boardCategory,
         title: qs("#contents-title").value.trim(),
@@ -1347,11 +1347,11 @@
     qs("#contents-submit").addEventListener("click", function () {
       if (saveLocked) return;
       var title = qs("#contents-title");
-      var channelChecked = qs("#channel-web").checked || qs("#channel-app").checked;
+
       var errors = beginErrors();
 
       if (!boardCategory || boardCategory === "과원관리") errors.fail(title, title.closest(".form-row"), "게시판 유형을 확인할 수 없어 저장하지 않습니다.", title);
-      if (!channelChecked) errors.fail(qs("#channel-field"), qs("#channel-field").closest(".form-row"), "노출채널을 1개 이상 선택해 주세요.", qs("#channel-web"));
+
       if (!publishStart.value) errors.fail(publishStart, publishStart.closest(".form-row"), "게시 시작일을 선택해 주세요.", publishStart);
       if (!noEnd.checked && datesOutOfOrder(publishStart.value, publishEnd.value)) {
         errors.fail(publishEnd, publishEnd.closest(".form-row"), "종료일은 시작일 이후로 선택해 주세요.", publishEnd);

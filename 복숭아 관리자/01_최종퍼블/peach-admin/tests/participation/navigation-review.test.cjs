@@ -1,0 +1,26 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const prefix=fs.readFileSync(path.join(__dirname,'integration.test.cjs'),'utf8').split('(async()=>{')[0];
+const setup=new Function('require','__dirname',prefix+';return setup;')(require,__dirname);
+function fixture(url='http://local/participant.html?participate=event',member=true){
+ const x=setup(url),M=x.c.PeachSurveyModel,S=x.c.PeachSurveyStore,listeners={};x.c.addEventListener=(k,f)=>listeners[k]=f;x.root.appendChild=()=>{};x.c.document.createElement=()=>({className:'',innerHTML:'',remove(){},querySelector:()=>({focus(){}})});
+ let entries=[],pos=0,confirm=true,confirmCalls=0;const requests=[];x.c.confirm=()=>{confirmCalls++;return confirm;};
+ x.c.history={state:null,replaceState(st,_b,u){this.state=st;x.c.location=new URL(u);entries[pos]={st,url:String(u)};},pushState(st,_b,u){entries.splice(pos+1);entries.push({st,url:String(u)});pos++;this.state=st;x.c.location=new URL(u);},go(n){pos+=n;assert(pos>=0&&pos<entries.length);const e=entries[pos];this.state=e.st;x.c.location=new URL(e.url);listeners.popstate({state:e.st});}};
+ const f=M.seed('event');Object.assign(f,{publishedAt:new Date().toISOString(),isPublic:true,participationToken:'event'});Object.assign(f.settings,{start:new Date(Date.now()-3600000).toISOString().slice(0,16),endMode:'auto'});S.save([f]);
+ if(member)x.c.PeachEventMemberAuth.current=()=>({id:'my-member',name:'검토 회원'});
+ x.c.PeachParticipantUI.mount=(_h,o)=>{const session=x.c.PeachSurveyRuntime.create(o.form,o.mode),mounted={session:()=>session,options:o};requests.push(mounted);return mounted;};
+ const click=(a,extra={})=>x.rootHandlers.click({target:{closest:()=>({dataset:{portalAction:a,...extra}})},preventDefault(){}});
+ return {x,f,S,M,listeners,requests,click,boot:()=>x.run('portal.js'),allow:v=>confirm=v,confirmCalls:()=>confirmCalls};
+}
+const noMember=fixture('http://local/participant.html?participate=event&view=run',false);noMember.boot();assert.equal(noMember.requests.length,0);assert(noMember.x.root.innerHTML.includes('회원 확인 후 계속'));assert.equal(noMember.x.c.location.searchParams.get('view'),'detail');
+for(const mode of ['hidden','closed','full','duplicate']){
+ const z=fixture('http://local/participant.html?participate=event&view=run');if(mode==='hidden')z.f.isPublic=false;if(mode==='closed')z.f.closedAt=new Date().toISOString();if(mode==='full'){z.f.settings.capacityEnabled=true;z.f.settings.capacity=1;z.f.responses=[{source:'participation',memberId:'other',answers:{__event_attendance:'attend'},enrollment:'confirmed'}];}if(mode==='duplicate')z.f.responses=[{source:'participation',memberId:'my-member',answers:{__event_attendance:'attend'}}];z.S.save([z.f]);z.boot();assert.equal(z.requests.length,0,mode);assert.equal(z.x.c.location.searchParams.get('view'),'detail',mode);
+}
+const z=fixture();z.boot();z.click('start');const first=z.requests[0];z.x.c.PeachSurveyRuntime.answer(first.session(),'attend');z.allow(false);z.click('list',{kind:'event'});z.click('leave-cancel');assert.equal(z.requests.length,1);assert.equal(first.session().answers.__event_attendance,'attend');assert.equal(z.x.c.location.searchParams.get('view'),'run');
+let prevented=false;z.listeners.beforeunload({preventDefault(){prevented=true;}});assert(prevented);
+z.x.c.history.go(-1);z.click('leave-cancel');assert.equal(z.x.c.location.searchParams.get('view'),'run');assert.equal(z.requests.length,1);assert.equal(first.session().answers.__event_attendance,'attend');
+z.allow(true);z.x.c.history.go(-1);z.click('leave-confirm');assert.equal(z.x.c.location.searchParams.get('view'),'detail');z.x.c.history.go(1);assert.equal(z.x.c.location.searchParams.get('view'),'run');assert.equal(z.requests.length,2);assert.equal(Object.keys(z.requests[1].session().answers).length,0);
+z.x.c.PeachSurveyRuntime.answer(z.requests[1].session(),'attend');z.allow(false);z.requests[1].options.onExit(false);z.click('leave-cancel');assert.equal(z.x.c.location.searchParams.get('view'),'run');z.allow(true);z.requests[1].options.onExit(false);z.click('leave-confirm');assert.equal(z.x.c.location.searchParams.get('view'),'detail');
+z.click('list',{kind:'event'});assert(z.x.root.innerHTML.includes('신청기간:'));assert(z.x.root.innerHTML.includes('신청 접수중'));assert(!z.x.root.innerHTML.includes('전체 응답 접수'));
+// A changed document offers a recovery path; transport failure remains retryable and never stores.
+const q=setup(),form=q.c.PeachSurveyModel.seed('survey');form.questions=[{id:'one',type:'short',title:'의견',required:true,options:[],next:'next'}];form.consent.included=false;const host={innerHTML:'',querySelector:()=>({value:'입력 유지'})};let exited=false;q.c.PeachSurveyStore.submit=()=>({ok:false,message:'문서가 변경되었습니다. 상세에서 다시 시작해 주세요.'});const run=q.c.PeachParticipantUI.mount(host,{form,mode:'participation',onExit:()=>exited=true});host.onclick({target:{closest:()=>({dataset:{runAction:'next'}})}});assert(host.innerHTML.includes('상세로 돌아가기'));assert.equal(run.session().answers.one,'입력 유지');host.onclick({target:{closest:()=>({dataset:{runAction:'recover'}})}});assert(exited);
+console.log('PASS: direct-run membership/public/period/capacity/duplicate guards; leave cancel retains answers; leave accept discards; back/forward and reload warning; labelled periods/status; changed-document recovery.');

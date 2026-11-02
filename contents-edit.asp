@@ -79,22 +79,10 @@ extraCss = ""
           </div>
 
           <div class="form-row">
-            <span class="form-row__label" id="channel-label">노출채널<span class="required">*</span></span>
+            <span class="form-row__label" id="publish-period-label">게시기간<span class="required">*</span></span>
             <div class="form-row__controls">
               <div class="form-cluster">
                 <input type="hidden" name="category" id="contents-category" value="">
-                <div id="channel-field">
-                  <label class="checkbox">
-                    <input type="checkbox" id="channel-web" checked>
-                    <span class="checkbox__box" aria-hidden="true"></span>
-                    <span class="checkbox__text">Web(홈페이지)</span>
-                  </label>
-                  <label class="checkbox">
-                    <input type="checkbox" id="channel-app">
-                    <span class="checkbox__box" aria-hidden="true"></span>
-                    <span class="checkbox__text">App</span>
-                  </label>
-                </div>
                 <span class="form-cluster__label">시작일</span>
                 <div class="datepicker" data-datepicker>
                   <input class="input input--date datepicker__input" id="publish-start" type="text" value="2026.10.31" readonly aria-label="게시 시작일">

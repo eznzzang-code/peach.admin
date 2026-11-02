@@ -1,0 +1,63 @@
+/* Event participation detail. Uses the existing peach-admin design variables. */
+#peach-survey-prototype .ps-event-detail{border:1px solid var(--color-border);border-radius:10px;background:#fff;overflow:hidden;margin:0 auto 24px;max-width:760px}
+#peach-survey-prototype .ps-event-hero{padding:30px 34px 26px;border-top:4px solid var(--color-point);border-bottom:1px solid var(--color-border);background:#fff}
+#peach-survey-prototype .ps-event-badges{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+#peach-survey-prototype .ps-event-type{background:#fff1f5;color:#bc4562;font-size:12px;font-weight:600;border-radius:4px;padding:5px 11px}
+#peach-survey-prototype .ps-event-status{display:inline-flex;align-items:center;gap:6px;color:#bd4361;font-size:12px;font-weight:500}
+#peach-survey-prototype .ps-event-status i{width:5px;height:5px;border-radius:50%;background:currentColor}
+#peach-survey-prototype .ps-event-status.is-closed{color:var(--color-text-muted)}
+#peach-survey-prototype .ps-event-status.is-waiting{color:#9c6b20}
+#peach-survey-prototype .ps-event-hero h1{margin:0 0 12px;font-size:30px;font-weight:700;letter-spacing:-.045em;line-height:1.4;color:var(--color-text);overflow-wrap:anywhere}
+#peach-survey-prototype .ps-event-subtitle{font-size:13px;color:var(--color-text-muted);margin:0;line-height:1.7}
+#peach-survey-prototype .ps-event-body{padding:4px 34px 28px}
+#peach-survey-prototype .ps-event-info{margin:0 0 24px}
+#peach-survey-prototype .ps-event-info-row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:start;padding:20px 0;border-bottom:1px solid var(--color-border)}
+#peach-survey-prototype .ps-event-info-row:last-child{border-bottom:0;padding-bottom:0}
+#peach-survey-prototype .ps-event-info dt{display:flex;gap:9px;align-items:center;color:var(--color-text-secondary);font-weight:500;font-size:13px;line-height:24px}
+#peach-survey-prototype .ps-event-info dd{margin:0;color:var(--color-text);font-size:14px;font-weight:500;line-height:24px;overflow-wrap:anywhere}
+#peach-survey-prototype .ps-event-icon{width:19px;height:19px;flex:0 0 19px;color:#95939a;vertical-align:middle}
+#peach-survey-prototype .ps-event-date-sep{display:inline-block;padding:0 8px;color:var(--color-text-soft)}
+#peach-survey-prototype .ps-event-info time{display:inline-block;white-space:nowrap;font-variant-numeric:tabular-nums}
+#peach-survey-prototype .ps-event-capacity{padding:20px 22px;background:var(--color-bg-soft);border:1px solid var(--color-border);border-radius:6px}
+#peach-survey-prototype .ps-event-capacity-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}
+#peach-survey-prototype .ps-event-capacity-heading>span{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:500;color:var(--color-text-secondary)}
+#peach-survey-prototype .ps-event-capacity-heading>strong{font-size:20px;font-weight:700;letter-spacing:-.03em;line-height:1.3}
+#peach-survey-prototype .ps-event-capacity-line{display:flex;justify-content:space-between;gap:12px;margin-top:18px;font-size:12px;color:var(--color-text-muted)}
+#peach-survey-prototype .ps-event-capacity-line b{color:var(--color-point);font-weight:600}
+#peach-survey-prototype .ps-event-meter{height:5px;background:#eae8eb;border-radius:5px;overflow:hidden;margin:9px 0 12px}
+#peach-survey-prototype .ps-event-meter>i{height:100%;display:block;background:var(--color-point);border-radius:5px}
+#peach-survey-prototype .ps-event-capacity p{font-size:12px;color:var(--color-text-muted);line-height:1.8;margin:10px 0 0;word-break:keep-all;overflow-wrap:anywhere}
+#peach-survey-prototype .ps-event-waiting{margin-top:18px;border:1px solid #efdfc4;background:#fffaf1;border-radius:6px;padding:16px 18px;color:#865b1d}
+#peach-survey-prototype .ps-event-waiting strong{font-size:13px;font-weight:600}
+#peach-survey-prototype .ps-event-waiting p{font-size:12px;margin:6px 0 0;line-height:1.8}
+#peach-survey-prototype .ps-event-description{margin-top:28px}
+#peach-survey-prototype .ps-event-description h2{font-size:15px;font-weight:600;letter-spacing:-.02em;margin:0 0 12px}
+#peach-survey-prototype .ps-event-description p{font-size:14px;line-height:1.9;color:var(--color-text-secondary);white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;margin:0}
+#peach-survey-prototype .ps-event-action{padding:24px 34px;border-top:1px solid var(--color-border);background:#fff}
+#peach-survey-prototype .ps-event-action button{height:48px;width:100%;font-size:15px;font-weight:600;border-radius:5px;margin-top:0}
+#peach-survey-prototype .ps-event-action-help{text-align:center;font-size:12px;color:var(--color-text-muted);line-height:1.7;margin:12px 0 0}
+#peach-survey-prototype .ps-event-auth{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
+#peach-survey-prototype .ps-event-auth>.ps-event-icon{margin-top:2px;color:var(--color-point)}
+#peach-survey-prototype .ps-event-auth strong{font-size:14px;font-weight:600}
+#peach-survey-prototype .ps-event-auth p{font-size:12px;color:var(--color-text-muted);line-height:1.7;margin:4px 0 0}
+#peach-survey-prototype .ps-event-demo-note{display:block;text-align:center;font-size:11px;color:var(--color-text-soft);line-height:1.6;margin:11px 0 0}
+#peach-survey-prototype .ps-event-state-message{padding:14px 16px;border-radius:5px;background:var(--color-bg-muted);color:var(--color-text-secondary);font-size:14px;line-height:1.8}
+#peach-survey-prototype .ps-event-state-message+button{margin-top:15px}
+@media(max-width:600px){
+ #peach-survey-prototype .ps-portal{padding:0 16px}
+ #peach-survey-prototype .ps-portal-header{height:64px}
+ #peach-survey-prototype .ps-portal .ps-tabs{gap:5px;justify-content:space-between;margin:16px 0}
+ #peach-survey-prototype .ps-portal .ps-tabs button{padding:0 12px!important;flex:1;white-space:nowrap}
+ #peach-survey-prototype .ps-event-hero{padding:24px 22px 22px}
+ #peach-survey-prototype .ps-event-hero h1{font-size:25px;line-height:1.45}
+ #peach-survey-prototype .ps-event-subtitle{font-size:12px;word-break:keep-all}
+ #peach-survey-prototype .ps-event-body{padding:2px 22px 24px}
+ #peach-survey-prototype .ps-event-info-row{grid-template-columns:90px minmax(0,1fr);gap:12px;padding:17px 0}
+ #peach-survey-prototype .ps-event-info dt{font-size:12px;gap:7px}
+ #peach-survey-prototype .ps-event-info dd{font-size:13px}
+ #peach-survey-prototype .ps-event-date-tail{display:block;margin-top:2px}
+ #peach-survey-prototype .ps-event-date-sep{display:inline-block;padding:0 5px 0 0}
+ #peach-survey-prototype .ps-event-capacity{padding:18px 16px}
+ #peach-survey-prototype .ps-event-description p{font-size:13px}
+ #peach-survey-prototype .ps-event-action{padding:22px}
+}
