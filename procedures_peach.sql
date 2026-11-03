@@ -248,7 +248,7 @@ GO
 IF OBJECT_ID('dbo.USP_ADMIN_BOARD_DRAFT_COUNT', 'P') IS NOT NULL DROP PROCEDURE dbo.USP_ADMIN_BOARD_DRAFT_COUNT;
 GO
 CREATE PROCEDURE dbo.USP_ADMIN_BOARD_DRAFT_COUNT
-    @p_category NVARCHAR(30)   -- 게시판 분류 ('공지', '복숭아정보', '재배자료')
+    @p_category NVARCHAR(30)   -- 게시판 분류 ('공지', '언론보도', '업장홍보', '복숭아와 건강', '복숭아관련 소식', '복숭아 홍보', '재배자료')
 AS
 BEGIN
     -- ==========================================================
@@ -261,7 +261,9 @@ BEGIN
     SELECT 
         COUNT(*) AS draft_count -- 임시저장 게시글 건수
     FROM dbo.TBL_BOARD_CONTENT
-    WHERE category = @p_category
+    WHERE ((@p_category = N'공지' AND category IN (N'공지', N'공지사항'))
+       OR (@p_category IN (N'복숭아와 건강', N'복숭아정보') AND category IN (N'복숭아와 건강', N'복숭아정보'))
+       OR category = @p_category)
       AND is_draft = 'Y'
       AND is_deleted = 'N';
 END;
@@ -273,7 +275,7 @@ GO
 IF OBJECT_ID('dbo.USP_ADMIN_BOARD_LIST', 'P') IS NOT NULL DROP PROCEDURE dbo.USP_ADMIN_BOARD_LIST;
 GO
 CREATE PROCEDURE dbo.USP_ADMIN_BOARD_LIST
-    @p_category     NVARCHAR(30),               -- 게시판 분류 ('공지', '복숭아정보', '재배자료')
+    @p_category     NVARCHAR(30)   = NULL,      -- 게시판 분류 ('공지', '언론보도', '업장홍보', '복숭아와 건강', '복숭아관련 소식', '복숭아 홍보', '재배자료' / NULL: 전체)
     @p_is_draft     CHAR(1)        = 'N',       -- 임시저장 여부 ('Y': 임시저장 목록, 'N': 일반 목록)
     @p_period_type  VARCHAR(20)    = 'all',     -- 기간 필터 유형 ('all': 전체, '1': 1개월, '3': 3개월, '6': 6개월, 'custom': 직접입력)
     @p_period_start VARCHAR(10)    = NULL,      -- 검색 시작일 (YYYY-MM-DD)
@@ -331,7 +333,10 @@ BEGIN
                 ELSE N'게시중'
             END AS post_status -- 계산된 게시 상태
         FROM dbo.TBL_BOARD_CONTENT
-        WHERE category = @p_category
+        WHERE (@p_category IS NULL OR @p_category = N''
+           OR (@p_category = N'공지' AND category IN (N'공지', N'공지사항'))
+           OR (@p_category IN (N'복숭아와 건강', N'복숭아정보') AND category IN (N'복숭아와 건강', N'복숭아정보'))
+           OR category = @p_category)
           AND is_deleted = 'N'
           AND is_draft = @p_is_draft
           -- 기간 조건 (최종 수정일 기준)
@@ -392,7 +397,7 @@ BEGIN
     -- [ResultSet 1] 게시글 본문 상세 정보 조회
     SELECT 
         content_id,        -- 게시글 고유 번호 (PK)
-        category,          -- 게시판 분류 ('공지'/'복숭아정보'/'재배자료')
+        category,          -- 게시판 분류 ('공지'/'언론보도'/'업장홍보'/'복숭아정보'/'재배자료')
         title,             -- 게시글 제목
         body_html,         -- 게시글 본문 (HTML)
         visibility,        -- 공개 여부 ('public'/'private')
@@ -438,7 +443,7 @@ IF OBJECT_ID('dbo.USP_ADMIN_BOARD_SAVE', 'P') IS NOT NULL DROP PROCEDURE dbo.USP
 GO
 CREATE PROCEDURE dbo.USP_ADMIN_BOARD_SAVE
     @p_content_id         INT            = 0,    -- 게시글 고유 번호 (0 이하: 신규 등록, 양수: 기존 글 수정)
-    @p_category           NVARCHAR(30),          -- 게시판 분류 ('공지', '복숭아정보', '재배자료')
+    @p_category           NVARCHAR(30),          -- 게시판 분류 ('공지', '언론보도', '업장홍보', '복숭아와 건강', '복숭아관련 소식', '복숭아 홍보', '재배자료')
     @p_title              NVARCHAR(200),         -- 게시글 제목
     @p_body_html          NVARCHAR(MAX),         -- 게시글 본문 내용 (HTML)
     @p_visibility         VARCHAR(10),           -- 공개 여부 ('public': 공개, 'private': 비공개)
@@ -461,7 +466,7 @@ AS
 BEGIN
     -- ==========================================================
     -- 프로시저명 : dbo.USP_ADMIN_BOARD_SAVE
-    -- 설      명 : 게시글(공지/복숭아정보/재배자료)을 신규 등록하거나 기존 게시글을 수정하고 content_id를 반환합니다.
+    -- 설      명 : 게시글(공지/언론보도/업장홍보/복숭아정보/재배자료)을 신규 등록하거나 기존 게시글을 수정하고 content_id를 반환합니다.
     -- ==========================================================
     SET NOCOUNT ON;
 
@@ -487,7 +492,8 @@ BEGIN
     BEGIN
         -- 기존 게시글 정보 수정 (UPDATE)
         UPDATE dbo.TBL_BOARD_CONTENT
-        SET title              = @p_title,             -- 게시글 제목
+        SET category           = @p_category,          -- 게시판 분류
+            title              = @p_title,             -- 게시글 제목
             body_html          = @p_body_html,         -- 게시글 본문 HTML
             visibility         = @p_visibility,        -- 공개 여부
             is_draft           = @p_is_draft,          -- 임시저장 여부
@@ -1277,9 +1283,9 @@ BEGIN
 END;
 
 -- 3) TBL_BOARD_CONTENT (게시글 마스터 테이블)
-EXEC dbo.USP_SET_DESC 'TABLE', 'TBL_BOARD_CONTENT', NULL, NULL, N'통합 게시글(공지사항, 복숭아정보, 재배자료) 마스터 테이블';
+EXEC dbo.USP_SET_DESC 'TABLE', 'TBL_BOARD_CONTENT', NULL, NULL, N'통합 게시글(협의회게시판 공지사항·언론보도·업장홍보, 복숭아정보, 재배자료) 마스터 테이블';
 EXEC dbo.USP_SET_DESC 'TABLE', 'TBL_BOARD_CONTENT', 'COLUMN', 'content_id',        N'게시글 고유 번호 (PK, 자동증가)';
-EXEC dbo.USP_SET_DESC 'TABLE', 'TBL_BOARD_CONTENT', 'COLUMN', 'category',          N'게시판 분류 (공지 / 복숭아정보 / 재배자료)';
+EXEC dbo.USP_SET_DESC 'TABLE', 'TBL_BOARD_CONTENT', 'COLUMN', 'category',          N'게시판 분류 (공지 / 언론보도 / 업장홍보 / 복숭아와 건강 / 복숭아관련 소식 / 복숭아 홍보 / 재배자료)';
 EXEC dbo.USP_SET_DESC 'TABLE', 'TBL_BOARD_CONTENT', 'COLUMN', 'title',             N'게시글 제목';
 EXEC dbo.USP_SET_DESC 'TABLE', 'TBL_BOARD_CONTENT', 'COLUMN', 'body_html',         N'게시글 본문 내용 (HTML)';
 EXEC dbo.USP_SET_DESC 'TABLE', 'TBL_BOARD_CONTENT', 'COLUMN', 'visibility',        N'공개 설정 (public: 공개, private: 비공개)';
@@ -1417,10 +1423,10 @@ EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_HOME_DATA', 'PARAMETER', '@p_year'
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_HOME_DATA', 'PARAMETER', '@p_month', N'기준 월 (1~12)';
 
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_DRAFT_COUNT', NULL, NULL, N'게시판 분류별 임시저장 게시글 건수 조회';
-EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_DRAFT_COUNT', 'PARAMETER', '@p_category', N'게시판 분류 (공지/복숭아정보/재배자료)';
+EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_DRAFT_COUNT', 'PARAMETER', '@p_category', N'게시판 분류 (공지/언론보도/업장홍보/복숭아정보/재배자료)';
 
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_LIST', NULL, NULL, N'게시판 분류별 게시글 목록 검색/필터/페이징 조회';
-EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_LIST', 'PARAMETER', '@p_category',     N'게시판 분류 (공지/복숭아정보/재배자료)';
+EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_LIST', 'PARAMETER', '@p_category',     N'게시판 분류 (공지/언론보도/업장홍보/복숭아정보/재배자료, NULL 시 전체)';
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_LIST', 'PARAMETER', '@p_is_draft',     N'임시저장 목록 여부 (Y/N)';
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_LIST', 'PARAMETER', '@p_period_type',  N'기간 필터 유형 (all/1/3/6/custom)';
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_LIST', 'PARAMETER', '@p_period_start', N'검색 시작일 (YYYY-MM-DD)';
@@ -1436,7 +1442,7 @@ EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_GET', 'PARAMETER', '@p_conte
 
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_SAVE', NULL, NULL, N'게시글 신규 등록 및 수정 저장';
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_SAVE', 'PARAMETER', '@p_content_id',        N'게시글 고유 번호 (0: 신규, 양수: 수정)';
-EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_SAVE', 'PARAMETER', '@p_category',          N'게시판 분류';
+EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_SAVE', 'PARAMETER', '@p_category',          N'게시판 분류 (공지/언론보도/업장홍보/복숭아정보/재배자료)';
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_SAVE', 'PARAMETER', '@p_title',             N'게시글 제목';
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_SAVE', 'PARAMETER', '@p_body_html',         N'게시글 본문 HTML';
 EXEC dbo.USP_SET_DESC 'PROCEDURE', 'USP_ADMIN_BOARD_SAVE', 'PARAMETER', '@p_visibility',        N'공개 설정 (public/private)';

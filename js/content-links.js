@@ -42,7 +42,12 @@ Admin.ready(async function () {
   };
   var boardLabels = {
     "공지": "공지사항",
-    "복숭아정보": "복숭아정보",
+    "언론보도": "언론보도",
+    "업장홍보": "업장홍보",
+    "복숭아정보": "복숭아와 건강",
+    "복숭아와 건강": "복숭아와 건강",
+    "복숭아관련 소식": "복숭아관련 소식",
+    "복숭아 홍보": "복숭아 홍보",
     "재배자료": "재배자료"
   };
 
@@ -166,7 +171,10 @@ Admin.ready(async function () {
     }
     targetButton.disabled = false;
     addOption("선택 안 함", "");
-    catalog.post.filter(function (item) { return item.category === board; }).forEach(function (item) {
+    catalog.post.filter(function (item) {
+      if (board === "복숭아와 건강") return item.category === "복숭아와 건강" || item.category === "복숭아정보";
+      return item.category === board;
+    }).forEach(function (item) {
       addOption(item.label, JSON.stringify(item.value));
     });
     chooseSaved(preferred, "선택 안 함");

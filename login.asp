@@ -23,11 +23,12 @@ End If
   <link rel="stylesheet" href="css/pages.css?v=<%=Timer%>">
   <link rel="stylesheet" href="css/flow-alignment.css?v=<%=Timer%>">
   <link rel="stylesheet" href="css/admin-account.css?v=<%=Timer%>">
+  <link rel="icon" type="image/png" href="assets/logo-peach.png?v=20261103.1">
 </head>
 <body class="auth-body">
   <main class="auth">
     <h1 class="auth__title">
-      <img class="auth__logo" src="assets/logo-peach.png" alt="">
+      <img class="auth__logo" src="assets/logo-peach.png?v=20261103.1" alt="">
       복숭아자조금 관리자 로그인
     </h1>
 

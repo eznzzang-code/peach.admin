@@ -10,6 +10,7 @@ Session.CodePage = 65001
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>설문·행사 참여 | 복숭아자조금</title>
+  <link rel="icon" type="image/png" href="assets/logo-mark.png?v=20261103.1">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -29,7 +30,7 @@ Session.CodePage = 65001
   <script defer src="js/participation/runtime.js?v=20261029.1"></script>
   <script defer src="js/participation/participant-ui.js?v=20261029.1"></script>
   <script defer src="js/participation/member-auth.js?v=20261029.1"></script>
-  <script defer src="js/participation/portal.js?v=20261102.1"></script>
+  <script defer src="js/participation/portal.js?v=20261103.1"></script>
 </head>
 <body class="participation-portal"><main id="peach-survey-prototype"></main></body>
 </html>

@@ -38,11 +38,12 @@ Session.CodePage = 65001
       display: none !important;
     }
   </style>
+  <link rel="icon" type="image/png" href="assets/logo-peach.png?v=20261103.1">
 </head>
 <body class="auth-body">
   <main class="auth auth--find">
     <p class="auth__brand">
-      <img class="auth__logo" src="assets/logo-peach.png" alt="">
+      <img class="auth__logo" src="assets/logo-peach.png?v=20261103.1" alt="">
       복숭아자조금 관리자
     </p>
 

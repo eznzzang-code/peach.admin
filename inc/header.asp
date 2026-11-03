@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><% If pageTitle <> "" Then Response.Write pageTitle & " | " %>복숭아자조금 관리자</title>
+  <link rel="icon" type="image/png" href="assets/logo-mark.png?v=20261103.1">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -17,7 +18,7 @@
   <div class="layout">
     <header class="header">
       <a class="header__brand" href="index.asp">
-        <img class="header__logo" src="assets/logo-mark.png" alt="">
+        <img class="header__logo" src="assets/logo-mark.png?v=20261103.1" alt="">
         복숭아자조금 관리자
       </a>
       <div class="header__tools">

@@ -30,6 +30,26 @@ extraCss = ""
     지정 순서로 수동 전환하며 기간 종료·비공개 자료는 제외합니다.
   </p>
   <form id="contents-form" class="form" novalidate>
+    <div class="form-row" id="contents-category-row" hidden>
+      <span class="form-row__label" id="contents-category-label">카테고리<span class="required">*</span></span>
+      <div class="form-row__controls">
+        <div class="select select--category" id="contents-category-select" data-select>
+          <button type="button" class="select__button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="contents-category-label contents-category-select-label">
+            <span class="select__label" id="contents-category-select-label">공지사항</span>
+            <svg class="select__chevron" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <ul class="select__list" role="listbox" hidden>
+            <li><button type="button" class="select__option is-selected" data-value="공지">공지사항</button></li>
+            <li><button type="button" class="select__option" data-value="언론보도">언론보도</button></li>
+            <li><button type="button" class="select__option" data-value="업장홍보">업장홍보</button></li>
+          </ul>
+          <input type="hidden" id="contents-category-picker" value="공지" />
+        </div>
+        <p class="form-help contents-category-card-note" id="contents-category-card-note" hidden>업장홍보는 홈페이지에서 카드형 게시판으로 표시되며, 본문 첫 이미지 또는 첨부 이미지가 대표 썸네일로 자동 사용됩니다.</p>
+      </div>
+    </div>
     <div class="form-row">
       <span class="form-row__label">게시글</span>
       <div class="form-row__controls">
@@ -318,12 +338,40 @@ extraCss = ""
                 </button>
               </li>
               <li>
+                <button type="button" class="select__option" data-value="언론보도">
+                  언론보도
+                </button>
+              </li>
+              <li>
+                <button type="button" class="select__option" data-value="업장홍보">
+                  업장홍보
+                </button>
+              </li>
+              <li>
                 <button
                   type="button"
                   class="select__option"
-                  data-value="복숭아정보"
+                  data-value="복숭아와 건강"
                 >
-                  복숭아정보
+                  복숭아와 건강
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  class="select__option"
+                  data-value="복숭아관련 소식"
+                >
+                  복숭아관련 소식
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  class="select__option"
+                  data-value="복숭아 홍보"
+                >
+                  복숭아 홍보
                 </button>
               </li>
               <li>

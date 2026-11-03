@@ -13,6 +13,11 @@ extraCss = ""
 
 <main class="main contents-page">
   <h1 class="page-title" id="contents-page-title">게시글 관리</h1>
+  <div class="tabs contents-subtabs" id="contents-subtabs" role="tablist" aria-label="세부 카테고리" hidden>
+    <a class="tabs__item" href="#notice" data-subtab="notice" role="tab" aria-selected="false">공지사항</a>
+    <a class="tabs__item" href="#press" data-subtab="press" role="tab" aria-selected="false">언론보도</a>
+    <a class="tabs__item" href="#shop" data-subtab="shop" role="tab" aria-selected="false">업장홍보</a>
+  </div>
   <div class="contents-storage" id="contents-storage" hidden>
     <p id="contents-storage-message"></p>
   </div>

@@ -26,14 +26,58 @@
     return Admin.qsa(selector, root);
   }
 
+
+  var BOARD_GROUPS = {
+    board: {
+      title: "협의회게시판",
+      items: [
+        { hash: "notice", category: "공지", label: "공지사항", card: false },
+        { hash: "press", category: "언론보도", label: "언론보도", card: false },
+        { hash: "shop", category: "업장홍보", label: "업장홍보", card: true }
+      ]
+    },
+    info: {
+      title: "복숭아정보",
+      items: [
+        { hash: "info", category: "복숭아와 건강", label: "복숭아와 건강", card: false },
+        { hash: "news", category: "복숭아관련 소식", label: "복숭아관련 소식", card: false },
+        { hash: "peach-promo", category: "복숭아 홍보", label: "복숭아 홍보", card: true }
+      ]
+    }
+  };
+
+  function isCardBoard(category) {
+    return category === "업장홍보" || category === "복숭아 홍보";
+  }
+
+  function normalizeCategory(category) {
+    if (category === "공지사항") return "공지";
+    if (category === "복숭아정보") return "복숭아와 건강";
+    return category || "";
+  }
+
+  function boardGroup(category) {
+    var normalized = normalizeCategory(category);
+    if (normalized === "공지" || normalized === "언론보도" || normalized === "업장홍보") return "board";
+    if (normalized === "복숭아와 건강" || normalized === "복숭아관련 소식" || normalized === "복숭아 홍보") return "info";
+    if (normalized === "재배자료") return "material";
+    return "";
+  }
+
+
   function categoryLabel(category) {
-    if (category === "공지") return "공지사항";
+    if (category === "공지" || category === "공지사항") return "공지사항";
+    if (category === "복숭아정보") return "복숭아와 건강";
     return category || "";
   }
 
   function boardHash(category) {
-    if (category === "공지") return "#notice";
-    if (category === "복숭아정보") return "#info";
+    if (category === "공지" || category === "공지사항") return "#notice";
+    if (category === "언론보도") return "#press";
+    if (category === "업장홍보") return "#shop";
+    if (category === "복숭아정보" || category === "복숭아와 건강") return "#info";
+    if (category === "복숭아관련 소식") return "#news";
+    if (category === "복숭아 홍보") return "#peach-promo";
     if (category === "재배자료") return "#material";
     return "";
   }
@@ -324,7 +368,16 @@
     var isEdit = form.getAttribute("data-mode") === "edit";
     var editing = null;
     var boardCategory = "";
-    var categoryFromHash = { notice: "공지", info: "복숭아정보", material: "재배자료" };
+    var categoryFromHash = {
+      notice: "공지",
+      press: "언론보도",
+      shop: "업장홍보",
+      info: "복숭아와 건강",
+      health: "복숭아와 건강",
+      news: "복숭아관련 소식",
+      "peach-promo": "복숭아 홍보",
+      material: "재배자료"
+    };
 
     function hashCategory() {
       return categoryFromHash[(window.location.hash || "").replace(/^#/, "")] || "";
@@ -344,7 +397,37 @@
     }
 
     function applyBoard(category) {
+      category = normalizeCategory(category);
       boardCategory = category;
+      var groupKey = boardGroup(category);
+      var groupCfg = BOARD_GROUPS[groupKey] || null;
+      var catRow = qs("#contents-category-row");
+      var catSelect = qs("#contents-category-select");
+      var catCardNote = qs("#contents-category-card-note");
+      if (catRow) catRow.hidden = !groupCfg;
+      if (groupCfg && catSelect) {
+        var catListEl = qs(".select__list", catSelect);
+        if (catListEl && catSelect.getAttribute("data-group") !== groupKey) {
+          catSelect.setAttribute("data-group", groupKey);
+          catListEl.innerHTML = groupCfg.items.map(function (it) {
+            return '<li><button type="button" class="select__option" data-value="' + escapeHtml(it.category) + '">' + escapeHtml(it.label) + '</button></li>';
+          }).join("");
+        }
+        var catHidden = qs("input[type='hidden']", catSelect);
+        var catLabelEl = qs(".select__label", catSelect);
+        if (catHidden) catHidden.value = category;
+        if (catLabelEl) catLabelEl.textContent = categoryLabel(category);
+        qsa(".select__option", catSelect).forEach(function (opt) {
+          opt.classList.toggle("is-selected", (opt.getAttribute("data-value") || "") === category);
+        });
+      }
+      if (catCardNote) {
+        var cardMode = isCardBoard(category);
+        catCardNote.hidden = !cardMode;
+        if (cardMode) {
+          catCardNote.textContent = categoryLabel(category) + " 게시판은 홈페이지에서 카드형으로 표시되며, 본문 첫 이미지 또는 첨부 이미지가 대표 썸네일로 자동 사용됩니다.";
+        }
+      }
       var input = qs("[name='category']");
       if (input) input.value = category;
       var label = categoryLabel(category);
@@ -402,7 +485,7 @@
         return;
       }
       var urlCategory = hashCategory();
-      if (urlCategory && urlCategory !== editing.category) {
+      if (urlCategory && boardGroup(urlCategory) !== boardGroup(editing.category)) {
         showBoardProblem("주소의 게시판과 저장된 게시글 유형이 달라 수정할 수 없습니다.", listHref(editing.category));
         return;
       }
@@ -413,7 +496,7 @@
       applyBoard(editing.category);
       window.addEventListener("hashchange", function () {
         var next = hashCategory();
-        if (next && next !== boardCategory) {
+        if (next && boardGroup(next) !== boardGroup(boardCategory)) {
           showBoardProblem("주소의 게시판과 저장된 게시글 유형이 달라 수정할 수 없습니다.", listHref(boardCategory));
         }
       });
@@ -426,11 +509,31 @@
         return;
       }
       applyBoard(createdCategory);
+      window.addEventListener("hashchange", function () {
+        var next = hashCategory();
+        if (next && next !== boardCategory) {
+          applyBoard(next);
+        }
+      });
     }
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
     });
+
+    var catSelectControl = qs("#contents-category-select");
+    if (catSelectControl) {
+      catSelectControl.addEventListener("select:change", function (event) {
+        var nextCat = event.detail && event.detail.value;
+        if (!nextCat || nextCat === boardCategory) return;
+        applyBoard(nextCat);
+        var nextHash = boardHash(nextCat);
+        if (nextHash && (window.location.hash || "") !== nextHash) {
+          history.replaceState(null, "", window.location.pathname + window.location.search + nextHash);
+          window.dispatchEvent(new HashChangeEvent("hashchange"));
+        }
+      });
+    }
 
     var urgentUse = qs("#urgent-use");
     var urgentUnused = qs("#urgent-unused");
@@ -1086,7 +1189,7 @@
           if (json && json.success) {
             try { ContentStore.remove([editing.id]); } catch(e) {}
             dirty = false;
-            window.location.href = listHref(editing.category);
+            window.location.href = listHref(boardCategory || editing.category);
           } else {
             alert("삭제 실패: " + (json && json.message ? json.message : "서버 오류가 발생했습니다."));
           }
@@ -1385,7 +1488,12 @@
 
     var HASH_TO_CATEGORY = {
       notice: "공지",
-      info: "복숭아정보",
+      press: "언론보도",
+      shop: "업장홍보",
+      info: "복숭아와 건강",
+      health: "복숭아와 건강",
+      news: "복숭아관련 소식",
+      "peach-promo": "복숭아 홍보",
       material: "재배자료"
     };
 
@@ -1395,9 +1503,30 @@
       state.category = category;
       state.page = 1;
       var heading = qs("#contents-page-title");
-      var title = category ? categoryLabel(category) : "게시글 관리";
+      var groupKey = boardGroup(category);
+      var groupCfg = BOARD_GROUPS[groupKey] || null;
+      var activeHash = hash === "health" ? "info" : hash;
+      var subtabs = qs("#contents-subtabs");
+      if (subtabs) {
+        subtabs.hidden = !groupCfg;
+        if (groupCfg) {
+          if (subtabs.getAttribute("data-group") !== groupKey) {
+            subtabs.setAttribute("data-group", groupKey);
+            subtabs.innerHTML = groupCfg.items.map(function (it) {
+              return '<a class="tabs__item" href="#' + escapeHtml(it.hash) + '" data-subtab="' + escapeHtml(it.hash) + '" role="tab" aria-selected="false">' + escapeHtml(it.label) + '</a>';
+            }).join("");
+          }
+          qsa("[data-subtab]", subtabs).forEach(function (tab) {
+            var active = tab.getAttribute("data-subtab") === activeHash;
+            tab.classList.toggle("is-active", active);
+            tab.setAttribute("aria-selected", active ? "true" : "false");
+          });
+        }
+      }
+      var title = groupCfg ? groupCfg.title : (category ? categoryLabel(category) : "게시글 관리");
+      var docTitle = groupCfg ? (groupCfg.title + " - " + categoryLabel(category)) : title;
       if (heading) heading.textContent = title;
-      document.title = title + " | 복숭아자조금 관리자";
+      document.title = docTitle + " | 복숭아자조금 관리자";
       var note = qs("#contents-board-note");
       if (note) note.hidden = !!category;
       var createLink = qs("#contents-create");

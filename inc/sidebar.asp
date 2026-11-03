@@ -12,8 +12,8 @@
             </svg>
           </button>
           <div class="sidebar__sub" id="sidebar-posts"<% If currentMenuGroup <> "contents" Then Response.Write " hidden" %>>
-            <a class="sidebar__sublink<% If currentMenu = "contents-notice" Then Response.Write " is-active" %>" href="contents-list.asp#notice" data-menu="contents-notice" data-menu-hash="notice">공지사항</a>
-            <a class="sidebar__sublink<% If currentMenu = "contents-info" Then Response.Write " is-active" %>" href="contents-list.asp#info" data-menu="contents-info" data-menu-hash="info">복숭아정보</a>
+            <a class="sidebar__sublink<% If currentMenu = "contents-notice" Then Response.Write " is-active" %>" href="contents-list.asp#notice" data-menu="contents-notice" data-menu-hash="notice,press,shop">협의회게시판</a>
+            <a class="sidebar__sublink<% If currentMenu = "contents-info" Then Response.Write " is-active" %>" href="contents-list.asp#info" data-menu="contents-info" data-menu-hash="info,health,news,peach-promo">복숭아정보</a>
             <a class="sidebar__sublink<% If currentMenu = "contents-material" Then Response.Write " is-active" %>" href="contents-list.asp#material" data-menu="contents-material" data-menu-hash="material">재배자료</a>
           </div>
         </div>

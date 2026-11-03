@@ -28,7 +28,7 @@
     const f=selected();if(f&&['detail','run','mine'].includes(page)&&kind!==f.kind){kind=f.kind;urlState(true);}
     if(page==='run'&&(!f||!M.gate(f,{channel,actor:actorFor(f)}).allowed)){page='detail';urlState(true);}
     runner=null;
-    root.innerHTML=`<div class="ps-portal" ${authOpen?'inert':''}><header class="ps-portal-header"><img src="assets/logo-mark.png" alt=""><strong>복숭아자조금 참여</strong></header><nav class="ps-tabs">${btn('설문조사','list','data-kind="survey"',false,page==='list'&&kind==='survey')}${btn('행사·교육','list','data-kind="event"',false,page==='list'&&kind==='event')}${btn('내 참여내역','history','',false,page==='history'||page==='mine')}</nav><main class="ps-portal-content">${page==='list'?listView():page==='history'?historyView():page==='mine'?mineView():page==='run'?'<div id="ps-participant-run"></div>':detailView(f)}</main></div>${authOpen?memberDialog():''}`;
+    root.innerHTML=`<div class="ps-portal" ${authOpen?'inert':''}><header class="ps-portal-header"><img src="assets/logo-mark.png?v=20261103.1" alt=""><strong>복숭아자조금 참여</strong></header><nav class="ps-tabs">${btn('설문조사','list','data-kind="survey"',false,page==='list'&&kind==='survey')}${btn('행사·교육','list','data-kind="event"',false,page==='list'&&kind==='event')}${btn('내 참여내역','history','',false,page==='history'||page==='mine')}</nav><main class="ps-portal-content">${page==='list'?listView():page==='history'?historyView():page==='mine'?mineView():page==='run'?'<div id="ps-participant-run"></div>':detailView(f)}</main></div>${authOpen?memberDialog():''}`;
     if(page==='detail'&&f&&f.questions.length===0&&M.gate(f,{channel,actor:actorFor(f)}).allowed)mount(f);
     if(page==='run'&&f)mount(f);
   }

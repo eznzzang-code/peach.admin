@@ -1,4 +1,4 @@
-﻿var Admin = (function () {
+var Admin = (function () {
   function ready(fn) {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", fn);
@@ -19,7 +19,8 @@
     if (link.getAttribute("data-menu") === page) return true;
     var hashKey = link.getAttribute("data-menu-hash");
     if (!hashKey) return false;
-    return (window.location.hash || "").replace(/^#/, "") === hashKey;
+    var currentHash = (window.location.hash || "").replace(/^#/, "");
+    return hashKey.split(",").indexOf(currentHash) !== -1;
   }
 
   function applyMenuState() {

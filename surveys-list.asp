@@ -19,7 +19,7 @@ extraScript = "<dialog id=""ps-dialog"" aria-label=""설문 행사 안내""></di
               "  <script src=""js/participation/runtime.js?v=20261029.1""></script>" & vbCrLf & _
               "  <script src=""js/participation/participant-ui.js?v=20261029.1""></script>" & vbCrLf & _
               "  <script src=""js/participation/editor.js?v=20261029.1""></script>" & vbCrLf & _
-              "  <script src=""js/participation/app.js?v=20261029.1""></script>" & vbCrLf & _
+              "  <script src=""js/participation/app.js?v=20261103.2""></script>" & vbCrLf & _
               "  <noscript><p>설문·행사 관리 기능을 이용하려면 JavaScript를 활성화해 주세요.</p></noscript>"
 %>
 <!--#include file="inc/header.asp"-->

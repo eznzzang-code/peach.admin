@@ -39,6 +39,41 @@
   line-height: 1.5;
 }
 
+.contents-subtabs {
+  margin: -4px 0 16px;
+}
+
+.contents-subtabs[hidden] {
+  display: none;
+}
+
+.contents-subtabs .tabs__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.contents-subtabs .tabs__item.is-active {
+  border-color: var(--color-point-strong);
+  background: #fff6f7;
+  color: var(--color-point-strong);
+  font-weight: 700;
+}
+
+.contents-create .select--category .select__button {
+  min-width: 148px;
+}
+
+.contents-create .contents-category-card-note {
+  margin: 0;
+}
+
+.contents-create .contents-category-card-note[hidden] {
+  display: none;
+}
+
 .contents-page a.btn.is-disabled {
   opacity: 0.45;
   pointer-events: none;
