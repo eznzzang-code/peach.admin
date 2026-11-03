@@ -36,6 +36,14 @@
         { hash: "shop", category: "업장홍보", label: "업장홍보", card: true }
       ]
     },
+    fund: {
+      title: "복숭아자조금",
+      items: [
+        { hash: "fund-join", category: "자조금 가입안내", label: "자조금 가입안내", card: false },
+        { hash: "fund-status", category: "자조금 사업현황", label: "자조금 사업현황", card: false },
+        { hash: "fund-promo", category: "자조금 홍보", label: "자조금 홍보", card: true }
+      ]
+    },
     info: {
       title: "복숭아정보",
       items: [
@@ -47,7 +55,16 @@
   };
 
   function isCardBoard(category) {
-    return category === "업장홍보" || category === "복숭아 홍보";
+    return category === "업장홍보" || category === "복숭아 홍보" || category === "자조금 홍보";
+  }
+
+  function isVideoPromoBoard(category) {
+    return category === "자조금 홍보" || category === "복숭아 홍보";
+  }
+
+  function extractYoutubeId(rawUrl) {
+    var m = String(rawUrl || "").trim().match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/i);
+    return m ? m[1] : "";
   }
 
   function normalizeCategory(category) {
@@ -59,6 +76,7 @@
   function boardGroup(category) {
     var normalized = normalizeCategory(category);
     if (normalized === "공지" || normalized === "언론보도" || normalized === "업장홍보") return "board";
+    if (normalized === "자조금 가입안내" || normalized === "자조금 사업현황" || normalized === "자조금 홍보") return "fund";
     if (normalized === "복숭아와 건강" || normalized === "복숭아관련 소식" || normalized === "복숭아 홍보") return "info";
     if (normalized === "재배자료") return "material";
     return "";
@@ -75,6 +93,9 @@
     if (category === "공지" || category === "공지사항") return "#notice";
     if (category === "언론보도") return "#press";
     if (category === "업장홍보") return "#shop";
+    if (category === "자조금 가입안내") return "#fund-join";
+    if (category === "자조금 사업현황") return "#fund-status";
+    if (category === "자조금 홍보") return "#fund-promo";
     if (category === "복숭아정보" || category === "복숭아와 건강") return "#info";
     if (category === "복숭아관련 소식") return "#news";
     if (category === "복숭아 홍보") return "#peach-promo";
@@ -372,6 +393,10 @@
       notice: "공지",
       press: "언론보도",
       shop: "업장홍보",
+      fund: "자조금 가입안내",
+      "fund-join": "자조금 가입안내",
+      "fund-status": "자조금 사업현황",
+      "fund-promo": "자조금 홍보",
       info: "복숭아와 건강",
       health: "복숭아와 건강",
       news: "복숭아관련 소식",
@@ -425,7 +450,16 @@
         var cardMode = isCardBoard(category);
         catCardNote.hidden = !cardMode;
         if (cardMode) {
-          catCardNote.textContent = categoryLabel(category) + " 게시판은 홈페이지에서 카드형으로 표시되며, 본문 첫 이미지 또는 첨부 이미지가 대표 썸네일로 자동 사용됩니다.";
+          catCardNote.textContent = categoryLabel(category) + " 게시판은 홈페이지에서 카드형으로 표시되며, 유튜브 URL·본문 첫 이미지 또는 첨부 이미지가 대표 썸네일로 자동 사용됩니다.";
+        }
+      }
+      var ytRow = qs("#contents-youtube-row");
+      if (ytRow) {
+        var showYt = isVideoPromoBoard(category);
+        ytRow.hidden = !showYt;
+        if (!showYt) {
+          var ytInput = qs("#contents-video-url");
+          if (ytInput) ytInput.value = "";
         }
       }
       var input = qs("[name='category']");
@@ -1126,6 +1160,22 @@
       var pinBox = qs("#contents-pin");
       if (pinBox) pinBox.checked = editing.category === "공지" && editing.pinned === true;
       qs("#contents-title").value = editing.title || "";
+      var ytEditInput = qs("#contents-video-url");
+      if (ytEditInput) {
+        ytEditInput.value = (editing.videoUrl && /^https?:\/\//i.test(editing.videoUrl)) ? editing.videoUrl : "";
+        var ytHelp = ytEditInput.parentElement && qs(".form-help", ytEditInput.parentElement);
+        if (ytHelp && editing.videoUrl && !/^https?:\/\//i.test(editing.videoUrl)) {
+          var mp4Name = editing.videoUrl.split("/").pop();
+          ytHelp.innerHTML = '현재 등록된 MP4 영상: <a href="' + editing.videoUrl + '" target="_blank" rel="noopener noreferrer" style="color:#0d6efd;text-decoration:underline;font-weight:600;">' + mp4Name + ' (새 탭에서 재생)</a> · 파일 확인·교체·제거는 하단 <button type="button" data-scroll-attach style="background:none;border:0;padding:0;color:#0d6efd;text-decoration:underline;font-weight:600;cursor:pointer;font:inherit;">[파일첨부]</button> 영역에 있습니다.';
+          var scrollBtn = qs("[data-scroll-attach]", ytHelp);
+          if (scrollBtn) {
+            scrollBtn.addEventListener("click", function () {
+              var fz = document.getElementById("file-upload");
+              if (fz) fz.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+          }
+        }
+      }
       if (editing.body && editing.body.indexOf("<") !== -1) canvas.innerHTML = editing.body;
       else canvas.textContent = editing.body || "";
       if (editing.editorFontSize) canvas.style.fontSize = editing.editorFontSize;
@@ -1249,6 +1299,7 @@
       return {
         category: boardCategory,
         title: qs("#contents-title").value.trim(),
+        videoUrl: isVideoPromoBoard(boardCategory) && qs("#contents-video-url") ? qs("#contents-video-url").value.trim() : "",
         body: editorHtml(),
         relatedTarget: qs("#contents-related-target")?.disabled ? editing?.relatedTarget || null : (qs("#contents-related-target")?.value ? JSON.parse(qs("#contents-related-target").value) : null),
         channels: channels,
@@ -1372,6 +1423,7 @@
         }
         fd.append("category", payload.category);
         fd.append("title", payload.title);
+        fd.append("videoUrl", payload.videoUrl || "");
         fd.append("body", payload.body);
         fd.append("visibility", payload.visibility);
         fd.append("isDraft", isDraft ? "true" : "false");
@@ -1460,7 +1512,12 @@
         errors.fail(publishEnd, publishEnd.closest(".form-row"), "종료일은 시작일 이후로 선택해 주세요.", publishEnd);
       }
       if (!title.value.trim()) errors.fail(title, title, "제목을 입력해 주세요.", title);
-      if (!editorText()) errors.fail(editor, editor, "본문을 입력해 주세요.", editorMode === "html" ? source : canvas);
+      var ytSubmitInput = qs("#contents-video-url");
+      var ytSubmitVal = isVideoPromoBoard(boardCategory) && ytSubmitInput ? ytSubmitInput.value.trim() : "";
+      if (ytSubmitVal && !extractYoutubeId(ytSubmitVal)) {
+        errors.fail(ytSubmitInput, ytSubmitInput.closest(".form-row"), "유효한 유튜브 영상 URL을 입력해 주세요.", ytSubmitInput);
+      }
+      if (!editorText() && !extractYoutubeId(ytSubmitVal)) errors.fail(editor, editor, "본문을 입력해 주세요.", editorMode === "html" ? source : canvas);
 
       if (urgentUse.checked) {
         if (!urgentStart.value || !urgentEnd.value) {
@@ -1487,6 +1544,10 @@
     }
 
     var HASH_TO_CATEGORY = {
+      fund: "자조금 가입안내",
+      "fund-join": "자조금 가입안내",
+      "fund-status": "자조금 사업현황",
+      "fund-promo": "자조금 홍보",
       notice: "공지",
       press: "언론보도",
       shop: "업장홍보",
@@ -1505,7 +1566,7 @@
       var heading = qs("#contents-page-title");
       var groupKey = boardGroup(category);
       var groupCfg = BOARD_GROUPS[groupKey] || null;
-      var activeHash = hash === "health" ? "info" : hash;
+      var activeHash = hash === "health" ? "info" : (hash === "fund" ? "fund-join" : hash);
       var subtabs = qs("#contents-subtabs");
       if (subtabs) {
         subtabs.hidden = !groupCfg;

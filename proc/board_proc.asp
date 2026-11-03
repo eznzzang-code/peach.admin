@@ -64,6 +64,24 @@ Function FormatDotDate(dt)
     FormatDotDate = y & "." & m & "." & d
 End Function
 
+Function ExtractYoutubeId(rawUrl)
+    ExtractYoutubeId = ""
+    Dim s
+    s = Trim(SafeStr(rawUrl))
+    If s = "" Then Exit Function
+    Dim re, matches
+    Set re = New RegExp
+    re.IgnoreCase = True
+    re.Global = False
+    re.Pattern = "(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})"
+    Set matches = re.Execute(s)
+    If matches.Count > 0 Then
+        ExtractYoutubeId = matches(0).SubMatches(0)
+    End If
+    Set matches = Nothing
+    Set re = Nothing
+End Function
+
 ' 멀티파트 요청 여부 판단 (파일 업로드 시)
 Dim isMultipart
 isMultipart = False
@@ -270,6 +288,21 @@ Select Case action
                     relatedTargetJson = "null"
                 End If
 
+                Dim mediaRs, gVideoUrl, gThumbUrl, gMediaType
+                gVideoUrl = ""
+                gThumbUrl = ""
+                gMediaType = ""
+                Set mediaRs = dbConn.Execute("SELECT video_url, thumbnail_url, media_type FROM dbo.TBL_BOARD_CONTENT WHERE content_id = " & CLng(id))
+                If Not (mediaRs Is Nothing) Then
+                    If Not mediaRs.EOF Then
+                        gVideoUrl = SafeStr(mediaRs("video_url"))
+                        gThumbUrl = SafeStr(mediaRs("thumbnail_url"))
+                        gMediaType = SafeStr(mediaRs("media_type"))
+                    End If
+                    mediaRs.Close
+                    Set mediaRs = Nothing
+                End If
+
                 Response.Write "{"
                 Response.Write """success"":true,"
                 Response.Write """item"":{"
@@ -277,6 +310,9 @@ Select Case action
                 Response.Write """category"":""" & JsonEscape(rs("category")) & ""","
                 Response.Write """title"":""" & JsonEscape(rs("title")) & ""","
                 Response.Write """body"":""" & JsonEscape(rs("body_html")) & ""","
+                Response.Write """videoUrl"":""" & JsonEscape(gVideoUrl) & ""","
+                Response.Write """thumbnailUrl"":""" & JsonEscape(gThumbUrl) & ""","
+                Response.Write """mediaType"":""" & JsonEscape(gMediaType) & ""","
                 Response.Write """visibility"":""" & JsonEscape(rs("visibility")) & ""","
                 Response.Write """isDraft"":" & SafeBool(rs("is_draft"), "Y") & ","
                 Response.Write """pinned"":" & SafeBool(rs("is_pinned"), "Y") & ","
@@ -449,6 +485,8 @@ Select Case action
                 If safeKeepIds <> "" Then
                     delSql = delSql & " AND attach_id NOT IN (" & safeKeepIds & ")"
                 End If
+            Else
+                ' keepIds가 비어 있으면 모든 기존 첨부파일 제거 대상
             End If
             
             delRs.Open delSql, dbConn, 1, 1
@@ -495,6 +533,67 @@ Select Case action
                     End If
                 End If
             Next
+        End If
+
+        ' [3-3] 유튜브 영상 URL 또는 첨부 MP4/이미지 기준 미디어 컬럼 동기화
+        If savedId > 0 Then
+            Dim s_videoUrl, s_ytId, cmdVid
+            s_videoUrl = Trim(SafeStr(GetFormField("videoUrl")))
+            s_ytId = ExtractYoutubeId(s_videoUrl)
+            If s_ytId <> "" Then
+                Set cmdVid = Server.CreateObject("ADODB.Command")
+                cmdVid.ActiveConnection = dbConn
+                cmdVid.CommandText = "UPDATE dbo.TBL_BOARD_CONTENT SET video_url = ?, thumbnail_url = ?, media_type = 'video' WHERE content_id = ?"
+                cmdVid.CommandType = 1
+                cmdVid.Parameters.Append cmdVid.CreateParameter("@p1", adVarWChar, adParamInput, 500, s_videoUrl)
+                cmdVid.Parameters.Append cmdVid.CreateParameter("@p2", adVarWChar, adParamInput, 500, "https://i.ytimg.com/vi/" & s_ytId & "/hqdefault.jpg")
+                cmdVid.Parameters.Append cmdVid.CreateParameter("@p3", adInteger, adParamInput, 4, CLng(savedId))
+                cmdVid.Execute
+                Set cmdVid = Nothing
+            Else
+                Dim syncRs, syncMp4, syncImg, fPathLower
+                syncMp4 = ""
+                syncImg = ""
+                Set syncRs = dbConn.Execute("SELECT file_path FROM dbo.TBL_BOARD_ATTACH WHERE content_id = " & CLng(savedId) & " ORDER BY attach_id ASC")
+                Do While Not syncRs.EOF
+                    Dim curAttPath
+                    curAttPath = Trim(SafeStr(syncRs("file_path")))
+                    fPathLower = LCase(curAttPath)
+                    If syncMp4 = "" And Right(fPathLower, 4) = ".mp4" Then
+                        syncMp4 = curAttPath
+                    ElseIf syncImg = "" And (Right(fPathLower, 4) = ".jpg" Or Right(fPathLower, 5) = ".jpeg" Or Right(fPathLower, 4) = ".png" Or Right(fPathLower, 4) = ".gif" Or Right(fPathLower, 5) = ".webp") Then
+                        syncImg = curAttPath
+                    End If
+                    syncRs.MoveNext
+                Loop
+                syncRs.Close
+                Set syncRs = Nothing
+
+                Set cmdVid = Server.CreateObject("ADODB.Command")
+                cmdVid.ActiveConnection = dbConn
+                cmdVid.CommandText = "UPDATE dbo.TBL_BOARD_CONTENT SET video_url = ?, thumbnail_url = ?, media_type = ? WHERE content_id = ?"
+                cmdVid.CommandType = 1
+                If syncMp4 <> "" Then
+                    cmdVid.Parameters.Append cmdVid.CreateParameter("@p1", adVarWChar, adParamInput, 500, syncMp4)
+                    If syncImg <> "" Then
+                        cmdVid.Parameters.Append cmdVid.CreateParameter("@p2", adVarWChar, adParamInput, 500, syncImg)
+                    Else
+                        cmdVid.Parameters.Append cmdVid.CreateParameter("@p2", adVarWChar, adParamInput, 500, Null)
+                    End If
+                    cmdVid.Parameters.Append cmdVid.CreateParameter("@p3", adVarChar, adParamInput, 20, "video")
+                ElseIf syncImg <> "" Then
+                    cmdVid.Parameters.Append cmdVid.CreateParameter("@p1", adVarWChar, adParamInput, 500, Null)
+                    cmdVid.Parameters.Append cmdVid.CreateParameter("@p2", adVarWChar, adParamInput, 500, syncImg)
+                    cmdVid.Parameters.Append cmdVid.CreateParameter("@p3", adVarChar, adParamInput, 20, "image")
+                Else
+                    cmdVid.Parameters.Append cmdVid.CreateParameter("@p1", adVarWChar, adParamInput, 500, Null)
+                    cmdVid.Parameters.Append cmdVid.CreateParameter("@p2", adVarWChar, adParamInput, 500, Null)
+                    cmdVid.Parameters.Append cmdVid.CreateParameter("@p3", adVarChar, adParamInput, 20, Null)
+                End If
+                cmdVid.Parameters.Append cmdVid.CreateParameter("@p4", adInteger, adParamInput, 4, CLng(savedId))
+                cmdVid.Execute
+                Set cmdVid = Nothing
+            End If
         End If
 
         Response.Write "{""success"":true,""id"":" & savedId & "}"

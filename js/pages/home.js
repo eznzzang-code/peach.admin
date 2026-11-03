@@ -150,6 +150,9 @@
     if (category === "공지" || category === "공지사항") return "#notice";
     if (category === "언론보도") return "#press";
     if (category === "업장홍보") return "#shop";
+    if (category === "자조금 가입안내") return "#fund-join";
+    if (category === "자조금 사업현황") return "#fund-status";
+    if (category === "자조금 홍보") return "#fund-promo";
     if (category === "복숭아정보" || category === "복숭아와 건강") return "#info";
     if (category === "복숭아관련 소식") return "#news";
     if (category === "복숭아 홍보") return "#peach-promo";
@@ -205,7 +208,7 @@
       return;
     }
     var posts = items.filter(function (item) {
-      return item.category === "공지" || item.category === "언론보도" || item.category === "업장홍보" || item.category === "복숭아정보" || item.category === "복숭아와 건강" || item.category === "복숭아관련 소식" || item.category === "복숭아 홍보" || item.category === "재배자료";
+      return item.category === "공지" || item.category === "언론보도" || item.category === "업장홍보" || item.category === "자조금 가입안내" || item.category === "자조금 사업현황" || item.category === "자조금 홍보" || item.category === "복숭아정보" || item.category === "복숭아와 건강" || item.category === "복숭아관련 소식" || item.category === "복숭아 홍보" || item.category === "재배자료";
     }).sort(function (a, b) {
       if (a.updatedAt !== b.updatedAt) return a.updatedAt < b.updatedAt ? 1 : -1;
       return Number(b.id) - Number(a.id);

@@ -139,6 +139,14 @@ extraCss = ""
             </div>
           </div>
 
+          <div class="form-row" id="contents-youtube-row" hidden>
+            <label class="form-row__label" for="contents-video-url">유튜브 영상 URL</label>
+            <div class="form-row__controls">
+              <input class="input input--block" id="contents-video-url" type="url" name="videoUrl" placeholder="https://www.youtube.com/watch?v=... 또는 https://youtu.be/...">
+              <p class="form-help">유튜브 주소를 입력하면 홈페이지 목록에 유튜브 썸네일이 자동 표시되고, 상세 화면에서 영상이 바로 재생됩니다.</p>
+            </div>
+          </div>
+
           <div class="form-row" id="contents-related-row">
             <span class="form-row__label" id="contents-related-label">연결 자료</span>
             <div class="form-row__controls">
@@ -171,6 +179,9 @@ extraCss = ""
                     <li><button type="button" class="select__option" data-value="공지">공지사항</button></li>
                     <li><button type="button" class="select__option" data-value="언론보도">언론보도</button></li>
                     <li><button type="button" class="select__option" data-value="업장홍보">업장홍보</button></li>
+                    <li><button type="button" class="select__option" data-value="자조금 가입안내">자조금 가입안내</button></li>
+                    <li><button type="button" class="select__option" data-value="자조금 사업현황">자조금 사업현황</button></li>
+                    <li><button type="button" class="select__option" data-value="자조금 홍보">자조금 홍보</button></li>
                     <li><button type="button" class="select__option" data-value="복숭아와 건강">복숭아와 건강</button></li>
                     <li><button type="button" class="select__option" data-value="복숭아관련 소식">복숭아관련 소식</button></li>
                     <li><button type="button" class="select__option" data-value="복숭아 홍보">복숭아 홍보</button></li>
