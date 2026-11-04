@@ -48,7 +48,7 @@
 #peach-survey-prototype .ps-question-title>span,#peach-survey-prototype .ps-question-title b{color:var(--color-point)}
 #peach-survey-prototype .ps-question-title input{font-size:14px;font-weight:500;border-color:var(--color-border);border-radius:var(--radius);padding:8px 10px;background:#fff}
 #peach-survey-prototype .ps-question-title input:focus{outline:2px solid #e9bac4;border-color:var(--color-point)}
-#peach-survey-prototype .ps-question-type select{background:#fff;border-color:var(--color-border);height:34px;padding:0 10px;width:200px}
+#peach-survey-prototype .ps-question-type select{background:#fff;border-color:var(--color-border);height:36px;padding:0 10px;width:235px;font-weight:500}
 #peach-survey-prototype input.ps-description-input{border:1px solid var(--color-border);padding:8px 10px;margin:5px 0 10px;border-radius:var(--radius)}
 #peach-survey-prototype .ps-question-card .ps-option input{border:1px solid var(--color-border);border-radius:var(--radius);background:#fff;padding:8px 10px}
 #peach-survey-prototype .ps-question-card .ps-option input:focus{box-shadow:none;background:#fff;outline:2px solid #e9bac4}
@@ -100,3 +100,25 @@
 #peach-survey-prototype .ps-title-link{display:inline!important;height:auto!important;max-width:100%;white-space:normal;border:0!important;background:transparent!important;padding:0!important;margin:0;color:var(--color-text)!important;font:inherit;font-weight:600;text-align:left;text-decoration:none;line-height:inherit;border-radius:0;cursor:pointer;overflow-wrap:anywhere}
 #peach-survey-prototype .ps-title-link:hover{text-decoration:underline;color:var(--color-link)!important}
 #peach-survey-prototype .ps-title-link:focus-visible{outline:2px solid var(--color-point);outline-offset:4px}
+
+/* Beginner-friendly step guide banner & clear action buttons */
+#peach-survey-prototype .ps-step-banner{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:13px 18px;margin:0 0 22px;background:#f4f7f4;border:1px solid #dce6de;border-radius:6px;color:#2f4b3c;font-size:13px;line-height:1.6}
+#peach-survey-prototype .ps-step-banner strong{color:#1d3b2a;font-weight:600}
+#peach-survey-prototype .ps-step-chip{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#1f3d2d}
+#peach-survey-prototype .ps-step-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#245d46;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+#peach-survey-prototype .ps-step-sep{color:#8aa395;font-weight:700}
+#peach-survey-prototype .ps-step-note{color:#526b5c;font-size:12px;margin-left:auto}
+#peach-survey-prototype button.ps-btn-danger{color:#b42318;border-color:#f0c7c4}
+#peach-survey-prototype button.ps-btn-danger:hover:not(:disabled){background:#fff5f5;border-color:#e09490}
+#peach-survey-prototype .ps-branch-settings summary>span.is-default{background:#f2f4f5;color:#667085}
+
+/* Vertical arrow connectors between form editor cards */
+#peach-survey-prototype .ps-form-editor .ps-canvas>.ps-card{margin:0;border-color:#d5dbe1;box-shadow:0 1px 3px rgba(16,24,40,.04)}
+#peach-survey-prototype .ps-form-editor .ps-canvas>.ps-consent-editor{margin-top:0}
+#peach-survey-prototype .ps-flow-sep{position:relative;display:flex;justify-content:center;align-items:center;height:46px;margin:0;user-select:none}
+#peach-survey-prototype .ps-flow-sep::before{content:'';position:absolute;top:0;bottom:0;left:50%;width:2px;background:#dce2e8;transform:translateX(-50%)}
+#peach-survey-prototype .ps-flow-sep__pill{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:999px;background:#f8fafb;border:1px solid #d5dde5;color:#475467;font-size:12px;font-weight:600;line-height:1.4;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+#peach-survey-prototype .ps-flow-sep__icon{width:14px;height:14px;flex-shrink:0;color:#245d46}
+#peach-survey-prototype .ps-flow-sep.is-branch::before{background:#f1bac8}
+#peach-survey-prototype .ps-flow-sep.is-branch .ps-flow-sep__pill{background:#fff5f7;border-color:#efb0c0;color:var(--color-point)}
+#peach-survey-prototype .ps-flow-sep.is-branch .ps-flow-sep__icon{color:var(--color-point)}
