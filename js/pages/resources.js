@@ -232,13 +232,13 @@
         var current=selected===nowYear&&m===nowMonth;
         return '<tr'+(current?' class="is-current"':'')+'><th scope="row">'+m+'월</th><td>'+titleCell+'</td><td>'+escapeText(shown?shown.preparation||'작성중':'미등록')+'</td><td>'+escapeText(open)+'</td><td>'+escapeText(shown?shown.channels.join(' / '):'—')+'</td><td>'+escapeText(shown?shown.updatedAt:'—')+'</td><td><a class="btn" href="'+href+'">'+(shown?'수정':'등록')+'</a></td></tr>';
       }).join('');
-      q('#resource-summary').textContent='저장 '+savedCount+'개월 / 시연 '+demoCount+'개월 / 미등록 '+(12-savedCount-demoCount)+'개월';
+      q('#resource-summary').textContent='등록 완료 '+(savedCount+demoCount)+'개월 / 미등록 '+(12-savedCount-demoCount)+'개월';
     }
 
     loadAndRender();
     var listQuery=new URLSearchParams(location.search);
-    if(listQuery.get('saved')==='1')status('자료가 데이터베이스에 저장되었습니다.');
-    else if(listQuery.get('deleted')==='1')status('해당 월 콘텐츠가 데이터베이스에서 삭제되었습니다.');
+    if(listQuery.get('saved')==='1')status('자료가 저장되었습니다.');
+    else if(listQuery.get('deleted')==='1')status('해당 월 자료가 삭제되었습니다.');
   }
   function exposureMarkup() {
     var channel = '<div class="orchard-field"><span class="orchard-field__label">노출채널</span><div class="orchard-field__control"><div class="orchard-cluster"><label class="checkbox"><input type="checkbox" id="resource-web"><span class="checkbox__box" aria-hidden="true"></span><span class="checkbox__text">Web(홈페이지)</span></label><label class="checkbox"><input type="checkbox" id="resource-app"><span class="checkbox__box" aria-hidden="true"></span><span class="checkbox__text">App</span></label></div></div></div>';
@@ -432,7 +432,7 @@
       record.channels=['Web','App'];
     }
     var heading=kind==='calendar'?'상시 재배력':year+'년 '+month+'월 과원관리 자료 '+((stored || (saved && params.get('mode')!=='create'))?'수정':'등록');
-    if (params.get('saved') === '1') status('자료가 데이터베이스에 저장되었습니다.');
+    if (params.get('saved') === '1') status('자료가 저장되었습니다.');
     q('#resource-heading').textContent=heading;
     form=q('#resource-form');form.hidden=false;q('#resource-fields').innerHTML=fields();
     var exposureHost=q('#resource-exposure'); if(exposureHost) exposureHost.innerHTML=exposureMarkup();
@@ -587,7 +587,7 @@
       }
     }
     if(q('#resource-blocks')) renderBlocks();
-    if(params.get('saved')==='1')status('이 브라우저에 저장했습니다. 통합 검수의 앱 탭에서 저장값을 확인할 수 있습니다. 실제 서버 반영은 별도입니다.');
+    if(params.get('saved')==='1')status('자료가 저장되었습니다.');
     window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue='';}});
   }
   function readForm(){return Object.assign({},record,{title:q('#resource-title').value.trim(),visibility:q('#resource-visibility').value,preparation:kind==='orchard'?q('#resource-preparation').value:undefined,channels:['Web','App'].filter(function(c){return q('#resource-'+c.toLowerCase()).checked;})});}
@@ -629,7 +629,7 @@
       fileField.append(fileLabel, createUpload({
         dense:true, accept:'image/png,image/jpeg,image/webp', aria:(i+1)+'번째 원본 파일', icon:'image', allowRemove:false,
         hint:'이 곳에 이미지 파일을 드래그 하세요, 또는', ext:'PNG, JPG, WebP', file:block.file||null, storedName:block.file?'':(block.src?block.name||'':''),
-        onFile:function(picked){if(!fileAllowed(picked,false)){status('본문·표에는 PNG·JPG·WebP 이미지를 선택해 주세요.',true);return false;}block.file=picked;delete block.src;delete block.fragments;delete block.width;block.name=picked.name;dirty=true;renderBlocks();status('파일을 선택했습니다. 저장 후 이 브라우저에 보관합니다.');return false;}
+        onFile:function(picked){if(!fileAllowed(picked,false)){status('본문·표에는 PNG·JPG·WebP 이미지를 선택해 주세요.',true);return false;}block.file=picked;delete block.src;delete block.fragments;delete block.width;block.name=picked.name;dirty=true;renderBlocks();status('파일을 선택했습니다. [저장] 버튼을 누르면 반영됩니다.');return false;}
       }));
       var altField=document.createElement('div'); altField.className='orchard-card__col';
       var altLabel=document.createElement('label'); altLabel.className='orchard-card__label'; altLabel.htmlFor='resource-alt-'+i; altLabel.textContent='대체 설명';
@@ -639,7 +639,7 @@
     });
   }
   function renderBlocks(){revoke(urls);if(orchardEdit()){renderOrchardCards();return;}var root=q('#resource-blocks');root.replaceChildren();record.blocks.forEach(function(block,i){var row=document.createElement('div');row.className='flow-block';var select=document.createElement('select');select.setAttribute('aria-label',(i+1)+'번째 구성 유형');select.innerHTML='<option value="title">제목</option><option value="body">본문·단</option><option value="table">가로표</option>';select.value=block.kind;select.disabled=kind==='calendar';select.onchange=function(){block.kind=select.value;dirty=true;};row.append(select);
-      var upload=document.createElement('div');var file=document.createElement('input');file.type='file';file.accept=kind==='calendar'?'.pdf,image/png,image/jpeg,image/webp':'image/png,image/jpeg,image/webp';file.setAttribute('aria-label',(i+1)+'번째 원본 파일');var name=document.createElement('p');name.className='flow-file';name.textContent=block.name || '원본 파일 선택';file.onchange=function(){var picked=file.files[0];if(!picked)return;var allowed=/^image\/(png|jpeg|webp)$/.test(picked.type)||kind==='calendar'&&(picked.type==='application/pdf'||/\.pdf$/i.test(picked.name));if(!allowed){status(kind==='calendar'?'PDF 또는 PNG·JPG·WebP 파일을 선택해 주세요.':'본문·표에는 PNG·JPG·WebP 이미지를 선택해 주세요.',true);file.value='';return;}block.file=picked;delete block.src;delete block.fragments;delete block.width;block.name=picked.name;dirty=true;renderBlocks();status('파일을 선택했습니다. 저장 후 이 브라우저에 보관합니다.');};upload.append(file,name);row.append(upload);
+      var upload=document.createElement('div');var file=document.createElement('input');file.type='file';file.accept=kind==='calendar'?'.pdf,image/png,image/jpeg,image/webp':'image/png,image/jpeg,image/webp';file.setAttribute('aria-label',(i+1)+'번째 원본 파일');var name=document.createElement('p');name.className='flow-file';name.textContent=block.name || '원본 파일 선택';file.onchange=function(){var picked=file.files[0];if(!picked)return;var allowed=/^image\/(png|jpeg|webp)$/.test(picked.type)||kind==='calendar'&&(picked.type==='application/pdf'||/\.pdf$/i.test(picked.name));if(!allowed){status(kind==='calendar'?'PDF 또는 PNG·JPG·WebP 파일을 선택해 주세요.':'본문·표에는 PNG·JPG·WebP 이미지를 선택해 주세요.',true);file.value='';return;}block.file=picked;delete block.src;delete block.fragments;delete block.width;block.name=picked.name;dirty=true;renderBlocks();status('파일을 선택했습니다. [저장] 버튼을 누르면 반영됩니다.');};upload.append(file,name);row.append(upload);
       var alt=document.createElement('input');alt.type='text';alt.value=block.alt || '';alt.placeholder='대체 설명';alt.setAttribute('aria-label',(i+1)+'번째 대체 설명');alt.oninput=function(){block.alt=alt.value;dirty=true;};row.append(alt);
       var actions=document.createElement('div');actions.className='flow-block__actions';[['위',-1],['아래',1]].forEach(function(a){var btn=document.createElement('button');btn.type='button';btn.className='btn';btn.textContent=a[0];btn.disabled=kind==='calendar'||i+a[1]<0||i+a[1]>=record.blocks.length;btn.onclick=function(){var j=i+a[1];[record.blocks[i],record.blocks[j]]=[record.blocks[j],record.blocks[i]];dirty=true;renderBlocks();};actions.append(btn);});var remove=document.createElement('button');remove.type='button';remove.className='btn';remove.textContent='제거';remove.disabled=kind==='calendar';remove.onclick=function(){record.blocks.splice(i,1);dirty=true;renderBlocks();};actions.append(remove);row.append(actions);root.append(row);
     });}
@@ -684,8 +684,8 @@
     root.append(phone.phone);
     q('#resource-preview-dialog').showModal();
   }
-  function preview(value){revoke(previewUrls);var root=q('#resource-preview-body');root.replaceChildren();var phone=phoneRoot(kind==='calendar'?'복숭아 재배력':'월별 과원관리');if(kind==='orchard'){var bar=document.createElement('div');bar.className='flow-phone__month';bar.textContent=year+'년 '+month+'월　　월 선택은 앱에서 검수';phone.body.append(bar);phone.body.style.background=value.bg || '#f4f6f0';phone.body.style.setProperty('--flow-accent',value.accent || '#245d46');}
-    var paper=document.createElement('div');paper.className='flow-phone__paper';if(value.spiral){var spiral=document.createElement('img');spiral.src=value.spiral;spiral.alt='';paper.append(spiral);}value.blocks.forEach(function(block){if(block.kind==='table'){var wide=document.createElement('div');wide.className='flow-wide';addImage(wide,block,true);paper.append(wide);}else if(block.fragments&&block.fragments.length){var button=document.createElement('button');button.type='button';button.className='flow-phone__image';button.setAttribute('aria-label',(block.alt||'본문')+' 확대');block.fragments.forEach(function(f){var im=document.createElement('img');im.src=f.src;im.alt=block.alt || '';button.append(im);});button.onclick=function(){zoom(block);};paper.append(button);}else addImage(paper,block,false);});phone.body.append(paper);root.append(phone.phone);var actual=document.createElement('a');actual.className='btn';actual.textContent='저장한 자료를 실제 앱에서 검수';actual.href='../../퍼블리싱_v3/복숭아자조금_앱/index.html?connected=1&review=1&target='+encodeURIComponent(JSON.stringify(kind==='calendar'?{kind:'calendar'}:{kind:'orchard',year:year,month:month}));actual.target='_blank';actual.rel='noopener';root.append(actual);var note=document.createElement('p');note.className='flow-guide';note.textContent='통합 검수 실행 주소에서 이용합니다. 저장 전 입력값은 위 미리보기에서 확인하고, 실제 앱에는 마지막 저장값·공개 상태·App 채널을 적용합니다.';root.append(note);q('#resource-preview-dialog').showModal();}
+  function preview(value){revoke(previewUrls);var root=q('#resource-preview-body');root.replaceChildren();var phone=phoneRoot(kind==='calendar'?'복숭아 재배력':'월별 과원관리');if(kind==='orchard'){var bar=document.createElement('div');bar.className='flow-phone__month';bar.textContent=year+'년 '+month+'월';phone.body.append(bar);phone.body.style.background=value.bg || '#f4f6f0';phone.body.style.setProperty('--flow-accent',value.accent || '#245d46');}
+    var paper=document.createElement('div');paper.className='flow-phone__paper';if(value.spiral){var spiral=document.createElement('img');spiral.src=value.spiral;spiral.alt='';paper.append(spiral);}value.blocks.forEach(function(block){if(block.kind==='table'){var wide=document.createElement('div');wide.className='flow-wide';addImage(wide,block,true);paper.append(wide);}else if(block.fragments&&block.fragments.length){var button=document.createElement('button');button.type='button';button.className='flow-phone__image';button.setAttribute('aria-label',(block.alt||'본문')+' 확대');block.fragments.forEach(function(f){var im=document.createElement('img');im.src=f.src;im.alt=block.alt || '';button.append(im);});button.onclick=function(){zoom(block);};paper.append(button);}else addImage(paper,block,false);});phone.body.append(paper);root.append(phone.phone);var note=document.createElement('p');note.className='flow-guide';note.textContent='저장하기 전 미리보기 화면입니다. [저장] 버튼을 눌러야 실제 홈페이지와 앱에 반영됩니다.';root.append(note);q('#resource-preview-dialog').showModal();}
   function zoom(block){var dialog=q('#resource-zoom'),viewport=q('.flow-zoom__viewport',dialog);viewport.replaceChildren();viewport.classList.remove('is-zoomed');var images=block.fragments&&block.fragments.length?block.fragments:[block];images.forEach(function(b){var im=document.createElement('img');im.src=fileSource(b,true);im.alt=block.alt || '원본 확대';viewport.append(im);});q('#resource-zoom-title').textContent=block.alt || block.name || '원본 확대';dialog.showModal();}
   function previewDbAppRecord(headerTitle, rec){
     var root=q('#resource-preview-body');
@@ -803,7 +803,7 @@
     }
     var controls=document.createElement('div');
     controls.className='flow-row';
-    controls.innerHTML='<label>검수 연도 <input id=home-review-year type=number min=2000 max=2100 value='+y+'></label><label>검수 월 <select id=home-review-month>'+Array.from({length:12},function(_,i){return '<option value='+ (i+1) +'>'+ (i+1) +'월</option>';}).join('')+'</select></label>';
+    controls.innerHTML='<label>확인할 연도 <input id=home-review-year type=number min=2000 max=2100 value='+y+'></label><label>확인할 월 <select id=home-review-month>'+Array.from({length:12},function(_,i){return '<option value='+ (i+1) +'>'+ (i+1) +'월</option>';}).join('')+'</select></label>';
     root.before(controls);
     q('#home-review-month').value=m;
     controls.onchange=async function(){
@@ -818,7 +818,7 @@
     q('#home-slide-calendar').onclick=function(){selected=1;render();};
     render();
   }
-  Admin.ready(async function(){try{records=await ResourceStore.all();var mode=document.body.dataset.resource;if(mode==='list')await list();else if(mode==='home')await homePreview();else await edit();}catch(error){status('자료를 불러오지 못했습니다. 브라우저 저장소 사용 권한을 확인한 후 새로고침해 주세요.',true);}
+  Admin.ready(async function(){try{records=await ResourceStore.all();var mode=document.body.dataset.resource;if(mode==='list')await list();else if(mode==='home')await homePreview();else await edit();}catch(error){status('자료를 불러오지 못했습니다. 잠시 후 화면을 새로고침해 주세요.',true);}
     document.querySelectorAll('[data-flow-close]').forEach(function(btn){btn.onclick=function(){btn.closest('dialog').close();};});document.querySelectorAll('dialog.flow-zoom,dialog.flow-preview-dialog').forEach(function(d){d.addEventListener('click',function(e){var b=d.getBoundingClientRect();if(e.target===d&&(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom))d.close();});});var toggle=q('#resource-zoom-toggle');if(toggle)toggle.onclick=function(){q('.flow-zoom__viewport').classList.toggle('is-zoomed');};
     window.addEventListener('pagehide',function(){revoke(urls);revoke(previewUrls);});
   });

@@ -32,7 +32,11 @@ extraCss = ""
           <a class="btn" href="contents-list.asp">게시글 목록으로 이동</a>
         </div>
 
-        <p class="flow-guide">공지 원문은 공개 게시판에 표시합니다. 개인 납부 안내는 본인 알림과 납부현황으로 연결합니다. 공지 저장과 알림 발송은 별도입니다. 홈 긴급 안내는 지정 순서로 수동 전환하며 기간 종료·비공개 자료는 제외합니다.</p><form id="contents-form" class="form" data-mode="edit" novalidate hidden>
+        <ul class="flow-guide" id="contents-top-guide">
+          <li><strong>공개 설정</strong> : '공개'로 저장하면 설정한 게시기간 동안 홈페이지에 보입니다.</li>
+          <li><strong>긴급 설정</strong> : '사용'에 체크하면 긴급기간 동안 홈페이지 첫 화면 상단에도 함께 띄워줍니다. (기간 종료·비공개 시 자동 해제)</li>
+          <li><strong>알림 안내</strong> : 글을 저장해도 회원에게 문자·앱 알림이 자동 발송되지는 않습니다.</li>
+        </ul><form id="contents-form" class="form" data-mode="edit" novalidate hidden>
           <div class="form-row" id="contents-category-row" hidden>
             <span class="form-row__label" id="contents-category-label">카테고리<span class="required">*</span></span>
             <div class="form-row__controls">
@@ -50,7 +54,7 @@ extraCss = ""
                 </ul>
                 <input type="hidden" id="contents-category-picker" value="공지">
               </div>
-              <p class="form-help contents-category-card-note" id="contents-category-card-note" hidden>업장홍보는 홈페이지에서 카드형 게시판으로 표시되며, 본문 첫 이미지 또는 첨부 이미지가 대표 썸네일로 자동 사용됩니다.</p>
+              <p class="form-help contents-category-card-note" id="contents-category-card-note" hidden>이 게시판은 홈페이지에서 사진 카드 형태로 보이며, 유튜브 주소나 본문 첫 번째 사진(또는 첨부 이미지)이 자동으로 대표 사진이 됩니다.</p>
             </div>
           </div>
           <div class="form-row">
@@ -200,7 +204,10 @@ extraCss = ""
                   <input type="hidden" id="contents-related-target" value="">
                 </div>
               </div>
-              <p class="flow-guide" id="contents-related-guide">자료의 상세 이동만 설정합니다. 공지 저장과 알림 발송은 별도입니다. 알림 작성·대상 선택·발송·결과 확인은 자조금 통합 시스템에서 운영합니다. 비공개·삭제 자료는 앱에서 열리지 않습니다.</p>
+              <ul class="flow-guide" id="contents-related-guide">
+                <li>이 글과 함께 보면 좋은 과원관리·교육영상·게시글이 있을 때만 선택해 주세요. (없으면 비워두셔도 됩니다)</li>
+                <li>선택하면 글 상세 화면에 바로가기 버튼이 생기며, 비공개·삭제된 자료는 열리지 않습니다.</li>
+              </ul>
             </div>
           </div>
 
@@ -304,7 +311,7 @@ extraCss = ""
                 </div>
               </div>
               <ul class="upload-list" id="file-upload-list"></ul>
-              <p class="form-help">첨부파일은 서버(/uploads/board/) 및 데이터베이스에 안전하게 업로드됩니다.</p>
+              <p class="form-help">글에 함께 첨부할 문서나 이미지 파일을 여러 개 올릴 수 있습니다.</p>
               <p class="upload-note" id="file-upload-note" hidden></p>
               <p class="field-error" id="file-upload-error" hidden></p>
             </div>
@@ -384,7 +391,7 @@ extraCss = ""
         <button type="button" class="modal__close" data-modal-close aria-label="닫기">×</button>
       </div>
       <div class="modal__body">
-        <p id="contents-done-message">게시글이 시연용 데이터에 등록되었습니다.</p>
+        <p id="contents-done-message">게시글이 저장되었습니다.</p>
       </div>
       <div class="modal__footer">
         <button type="button" class="btn" id="contents-done-confirm">확인</button>

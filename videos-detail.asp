@@ -13,7 +13,7 @@ extraCss = ""
 
       <main class="main videos-page videos-detail">
         <h1 class="page-title">
-          <a href="videos-list.asp" data-video-leave>영상 관리</a>
+          <a href="videos-list.asp" data-video-leave>교육영상 관리</a>
           <span class="page-title__sep">&gt;</span>
           영상 상세
         </h1>
@@ -79,7 +79,7 @@ extraCss = ""
 
             <div class="videos-detail__fields">
               <p class="videos-original" data-video-source>
-                <span class="videos-original__label">원본 ID :</span>
+                <span class="videos-original__label">유튜브 영상 코드 :</span>
                 <span id="video-original-id"></span>
                 <span aria-hidden="true">/</span>
                 <span id="video-playable"></span>
@@ -142,7 +142,10 @@ extraCss = ""
             </div>
           </div>
 
-          <p class="flow-guide">메인 노출은 웹과 앱에서 함께 쓰는 설정입니다. 공개·재생 가능·게시기간 안이며 유효한 유튜브 URL이 있는 영상만 최대 3개까지 지정할 수 있습니다. 게시 시작일이 나중이어도 다른 메인 영상과 기간이 겹쳐 3개를 넘으면 저장할 수 없습니다.</p>
+          <ul class="flow-guide">
+            <li><strong>메인 노출</strong> : 체크하면 홈페이지와 앱 첫 화면에 대표 교육영상으로 표시됩니다.</li>
+            <li><strong>최대 3개 제한</strong> : 대표 영상은 게시기간이 겹치지 않게 최대 3개까지만 지정할 수 있습니다. (이미 3개가 켜져 있다면 기존 영상의 체크를 먼저 해제한 뒤 저장해 주세요)</li>
+          </ul>
 
           <div class="videos-detail__actions">
             <div class="contents-actions__group">

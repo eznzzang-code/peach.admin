@@ -46,11 +46,11 @@
       if(!q.title.trim())errors.push(`질문 ${i+1}의 제목이 비어 있습니다.`);
       if(['single','multi'].includes(q.type)&&(q.options.length<2||q.options.some(o=>!o.label.trim())))errors.push(`질문 ${i+1}의 선택지를 두 개 이상 입력해 주세요.`);
       const targets=q.type==='single'?q.options.map(o=>o.to||q.next):[q.next];
-      targets.forEach(t=>{if(t&&t!=='next'&&t!=='submit'&&form.questions.findIndex(x=>x.id===t)<=i)errors.push(`질문 ${i+1}: 이동 목적지는 뒤쪽 질문이어야 합니다. (${t})`);});
+      targets.forEach(t=>{if(t&&t!=='next'&&t!=='submit'&&form.questions.findIndex(x=>x.id===t)<=i)errors.push(`질문 ${i+1}: 다음으로 이동할 질문은 현재 질문보다 아래쪽에 있는 질문으로 선택해 주세요.`);});
     });
     const reached=new Set();
     function walk(i){if(i<0||i>=form.questions.length||reached.has(i))return;reached.add(i);const q=form.questions[i];const targets=q.type==='single'?q.options.map(o=>o.to||q.next):[q.next];targets.forEach(t=>{if(t==='submit')return;walk(!t||t==='next'?i+1:form.questions.findIndex(x=>x.id===t));});}
-    walk(0);form.questions.forEach((q,i)=>{if(!reached.has(i))errors.push(`질문 ${i+1}에 도달할 수 없습니다. 이동 설정을 확인해 주세요.`);});
+    walk(0);form.questions.forEach((q,i)=>{if(!reached.has(i))errors.push(`질문 ${i+1}번으로 이어지는 경로가 없습니다. 앞 질문의 답변별 이동 설정을 확인해 주세요.`);});
     return [...new Set(errors)];
   }
   function autoEnd(start){

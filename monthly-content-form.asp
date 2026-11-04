@@ -144,7 +144,7 @@ extraCss = ""
           <button type="button" class="btn" id="monthly-preview-web">Web 미리보기</button>
           <button type="button" class="btn" id="monthly-preview-app">App 미리보기</button>
         </div>
-        <p class="monthly-preview__note">관리자 검수용 미리보기입니다. 홈페이지와 앱 화면에는 아직 반영되지 않습니다.</p>
+        <p class="monthly-preview__note">저장하기 전 확인용 미리보기입니다. [등록] 또는 [저장] 버튼을 눌러야 실제 홈페이지와 앱에 반영됩니다.</p>
         <div id="monthly-preview-stage"></div>
       </div>
       <div class="modal__footer">

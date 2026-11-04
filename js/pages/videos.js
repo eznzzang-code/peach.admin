@@ -507,15 +507,15 @@
     }
     var hint = document.createElement('p');
     hint.className = 'flow-guide';
-    hint.textContent = '메인 노출 ' + (isMainSetting(v) ? '설정' : '해제') + '. 공개 전 검수용 화면이며 영상 재생은 연동 예정입니다.';
+    hint.textContent = '앱에서 보이는 화면 구성 미리보기입니다. (메인 노출 ' + (isMainSetting(v) ? '설정됨' : '설정 안 함') + ') 실제 재생은 [원본영상 보러가기]에서 확인하실 수 있습니다.';
     body.append(hint);
     d.showModal();
   }
   function list() {
     var page = 1, pageSize = 10, catalog = videos.filter(hasPlayableUrl), filtered = catalog.slice(), nav = q('[data-pagination]'), tbody = q('#videos-table tbody');
-    var info = document.createElement('p');
+    var info = document.createElement('ul');
     info.className = 'flow-guide';
-    info.textContent = '관리자가 입력한 유튜브 주소가 있는 영상만 목록에 표시합니다. 메인 배지는 공개·재생 가능·게시기간 안인 영상만 표시하고, 상단 개수와 같습니다. 메인 설정은 켜져 있으나 비공개이거나 게시기간이 아니면 노출 불가로 표시합니다.';
+    info.innerHTML = '<li><strong>노출 기준</strong> : \'공개\' 상태이면서 게시기간 안인 영상만 홈페이지·앱 첫 화면에 최대 3개까지 표시됩니다.</li><li><strong>상태 안내</strong> : [메인에 노출]이 켜져 있어도 비공개이거나 게시기간이 지난 영상은 \'노출 불가\'로 표시됩니다.</li>';
     q('#videos-table').closest('.table-wrap').before(info);
     var listQuery = new URLSearchParams(location.search);
     if (listQuery.get('saved') === '1' || listQuery.get('deleted') === '1') {

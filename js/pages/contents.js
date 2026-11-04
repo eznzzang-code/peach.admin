@@ -450,7 +450,7 @@
         var cardMode = isCardBoard(category);
         catCardNote.hidden = !cardMode;
         if (cardMode) {
-          catCardNote.textContent = categoryLabel(category) + " 게시판은 홈페이지에서 카드형으로 표시되며, 유튜브 URL·본문 첫 이미지 또는 첨부 이미지가 대표 썸네일로 자동 사용됩니다.";
+          catCardNote.textContent = categoryLabel(category) + " 게시판은 홈페이지에서 사진 카드 형태로 보이며, 유튜브 주소나 본문 첫 번째 사진(또는 첨부 이미지)이 자동으로 대표 사진이 됩니다.";
         }
       }
       var ytRow = qs("#contents-youtube-row");
@@ -1342,13 +1342,13 @@
 
     function showDone(isDraft) {
       var title = "등록 완료";
-      var message = "게시글이 데이터베이스에 등록되었습니다.";
+      var message = "게시글이 등록되었습니다.";
       if (isDraft) {
         title = "임시저장 완료";
-        message = "게시글이 데이터베이스에 임시저장되었습니다.";
+        message = "게시글이 임시저장되었습니다.";
       } else if (isEdit && editing && !editing.isDraft) {
         title = "수정 완료";
-        message = "게시글이 데이터베이스에 수정되었습니다.";
+        message = "게시글이 수정되었습니다.";
       }
       qs("#contents-done-title").textContent = title;
       qs("#contents-done-message").textContent = message;

@@ -1,5 +1,10 @@
 [hidden] { display: none !important; }
-.flow-guide { margin: 16px 0; padding: 14px 18px; background: #f4f7f4; color: #355242; line-height: 1.7; }
+.flow-guide { margin: 16px 0; padding: 14px 18px; background: #f4f7f4; color: #355242; line-height: 1.65; border-radius: 6px; }
+ul.flow-guide, .flow-guide ul { list-style: none; margin: 16px 0; padding: 14px 18px; display: flex; flex-direction: column; gap: 5px; }
+.flow-guide ul { margin: 0; padding: 0; }
+ul.flow-guide > li, .flow-guide ul > li { position: relative; padding-left: 14px; }
+ul.flow-guide > li::before, .flow-guide ul > li::before { content: "•"; position: absolute; left: 0; top: 0; color: #245d46; font-weight: 700; }
+.flow-guide strong { color: #1d3b2a; font-weight: 600; }
 .flow-pending { color: #865b20; background: #fff6e7; }
 .flow-error { color: #ae263b; white-space: pre-line; }
 .flow-status { min-height: 28px; margin: 12px 0; white-space: pre-line; }

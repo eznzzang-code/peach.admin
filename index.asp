@@ -25,7 +25,7 @@ extraCss = ""
           <div class="home-videos" id="home-videos"></div>
         </section>
 
-        <p class="home-note">이 화면은 홈페이지 메인에 사용 중인 콘텐츠를 보여 줍니다. 관리 화면의 저장이 홈페이지에 자동으로 반영되지는 않습니다.</p>
+        <p class="home-note">홈페이지와 앱 첫 화면에 현재 노출되고 있는 주요 콘텐츠 현황입니다. 각 관리 메뉴에서 저장·공개한 내용이 실제 화면에 반영됩니다.</p>
 
         <section class="home-recent" aria-labelledby="home-recent-title">
           <div class="home-section-head">

@@ -31,8 +31,8 @@ description: 복숭아자조금 PC관리자(peach.admin) 시스템 구조, DB �
 | **교육영상 관리** | `videos-list.asp`, `videos-detail.asp`, `videos-create.asp`<br>`proc/video_proc.asp` | 유튜브 URL 수동 등록/수정/삭제(`ExtractYouTubeId`로 썸네일 자동 생성), 메인 노출(`is_exposed='Y'`) 최대 3건 제한 |
 | **캘린더 관리** | `crop-calendar-list.asp`, `crop-calendar-detail.asp`, `crop-calendar-create.asp`, `crop-calendar-edit.asp`<br>`proc/calendar_proc.asp` | 생육·재배 캘린더 관리 |
 | **농가 및 과원 관리** | `orchard-tips-list.asp`, `orchard-tips-detail.asp`, `orchard-tips-create.asp`, `orchard-tips-edit.asp`<br>`proc/orchard_proc.asp` | 과원 관리 팁 조회/관리 |
-| **행사·교육참여 관리** | `events-list.asp`, `events-create.asp`, `events-edit.asp`, `events-detail.asp`, `events-applicants.asp`, `events-drafts.asp`, `events-calendar.asp`<br>`proc/participation_proc.asp` | 행사·교육 등록/수정/복제/삭제, 참석 정원·대기 설정, 신청자 현황(확정/대기/미참석) 및 엑셀 다운로드, 월별 일정표 |
-| **설문조사 관리** | `surveys-list.asp`, `surveys-create.asp`, `surveys-edit.asp`, `surveys-detail.asp`, `surveys-results.asp`, `surveys-drafts.asp`<br>`proc/participation_proc.asp` | 설문조사 등록/수정/복제/삭제, 문항별 답변 분기(이동 경로), 결과 차트·문항별 통계 및 응답 원본 엑셀 다운로드 |
+| **행사·교육참여 관리** | `events-list.asp`, `events-create.asp`, `events-edit.asp`, `events-detail.asp`, `events-applicants.asp`, `events-drafts.asp`, `events-calendar.asp`<br>`proc/participation_proc.asp` | 행사·교육 등록/수정/복제/삭제, 참석 정원·대기 설정, 신청자 현황(확정/대기/미참석) 및 2시트(`신청자 명단` + `접수 및 문항 요약`) 보고서형 `.xlsx` 엑셀 다운로드, 월별 일정표 |
+| **설문조사 관리** | `surveys-list.asp`, `surveys-create.asp`, `surveys-edit.asp`, `surveys-detail.asp`, `surveys-results.asp`, `surveys-drafts.asp`<br>`proc/participation_proc.asp` | 설문조사 등록/수정/복제/삭제, 문항별 답변 분기(이동 경로), 결과 차트·문항별 통계 및 2시트(`문항별 통계 요약` + `참여자별 상세 응답`) 보고서형 `.xlsx` 엑셀 다운로드 |
 | **외부/회원 참여 링크** | `participant.asp`<br>`js/participation/app.js`, `js/participation/store.js`, `js/participation/member-auth.js` | 관리자에서 사용자에게 전달하는 참여 링크(`js/participation/app.js`의 `link()`)가 사용자 도메인 `http://ko-peach.kr/participant.asp?participate={token}`으로 생성되며, 사용자 홈페이지(`c:\Workspace\peach` 및 FTP `/selfhelpPeach`)에도 동일 참여 모듈 배포 완료 |
 
 ---
@@ -68,11 +68,13 @@ description: 복숭아자조금 PC관리자(peach.admin) 시스템 구조, DB �
 ### 4.1 완료된 전체 메뉴 개편 및 신규 구축 현황
 - `운영자·권한 관리` 메뉴 제거 (`inc/sidebar.asp`, `index.asp`)
 - 헤더 우측 관리자 이름 클릭 시 `내 관리자 정보`(`admin-account.asp`) 이동 및 `회원가입`(`login.asp`) 연동
-- `게시글 관리` 채널 구분 제거 및 `협의회게시판`(`공지사항`·`언론보도`·`업장홍보`) / `복숭아정보`(`복숭아와 건강`·`복숭아관련 소식`·`복숭아 홍보`) 세부 카테고리 탭·드롭다운 확장 완료 (`재배자료`는 추후 `재배정보` 게시판용으로 유지)
+- `게시글 관리` 채널 구분 제거 및 `협의회게시판`(`공지사항`·`언론보도`·`업장홍보`) / `복숭아자조금`(`자조금 가입안내`·`자조금 사업현황`·`자조금 홍보`) / `복숭아정보`(`복숭아와 건강`·`복숭아관련 소식`·`복숭아 홍보`) 세부 카테고리 탭·드롭다운 확장 완료 (`재배자료`는 추후 `재배정보` 게시판용으로 유지)
 - `교육영상 관리` 유튜브 URL 직접 등록/수정/삭제 및 메인노출 최대 3건 제한 적용
 - **신규 `행사·교육참여 관리` (`events-*.asp`) 및 `설문조사 관리` (`surveys-*.asp`), 외부/회원 참여 페이지 (`participant.asp`) 구축 완료**:
   - 좌측 사이드바(`inc/sidebar.asp`) `교육영상 관리` 하단에 `행사·교육참여 관리`, `설문조사 관리` 메뉴 연결 완료
   - 전용 CSS(`css/participation/*.css` 7종) 및 JS(`js/participation/*.js` 8종) 반영, `store.js` 및 `member-auth.js`를 `proc/participation_proc.asp` DB API와 직결
+- **전 메뉴 안내 문구·용어 일반인 눈높이 평문 한국어 전면 개편 완료 (`2026-11-04`)**:
+  - 초기 시연/프로토타입 잔재 문구(`시연용`, `브라우저 저장소`, `connected=1`, `데이터베이스에 저장`, `자동 일괄 공개 규칙`, `지정 순서로 수동 전환` 등) 전량 제거 및 비전공 실무자 기준의 직관적 안내문으로 교체 완료
 
 ---
 

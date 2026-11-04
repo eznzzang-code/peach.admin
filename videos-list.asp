@@ -2,7 +2,7 @@
 <!--#include file="inc/common.asp"-->
 <%
 Dim pageTitle, pageId, currentMenu, currentMenuGroup, extraCss, extraScript
-pageTitle = "영상 관리"
+pageTitle = "교육영상 관리"
 pageId = "videos"
 currentMenu = "videos"
 currentMenuGroup = ""
@@ -12,7 +12,7 @@ extraCss = ""
 <!--#include file="inc/sidebar.asp"-->
 
       <main class="main videos-page">
-        <h1 class="page-title">영상 관리</h1>
+        <h1 class="page-title">교육영상 관리</h1>
 
         <div class="list-filters">
           <div class="select" data-select>

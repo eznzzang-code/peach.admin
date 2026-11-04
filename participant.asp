@@ -24,11 +24,11 @@ Session.CodePage = 65001
   <link rel="stylesheet" href="css/participation/integration.css?v=20261029.1">
   <link rel="stylesheet" href="css/participation/event-participant.css?v=20261029.1">
   <link rel="stylesheet" href="css/participation/member-auth.css?v=20261029.1">
-  <script defer src="js/participation/model.js?v=20261102.1"></script>
+  <script defer src="js/participation/model.js?v=20261104.5"></script>
   <script defer src="proc/participation_proc.asp?action=bootstrap_js&_=<%=Timer%>"></script>
   <script defer src="js/participation/store.js?v=20261102.1"></script>
   <script defer src="js/participation/runtime.js?v=20261029.1"></script>
-  <script defer src="js/participation/participant-ui.js?v=20261029.1"></script>
+  <script defer src="js/participation/participant-ui.js?v=20261104.5"></script>
   <script defer src="js/participation/member-auth.js?v=20261029.1"></script>
   <script defer src="js/participation/portal.js?v=20261103.1"></script>
 </head>

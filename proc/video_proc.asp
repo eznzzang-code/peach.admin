@@ -209,7 +209,7 @@ Select Case action
       End If
 
       Dim attachJson
-      If Not IsNull(rs("attach_name")) And CStr(rs("attach_name")) <> "" Then
+      If CStr(rs("attach_name") & "") <> "" Then
         attachJson = "{""name"":""" & JsonEscape(rs("attach_name")) & """,""path"":""" & JsonEscape(rs("attach_path")) & """}"
       Else
         attachJson = "null"

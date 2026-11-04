@@ -269,10 +269,12 @@ Function BuildListJson()
   Loop
 
   ' [ResultSet 2] 응답/신청 내역
+  Dim isAdminSession
+  isAdminSession = (Trim(CStr(Session("ADMIN_ID") & "")) <> "")
   Set rs = rs.NextRecordset
   If Not (rs Is Nothing) Then
     Do While Not rs.EOF
-      Dim rFormId, subId, fRevision, srcType, memId, memName, respId, enrollSt, ansJson, pathJson, conSnap, subIso
+      Dim rFormId, subId, fRevision, srcType, memId, memName, memPhone, respId, enrollSt, ansJson, pathJson, conSnap, subIso
       rFormId   = CStr(rs("form_id") & "")
       subId     = CStr(rs("submission_id") & "")
       fRevision = SafeLng(rs("form_revision"), 1)
@@ -281,6 +283,11 @@ Function BuildListJson()
       If srcType = "" Then srcType = "participation"
       memId     = rs("member_id")
       memName   = rs("member_name")
+      If isAdminSession And CStr(rs("member_phone") & "") <> "" Then
+        memPhone = FormatHyphenPhone(CleanDigits(CStr(rs("member_phone") & "")))
+      Else
+        memPhone = Null
+      End If
       respId    = rs("respondent_id")
       enrollSt  = rs("enrollment_status")
       ansJson   = JsonRawOrDefault(rs("answers_json"), "{}")
@@ -296,6 +303,7 @@ Function BuildListJson()
         """source"":""" & JsonEscape(srcType) & """," & _
         """memberId"":" & JsonStrOrNull(memId) & "," & _
         """memberName"":" & JsonStrOrNull(memName) & "," & _
+        """memberPhone"":" & JsonStrOrNull(memPhone) & "," & _
         """respondentId"":" & JsonStrOrNull(respId) & "," & _
         """enrollment"":" & JsonStrOrNull(enrollSt) & "," & _
         """at"":""" & JsonEscape(subIso) & """," & _
